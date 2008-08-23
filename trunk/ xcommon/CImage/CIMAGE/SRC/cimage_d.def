@@ -1,0 +1,7 @@
+; cimage_d.def : 
+
+LIBRARY      cimage_d
+DESCRIPTION  'CIMAGE (Debug)'
+
+EXPORTS
+   DllMain
