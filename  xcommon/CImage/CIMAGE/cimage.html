@@ -1,0 +1,370 @@
+<!--------------------------------------------------------------------------->  
+<!--                           INTRODUCTION                                
+
+ The Code Project article submission template (HTML version)
+
+Using this template will help us post your article sooner. To use, just 
+follow the 3 easy steps below:
+ 
+     1. Fill in the article description details
+     2. Add links to your images and downloads
+     3. Include the main article text
+
+That's all there is to it! All formatting will be done by our submission
+scripts and style sheets. 
+
+-->  
+<!--------------------------------------------------------------------------->  
+<!--                        IGNORE THIS SECTION                            -->
+<html>
+<head>
+<title>The Code Project</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<Style>
+BODY, P, TD { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt }
+H2,H3,H4,H5 { color: #ff9900; font-weight: bold; }
+H2 { font-size: 13pt; }
+H3 { font-size: 12pt; }
+H4 { font-size: 10pt; color: black; }
+PRE { BACKGROUND-COLOR: #FBEDBB; FONT-FAMILY: "Courier New", Courier, mono; 
+      WHITE-SPACE: pre; }
+CODE { COLOR: #990000; FONT-FAMILY: "Courier New", Courier, mono; }
+</style>
+</head>
+<body bgcolor="#FFFFFF" color=#000000>
+<!--------------------------------------------------------------------------->  
+
+
+<!-------------------------------     STEP 1      --------------------------->
+<!--  Fill in the details (CodeProject will reformat this section for you) -->
+
+<pre>
+Title:       Drawing transparent bitmaps using <code>CImage</code>
+Author:      Troels Knakkergaard
+Email:       troels@knakkergaard.dk
+Environment: VC++ 6.0, NT 4.0, Win95/98/2000
+Keywords:    Bitmap Transparent CMemDC CImage CxImage 
+Level:       Intermediate
+Description: Universal implementation of transparent drawing of bitmap files (BMP, JPEG, GIF, PNG). Based on the method described by Chris Becke and Raja Segar. 
+Section      Bitmaps & Palettes
+SubSection   Bitmaps
+</pre>
+
+<hr width=100% noshade>
+
+<!-------------------------------     STEP 2      --------------------------->
+<!--  Include download and sample image information.                       --> 
+
+<ul class=download>
+<li><a href="cimage.zip">Download demo project and source 1.2 Mb </a></li>
+</ul>
+
+<!-------------------------------     STEP 3      --------------------------->
+<!--  Add the article text. Please use simple formatting (<h2>, <p> etc)   --> 
+
+<p><img src="cimage.gif" alt="Transparent GIF"></p>
+
+<H2>Abstract</H2>
+<p>
+The article <a href="http://www.codeproject.com/bitmap/transbitmapmask.asp">Drawing Transparent Bitmap with ease with on the fly masks in MFC</a>
+demonstrates how to draw CBitmap transparently. The article doesn't include a demo project. Here you'll find a complete
+implementation including a demo project. This implementation brings the transparency technique into a larger context
+than CBitmap, as it's able to read and draw several file formats, including file formats with built-in transparency (PNG and GIF).
+</p>
+
+<H2>CImage</H2>
+<p>
+There are many bits and pieces on painting and manipulating bitmaps in this Code Project section, but we are in dire need 
+of a complete DIB class. Windows doesn't help out much. The bitmap API is rudimentary. 
+If you only want to paint bitmaps of various formats, IPicture/OleLoadPicturePath looks like it. 
+Only it doesn't support PNG! Nor animated GIF. Obviously Internet Explorer doesn't use this API. Perhaps they're using <code>CImage</code>!</br>
+<code>CImage</code> was created back in 1996 by Julian Smart, who adopted code from Alejandro Aguilar Sierra.
+Julian Smarts implementation uses MFC for no apparant reason (so we all do from time to time), and is somewhat cluttered, 
+but a great first step on the way.
+He seems to have lost interest in the project on July 18th 1998, since when it wasn't maintained.
+Recently Davide Pizzolato adopted the class, renaming it <code>CxImage</code>. He added several file formats and fixed up the code but
+did nothing about the structure of the code. Most of the clutter of 1998 is still there, and then some. </br>
+I've undertaken to fix up the <code>CImage</code>/<code>CxImage</code> code as well as adding value, especially 
+transparent painting of bitmaps. How were we supposed to do without? To some readers the decoupling of the <code>CImage</code> class from MFC might be of interest, 
+as it makes it a breeze to take <code>CImage</code> to compilers other than Microsoft Visual C++. This is in accordance with
+the image reader libraries (JPEG, TIFF, PNG) on which this is based. They're totally cross-platform.</br>
+For the MFC programmers I'm providing a derived class, <code>CImageObject</code>. It's a neat MFC wrapper around <code>CImage</code>.
+</p>
+<p>
+Please consider this contribution one step towards making production code out of <code>CImage</code>.
+</p>
+
+<H2>Code highlights:</H2>
+<pre>
+
+// cimage.h
+
+// The base class CImageBase is a simple interface class, just a vtable placeholder.
+// Gives you an idea of what behavior you might want to change in a derived class.
+// DrawImplementation is the most interesting, as different projects have different objectives 
+// (drawing speed over capabilities or vice versa etc.)
+
+class CImageBase
+{
+...
+   virtual BOOL DrawImplementation(HDC hdc, int xDst, int yDst...
+...
+};
+
+// The derived class, CImage, know about Windows DIB handling. 
+// It also reads and writes bitmaps from/to different file formats
+
+class CImage : public CImageBase
+{
+...
+   virtual BOOL DrawImplementation(HDC hdc...
+   BOOL CreateFromFile(LPCSTR  filename, enum cximage_type);
+   BOOL Save(LPCSTR  filename, enum cximage_type);
+
+   virtual BOOL Read (FILE*, enum cximage_type);
+   virtual BOOL Write(FILE*, enum cximage_type);
+
+// Operations - special effects
+public:
+   BOOL Flip();
+   BOOL Mirror();
+   BOOL Negative();
+   BOOL GreyScale();
+   BOOL Rotate(double angle);
+   BOOL Exchange(COLORREF, COLORREF);
+   BOOL WalkColors(COLORREF(*manipulate)(BYTE r, BYTE g, BYTE b, LPVOID), LPVOID lpUser = NULL);
+...
+};
+
+// imgobj.h
+
+// The class CImageObject, brings CImage in line with MFC by deriving from CObject and implementing Serialize
+
+class CImageObject : public CImage, public CObject
+{
+...
+   virtual void Serialize(CArchive&);
+   virtual void Close(void);
+...
+   BOOL Read(CStdioFile*);
+   BOOL Write(CStdioFile*);
+   BOOL Draw(CDC*, int xDst = 0, int yDst = 0, int cxDst = -1, int cyDst = -1, 
+                   int xSrc = 0, int ySrc = 0, int cxSrc = -1, int cySrc = -1);
+...
+};
+
+// trans.c
+
+// Implementation of DrawTransparentBitmap, used by CImage::DrawImplementation
+
+EXTERN_C BOOL WINAPI DrawTransparentBitmap(HDC hdcDst, HDC hdcImage, COLORREF crTransparent...
+
+</pre>
+
+<H2>CImage structure</H2>
+<p>Many people are confused by the specialized classes derived from <code>CImage</code>, eg. CImageGIF. 
+Actually these specialized classes are to be considered implementation details:
+The CImageGIF isn't really a GIF class, but merely an import/export class that knows about the specific graphics format's file layout.
+It's all one class, so to speak (<code>CImage</code>). <br>
+There's no GIF class proper. <code>CImage</code> converts all file formats into DIB. <code>CImage</code> is a Windows DIB class, it can hold only a Windows DIB image (and will not
+easily port to other platforms).<br>
+In the table below, you can observe how the library's implemented in layers, with the Demo application sitting on the top of it all. 
+The Demo uses only class <code>CImage</code> and considers it a blackbox, and so can you.
+
+<table border="1" width="100%">
+    <tr>
+        <td colspan="10"><p align="center">Demo application - C++
+        code</p>
+        </td>
+    </tr>
+    <tr>
+        <td align="center" colspan="9"><p align="center">CImage -
+        C++ code</p>
+        </td>
+        <td rowspan="4"><p align="center">MFC + <br>
+        C Runtime Library</p>
+        <p align="center">&nbsp;</p>
+        <p align="center">&nbsp;</p>
+        <p align="center">&nbsp;</p>
+        </td>
+    </tr>
+    <tr>
+        <td><p align="center">CImageGIF<br>
+        (C++ code)</p>
+        </td>
+        <td colspan="2"><p align="center">CImagePNG<br>
+        (C++ code)</p>
+        </td>
+        <td><p align="center">CImageJPEG<br>
+        (C++ code)</p>
+        </td>
+        <td><p align="center">CImageTIFF<br>
+        (C++ code)</p>
+        </td>
+        <td><p align="center">CImageBMP<br>
+        (C++ code)</p>
+        </td>
+        <td colspan="2"><p align="center">CImageIcon<br>
+        (C++ code)</p>
+        </td>
+        <td rowspan="3"><p align="center">Windows API + <br>
+        C Runtime Library</p>
+        <p align="center">&nbsp;</p>
+        <p align="center">&nbsp;</p>
+        </td>
+    </tr>
+    <tr>
+        <td><p align="center">C Runtime Library</p>
+        </td>
+        <td align="center" colspan="2"><p align="center">PNG<br>
+        (C code)</p>
+        </td>
+        <td><p align="center">JPEG<br>
+        (C code)</p>
+        </td>
+        <td><p align="center">TIFF<br>
+        (C code)</p>
+        </td>
+        <td colspan="3"><p align="center">Windows API + C Runtime
+        Library</p>
+        </td>
+    </tr>
+    <tr>
+        <td><p align="center">&nbsp;</p>
+&nbsp;        </td>
+        <td><p align="center">ZLIB<br>
+        (C code)</p>
+        </td>
+        <td><p align="center">C Runtime Library</p>
+        </td>
+        <td><p align="center">C Runtime Library</p>
+        </td>
+        <td><p align="center">C Runtime Library</p>
+        </td>
+        <td colspan="3"><p align="center">&nbsp;</p>
+&nbsp;        </td>
+    </tr>
+</table></p>
+
+<H2>Notes on code quality:</H2>
+<p>- I consider the ZLIB, JPEG, TIFF and PNG libraries production code.<br>
+- The <code>CImage</code> class still have some way to go.<br>
+- The Demo application as provided is a 'clean' MFC application, more so than the earlier attempts, and is now a fine 
+boilerplate MFC application, I think.</p>
+
+<table border="0">
+    <tr>
+        <td><H2>CImage Project Settings</H2>The actual library is project imagedll and imagelib, for DLL and lib builds. <br>
+        Only Debug and Release is needed. imagedll/lib contains all the actual bitmap code, including the jpeg, png and tiff code. 
+        zlib is kept out, as it isn't image code as such.<br>
+        Unicode build is not needed, as there isn't much string handling left in <code>CImage</code></td>
+        <td><img src="project.gif" alt="Project Targets"></td>
+    </tr>
+    <tr>
+        <td><H2>Demo Project Settings</H2>Here you see combinations of the _MBCS, _UNICODE and _IMAGEDLL compiler options. Pick and choose.<br>
+        (All are _AFXDLL.)<br>
+        </td>
+        <td><img src="demo.gif" alt="Demo Targets"></td>
+    </tr>
+</table>
+
+
+<H2>Of interest</H2>
+<li><a href="http://www.anthemion.co.uk/code.htm">CImage 1.4 by Julian Smart</a></li>
+<li><a href="http://www.codeproject.com/bitmap/cximage.asp">CxImage 1.1 by Davide Pizzolato</a></li>
+<li><a href="http://www.codeproject.com/bitmap/transbitmapmask.asp">Drawing Transparent Bitmap with ease with on the fly masks in MFC</a></li>
+
+<H2>Author's points of view as exercised on CImage:</H2>
+<p>
+- Don't implement it using MFC if it's just as easy to implement without<br>
+- Don't implement it using STL if it's just as easy to implement using MFC<br>
+- Don't implement it in C++ if it's just as easy to implement in C. <br>
+- I like all of them (except STL)<br>
+- Keep <code>char</code> usage on a minimum, make the code Unicode-compatible.<br>
+- Keep it simple.<br>
+</p>
+
+<H2>TO DO:</H2>
+<p>
+- Clean up Copy/Transfer/Detach/Ghost/constructor mess<br>
+- Implement reference counting a la CString<br>
+- Will somebody provide a WTL Demo application?<br>
+- DrawTransparentBitmap fails on the printer on 'large' images. Any suggestions?<br>
+- The code generates loads of warnings, mostly because of BYTE variable. Should use int.<br>
+</p>
+
+<H2>CImage history:</H2>
+<p>
+<b><code>CImage</code> 1.4.1</b>: Added transparent draw. fopen/fclose clutter removed. Unicode enabled. Cleaned up the project workspace. 
+Added Unicode and DLL targets. Removed remaining MFC dependencies.<br>
+<code>CxImage</code> 1.1: Some support for multi-image files. In the Demo application, I contributed printing support, 
+CMemDC usage, hatched background. I also wrote CxImageGIF::Decode, adding (rudimentary) support of animated GIF.<br>
+<code>CxImage</code> 1.0: Davide Pizzolato added much value, including support for ICON and TIFF and true color. He removed most MFC dependencies, but didn't go all the way for some reason.<br>
+<code>CImage</code> 1.4: Julian Smart supported JPEG, PNG, BMP and GIF - 256 colors only.<br>
+</p>
+<p>The MFC Demo application included with <code>CImage</code> and <code>CxImage</code> are coded in a way rather insensitive to MFC paradigms, ignoring 
+printing, print preview and abusing CScrollView. The Demo application supplied here remedies that.</p>
+
+<H2>CImage change log:</H2>
+<p>
+<b>Version 1.4.1</b> - Aug. 29th 2001 (Troels K.)<br>
+- Merged with <code>CxImage</code> 1.01<br>
+Changes in project file:<br>
+- Utilizing Project|Dependencies<br>
+- Proper output directory structure (LIB, Release\Unicode etc.)<br>
+Changes in <code>CImage</code> and derived classes:<br>
+- Implemented transparency on screen and printer (<code>CImage</code>::Draw)<br>
+- Unicode-enabled ("const char* filename" -> FILE* )<br>
+- MFC-style CreateFromFile/Close member functions (ReadFile/SaveFile)<br>
+- Removed silly MFC-dependency (#include afxwin.h)<br>
+- 'Bug' fix in TIFF: jconfig.vc -> jconfig.h<br>
+- Created tif_c.c<br>
+- Bug fix in <code>CImage</code>::LoadResource (tmpfile never closed)<br>
+- Bug fix in CImagePNG::SaveFile (assert i delete [])<br>
+- Bug fix in CImageGIF::Open (bad pack)<br>
+- Bug fix in CImageGIF::SaveFile(ignored transparency)<br>
+- Added WalkColors/Greyscale method<br>
+- Enabled handling of animated gif's (CImageGIF::Open).<br>
+- Enabled reading of RLE-compressed bitmaps<br>
+- Bug fix: Rotate didn't handle transparency (<code>CImage</code>::Rotate)<br>
+- Bug fix: Memory corruption in <code>CImage</code>::<code>CImage</code>(HBITMAP)<br>
+- Bug fix: GDI resource leakage in <code>CImage</code>::<code>CImage</code>(HBITMAP)<br>
+Changes in Demo application:<br>
+- Now utilizing CMemDC+CScrollView+CPreviewView+CArchive<br>
+- Added Unicode build<br>
+- Added serializing (CImageObject)<br>
+- Added hatched background<br>
+- Reorganized resource bitmaps<br>
+- Gif resource bitmap transparent to demonstrate transparent draw<br>
+</p>
+<p>Version 1.4.0.1 - Aug. 22th 2001 (Troels K.)<br>
+- Merged with <code>CxImage</code> 1.0<br>
+<p>Version 1.4 - July 18th 1998 (Julian Smart):<br>
+Fixed code creating a CBitmap from a <code>CImage</code> again...<br>
+Fixed MakeBitmap (Brett Levine).<br>
+Fixed memory leak in imajpg.cpp; added PNG 1.0.1 updates. Fixes by Konstantin Mihailov.<br>
+Fixed problem saving JPEG files, from Lars Bullwinkel.</p>
+<p>Version 1.3 - June 28th 1997 (Julian Smart):<br>
+Fixed code creating a CBitmap from a <code>CImage</code> (I hope).<br>
+Added contributed GIF writing code from Randy Spann.</p>
+<p>Version 1.2 - January 18th 1997 (Julian Smart):<br>
+Fixed code creating a <code>CImage</code> from a CBitmap, and added test to demo (under File menu).</p>
+<p>Version 1.1 - January 9th 1997 (Julian Smart):<br>
+Fixed a problem with compiling the JPEG library (defining FAR) and changed the library directories to Debug and Release, instead of lib.</p>
+<p>Version 1.0 - December 23rd 1996 (Julian Smart):<br>
+First release, based on the wxWindows wxImage class and many other bits and pieces.
+</p>
+
+<H2>CImage Q&A:</H2>
+<p>
+Q: How do I create transparent bitmaps?<br> 
+A: Save the file in formats PNG or GIF, using Paint Shop Pro or the like<br> 
+Q: I don't want to use either format, Unisys owns GIF and PNG is too esoteric for me, what to do?<br> 
+A: Save as regular Windows BMP, and in your application, set the transparent color of your choice using CImage::SetBkColor. (It only works for palette bitmaps.)<br> 
+Q: ...but I'm not ready for CImage. I want to use IPicture.<br> 
+A: Then use IPicture, and bring in only trans.c. It's universal.<br> 
+</p>
+
+<!-------------------------------    That's it!   --------------------------->
+</body>
+</html>
