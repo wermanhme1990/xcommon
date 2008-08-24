@@ -8,6 +8,11 @@ Copyright (c) 2002-2003 汉王科技有限公司. 版权所有.
 #ifndef HWXUE_CString_H_INC
 #define HWXUE_CString_H_INC
 //
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
+
+
 #include "Ext_Memory.h"
 #include "HWXPackage.h"
 #include <vector>
@@ -27,6 +32,7 @@ typedef CXStringA CXStringT;
 typedef CXStringT CXString;
 
 typedef CXStringT CHWXString;
+
 class DLLXEXPORT CXStringW
 {  
 private:  

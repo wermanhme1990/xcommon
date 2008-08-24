@@ -70,6 +70,7 @@ public:
   virtual void PostNcDestroy();  
   virtual afx_msg void OnSize(UINT nType, int cx, int cy);
 	virtual afx_msg int OnMouseActivate(CWnd* pDesktopWnd, UINT nHitTest, UINT message);
+	
   virtual void OnActivateFrame(UINT nState, CFrameWnd* pDeactivateFrame);
 	virtual void OnActivateView(BOOL bActivate, CView* pActiveView, CView* pDeactiveView);	
 };

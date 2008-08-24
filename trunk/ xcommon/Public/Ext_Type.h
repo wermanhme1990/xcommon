@@ -197,5 +197,48 @@ typedef struct tagCnd8
 #define HW_StrokeEndMark  (-1)
 
 
+//#define SAFE_DELETE(ptr)
+#undef SAFE_DELETE
+#define SAFE_DELETE(ptr) \
+	if (ptr)\
+{ \
+	delete ptr;\
+	ptr = NULL; \
+}
+
+//#define SAFE_DELETE_AR(ptr)
+#undef SAFE_DELETE_AR
+#define SAFE_DELETE_AR(ptr) \
+	if (ptr) \
+{ \
+	delete [] ptr; \
+	ptr = NULL; \
+}
+
+//#define SAFE_DELETE_HICON(hIcon)
+#undef SAFE_DELETE_HICON
+#define SAFE_DELETE_HICON(hIcon) \
+	if (hIcon) \
+{\
+	::DestroyIcon(hIcon); \
+	hIcon = NULL;\
+}
+
+
+//#define SAFE_DELETE_OBJ(obj)
+#undef SAFE_DELETE_OBJ
+#define SAFE_DELETE_OBJ(obj) \
+	if (obj.GetSafeHandle()) \
+	{\
+		obj.DeleteObject();\
+	}
+
+#undef SAFE_FREE_LIBRARY(hModel)
+#define SAFE_FREE_LIBRARY(hModel) \
+	if (hModel)\
+	{\
+		::FreeLibrary(hModel);\
+		hModel = NULL;\
+	}
 #endif//HWXUE_EXT_TYPE_H_INC
 

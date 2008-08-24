@@ -33,6 +33,7 @@ public:
 	
 // Implementation
 protected:
+	BOOL m_bAdjustToFit;
 	// Generated message map functions
 	//{{AFX_MSG(CXTransparentStatic)
 		// NOTE: the ClassWizard will add member functions here
@@ -40,6 +41,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg HBRUSH CtlColor(CDC* pDC, UINT nCtlColo);
+	void PositionWindow();
+
 };
 
 #endif X_TRANSPARENTSTATIC

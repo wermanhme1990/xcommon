@@ -13,35 +13,31 @@ public:
 	CXReg(HKEY hRootKey = HKEY_LOCAL_MACHINE); //构造函数带有默认参数
 	virtual ~CXReg();
 
-public:
+	BOOL VerifyValue(LPCTSTR, LPCTSTR);
 	BOOL VerifyKey (LPCTSTR pszPath); 
-	BOOL VerifyValue (LPCTSTR pszValue);
-	void SetRootKey(HKEY hRootKey);	
-	BOOL CreateKey (LPCTSTR pszPath);
-	void Close();
+	void Attach(HKEY hRootKey);	
 
-	BOOL DeleteValue (LPCTSTR pszValue);
-	BOOL DeleteKey (LPCTSTR pszPath);
-	BOOL DeleteKey();
+	BOOL DeleteValue (LPCTSTR lpszKey, LPCTSTR pszValue);
+	void DeleteKey (LPCTSTR pszPath);	
 
-	BOOL Write (LPCTSTR pszKey, DWORD dwVal);
-	BOOL Write (LPCTSTR pszKey, LPCTSTR pszVal);
-	BOOL Write (LPCTSTR pszKey, const BYTE *pbVal, DWORD dwSize);
+	BOOL Write (LPCTSTR lpszKey, LPCTSTR lpszValue, DWORD dwVal);
+	BOOL Write (LPCTSTR lpszKey, LPCTSTR lpszValue, LPCTSTR pszVal);
+	BOOL Write (LPCTSTR lpszKey, LPCTSTR lpszValue, const BYTE *pbVal, DWORD dwSize);
 
-	BOOL Read (LPCTSTR pszKey, DWORD& dwVal);
-	BOOL Read (LPCTSTR pszKey, CXString& sVal);
-	BOOL Read (LPCTSTR pszKey, BYTE *pbVal, DWORD dwSize);
+	BOOL Read (LPCTSTR lpszKey, LPCTSTR lpszValue, DWORD& dwVal);
+	BOOL Read (LPCTSTR lpszKey, LPCTSTR lpszValue, CXString& sVal);
+	BOOL Read (LPCTSTR lpszKey, LPCTSTR lpszValue, BYTE *&pbVal, DWORD &dwSize);
 
-	BOOL IsEqual(LPCTSTR pszValue,int nn);
-	BOOL IsEqual(LPCTSTR pszValue,DWORD dw);
-	BOOL IsEqual(LPCTSTR pszValue,LPCTSTR lpsz);
+	BOOL IsEqual(LPCTSTR lpszKey, LPCTSTR pszValue,DWORD dw);
+	BOOL IsEqual(LPCTSTR lpszKey, LPCTSTR pszValue,LPCTSTR lpsz);
 
-	BOOL RestoreKey(LPCTSTR lpFileName);
-	BOOL SaveKey(LPCTSTR lpFileName);
-private:
+	BOOL RestoreKey(LPCTSTR lpszKey, LPCTSTR lpFileName);
+	BOOL SaveKey(LPCTSTR lpszKey, LPCTSTR lpFileName);
+private:	
 	void DeletaKeyTree(HKEY);
-protected:	
-	HKEY 	  m_hSubKey;    //保存打开的子键句柄
+	HKEY OpenKey(LPCTSTR lpszKey, REGSAM = KEY_ALL_ACCESS);
+	HKEY CreateKey (LPCTSTR lpszKey, REGSAM	= KEY_ALL_ACCESS);
+protected:		
 	HKEY    m_hRootKey;   //保存根键句柄
 };
 

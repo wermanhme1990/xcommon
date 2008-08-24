@@ -9,9 +9,8 @@
 * 说明：      如果构造函数不带参数，则使用默认的参数，m_hRootKey被初始化
 			  为HKEY_LOCAL_MACHINE, 如果带有参数则 m_hRootKey为指定的值
 ================================================================*/ 
-CXReg::CXReg(HKEY hRootKey) :m_hSubKey(NULL)
-{
-	m_hRootKey = hRootKey; 
+CXReg::CXReg(HKEY hRootKey) : m_hRootKey(hRootKey)
+{	
 }
  /************************************************************************
  名称:	SetRootKey
@@ -21,7 +20,7 @@ CXReg::CXReg(HKEY hRootKey) :m_hSubKey(NULL)
  功能:	 设置根键值
  参数:	HKEY hRootKey: 
  ************************************************************************/
-void CXReg::SetRootKey( HKEY hRootKey )
+void CXReg::Attach( HKEY hRootKey )
 {
 	assert(NULL != hRootKey);
 	m_hRootKey = hRootKey;
@@ -29,7 +28,7 @@ void CXReg::SetRootKey( HKEY hRootKey )
 
 CXReg::~CXReg() //在析构函数中关闭打开注册表句柄
 {
-	Close();
+	m_hRootKey = NULL;
 }
 
 /*================================================================ 
@@ -43,41 +42,21 @@ CXReg::~CXReg() //在析构函数中关闭打开注册表句柄
 BOOL CXReg::VerifyKey (LPCTSTR pszPath)
 {
  	BOOL blRet = TRUE;
-	if (NULL != m_hSubKey)
-	{
-		RegCloseKey(m_hSubKey);
-		m_hSubKey = NULL;
-	}
-	if(ERROR_SUCCESS != RegOpenKeyEx (m_hRootKey, pszPath, 0L,
-										KEY_ALL_ACCESS, &m_hSubKey))
+	HKEY hKey = NULL;
+	if(ERROR_SUCCESS != RegOpenKeyEx (m_hRootKey, pszPath, 0L, KEY_ALL_ACCESS, &hKey))
 	{	
-		blRet = FALSE;
-		goto Err;
+		blRet = FALSE;		
 	}
-Err:
-	return blRet;
-}
-
-
-/*================================================================ 
-* 函数名：    VerifyValue
-* 参数：      (LPCTSTR pszValue)
-* 功能描述:   判断给定的值是否存在 （请先调用VerifyKey，然后在使用该函数）
-* 返回值：    BOOL
-* 作 者：     
-================================================================*/ 
-BOOL CXReg::VerifyValue (LPCTSTR pszValue)
-{
-	BOOL blRet = FALSE;
-	if(ERROR_SUCCESS == RegQueryValueEx(m_hSubKey, pszValue, NULL,
-		NULL, NULL, NULL))
+	if (hKey)
 	{
-		blRet = TRUE;
-		goto Err;
+		RegCloseKey(hKey);
+		hKey = NULL;
 	}
-Err:
 	return blRet;
 }
+
+
+
 
 /*================================================================ 
 * 函数名：    VerifyValue
@@ -86,21 +65,23 @@ Err:
 * 返回值：    BOOL
 * 作 者：     
 ================================================================*/ 
-BOOL CXReg::IsEqual(LPCTSTR pszValue,DWORD dwValue)
+BOOL CXReg::IsEqual(LPCTSTR pszKey, LPCTSTR pszValue, DWORD dwValue)
 {
 	DWORD dwTemp;
-	Read(pszValue, dwTemp);
-	if(dwTemp == dwValue)
-		return TRUE;
-	return FALSE;
+	if (!Read(pszKey, pszValue, dwTemp))
+	{
+		return FALSE;
+	}		
+	return dwTemp == dwValue;
 }
-BOOL CXReg::IsEqual(LPCTSTR pszValue,LPCTSTR lpszString)
+BOOL CXReg::IsEqual(LPCTSTR pszKey, LPCTSTR pszValue,LPCTSTR lpszString)
 {
 	CXStringT str;
-	Read(pszValue, str);
-	if(0 == str.CompareNoCase(lpszString))
-		return TRUE;
-	return FALSE;
+	if (!Read(pszKey, pszValue, str))
+	{
+		return FALSE;
+	}	
+	return str.CompareNoCase(lpszString);	
 }
 
 
@@ -111,19 +92,13 @@ BOOL CXReg::IsEqual(LPCTSTR pszValue,LPCTSTR lpszString)
 * 返回值：    BOOL
 * 作 者：     
 ================================================================*/ 
-BOOL CXReg::CreateKey (LPCTSTR pszPath)
+HKEY CXReg::CreateKey (LPCTSTR pszPath, REGSAM sam)
 {
-	DWORD dwTmp;	
-	if (m_hSubKey)
-	{
-		RegCloseKey(m_hSubKey);
-		m_hSubKey = NULL;
-	}
-	if(ERROR_SUCCESS == RegCreateKeyEx (m_hRootKey, pszPath, 0L, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &m_hSubKey, &dwTmp))
-		return TRUE;
-
-	return FALSE;
+	HKEY hKey = NULL;
+	DWORD dwTmp;		
+	RegCreateKeyEx (m_hRootKey, pszPath, 0L, NULL, REG_OPTION_NON_VOLATILE, sam, 
+		NULL, &hKey, &dwTmp);	
+	return hKey;
 }
 
 
@@ -134,10 +109,23 @@ BOOL CXReg::CreateKey (LPCTSTR pszPath)
 * 返回值：    BOOL
 * 作 者：     
 ================================================================*/ 
-BOOL CXReg::Write (LPCTSTR lpszKeyName, DWORD dwVal)
+BOOL CXReg::Write (LPCTSTR lpszKeyName, LPCTSTR lpszValue, DWORD dwVal)
 {
-	return ::RegSetValueEx (m_hSubKey, lpszKeyName, 0L, REG_DWORD,
-		(CONST BYTE*) &dwVal, sizeof(DWORD));
+	BOOL blRet = FALSE;
+	HKEY hKey = NULL;
+	if (!lpszKeyName)
+	{
+		return FALSE;
+	}
+	VERIFY(hKey = CreateKey(lpszKeyName));	
+	blRet = (ERROR_SUCCESS == ::RegSetValueEx (hKey, lpszValue, 0L, REG_DWORD,
+		(const BYTE*) &dwVal, sizeof(DWORD)));
+	if (hKey)
+	{
+		RegCloseKey(hKey);
+		hKey = NULL;
+	}
+	return blRet;
 }
 
 
@@ -148,14 +136,23 @@ BOOL CXReg::Write (LPCTSTR lpszKeyName, DWORD dwVal)
 * 返回值：    BOOL
 * 作 者：     
 ================================================================*/ 
-BOOL CXReg::Write (LPCTSTR lpszKeyName, LPCTSTR pszData)
+BOOL CXReg::Write (LPCTSTR lpszKeyName, LPCTSTR lpszValue, LPCTSTR pszData)
 {
-	if(ERROR_SUCCESS == RegSetValueEx (m_hSubKey, lpszKeyName, 0L, REG_SZ,
-		(const BYTE*) pszData, (LONG)(_tcslen(pszData) + 1) * sizeof(TCHAR)))
+	BOOL blRet = FALSE;
+	HKEY hKey = NULL;
+	if (!lpszKeyName)
 	{
-		return TRUE;
-	}	
-	return FALSE;
+		return FALSE;
+	}
+	VERIFY(hKey = CreateKey(lpszKeyName));
+	blRet = (ERROR_SUCCESS == RegSetValueEx (hKey, lpszValue, 0L, REG_SZ, (const BYTE*) pszData,
+		(LONG)(_tcslen(pszData) + 1) * sizeof(TCHAR)));	
+	if (hKey)
+	{
+		RegCloseKey(hKey);
+		hKey = NULL;
+	}
+	return blRet;
 }
 /*================================================================ 
 * 函数名：    Write
@@ -164,15 +161,23 @@ BOOL CXReg::Write (LPCTSTR lpszKeyName, LPCTSTR pszData)
 * 返回值：    BOOL
 * 作 者：     
 ================================================================*/ 
-BOOL CXReg::Write (LPCTSTR lpszKeyName, const BYTE *pbData, DWORD dwSize)
+BOOL CXReg::Write (LPCTSTR lpszKeyName, LPCTSTR pszValue, const BYTE *pbData, DWORD dwSize)
 {
-	assert(NULL != pbData && dwSize > 0);	
-	if(ERROR_SUCCESS == RegSetValueEx (m_hSubKey, lpszKeyName, 0L, REG_BINARY,
-		(const BYTE*)pbData, dwSize))
+	BOOL blRet = FALSE;
+	HKEY hKey = NULL;
+	if (!lpszKeyName)
 	{
-		return TRUE;
-	}	
-	return FALSE;
+		return FALSE;
+	}
+	VERIFY(hKey = CreateKey(lpszKeyName));
+	blRet = ERROR_SUCCESS == RegSetValueEx (hKey, pszValue, 0L, REG_BINARY,	(const BYTE*)pbData,
+		dwSize);
+	if (hKey)
+	{
+		RegCloseKey(hKey);
+		hKey = NULL;
+	}
+	return blRet;
 }
 /*================================================================ 
 * 函数名：    Read
@@ -181,20 +186,30 @@ BOOL CXReg::Write (LPCTSTR lpszKeyName, const BYTE *pbData, DWORD dwSize)
 * 返回值：    BOOL
 * 作 者：     
 ================================================================*/ 
-BOOL CXReg::Read (LPCTSTR lpszKeyName, DWORD& dwVal)
+BOOL CXReg::Read (LPCTSTR lpszKeyName, LPCTSTR lpszValue, DWORD& dwVal)
 {
 	DWORD dwType;
 	DWORD dwSize = sizeof (DWORD);
 	DWORD dwDest;	
-
-	if(ERROR_SUCCESS == RegQueryValueEx (m_hSubKey, (LPCTSTR) lpszKeyName, NULL, 
-		&dwType, (BYTE *) &dwDest, &dwSize))
+	HKEY hSubKey = NULL;
+	BOOL blRet = FALSE;
+	hSubKey = OpenKey(lpszKeyName, KEY_READ);
+	if (!hSubKey)
+	{
+		return FALSE;
+	}
+	if(ERROR_SUCCESS == RegQueryValueEx (hSubKey, lpszValue, NULL, &dwType, (BYTE *) &dwDest,
+		&dwSize) && REG_DWORD == dwType)
 	{
 		dwVal = dwDest;
-		return TRUE;
+		blRet = TRUE;
 	}
-
-	return FALSE;
+	if (hSubKey)
+	{
+		RegCloseKey(hSubKey);
+		hSubKey = NULL;
+	}
+	return blRet;
 }
 
 
@@ -205,20 +220,30 @@ BOOL CXReg::Read (LPCTSTR lpszKeyName, DWORD& dwVal)
 * 返回值：    BOOL
 * 作 者：     
 ================================================================*/ 
-BOOL CXReg::Read (LPCTSTR lpszKeyName, CXString& sVal)
-{
-
+BOOL CXReg::Read (LPCTSTR lpszKeyName, LPCTSTR lpszValue, CXString& sVal)
+{	
 	DWORD dwType;
 	DWORD dwSize = REG_BufferMaxLen;
 	TCHAR szString[REG_BufferMaxLen];
-
-	if(ERROR_SUCCESS == RegQueryValueEx (m_hSubKey, lpszKeyName, NULL,
-		&dwType, (BYTE *)szString, &dwSize))
+	HKEY hSubKey = NULL;
+	BOOL blRet = FALSE;
+	hSubKey = OpenKey(lpszKeyName, KEY_READ);
+	if (!hSubKey)
+	{
+		return FALSE;
+	}
+	if(ERROR_SUCCESS == RegQueryValueEx (hSubKey, lpszValue, NULL, &dwType, (BYTE *)szString, 
+		&dwSize) && REG_SZ == dwType)
 	{
 		sVal = szString;
-		return TRUE;
+		blRet = TRUE;
 	}
-	return FALSE;
+	if (hSubKey)
+	{
+		RegCloseKey(hSubKey);
+		hSubKey = NULL;
+	}
+	return blRet;
 }
 
 /*================================================================ 
@@ -228,16 +253,38 @@ BOOL CXReg::Read (LPCTSTR lpszKeyName, CXString& sVal)
 * 返回值：    BOOL
 * 作 者：     
 ================================================================*/ 
-BOOL CXReg::Read (LPCTSTR lpszKeyName, BYTE *pbData, DWORD dwSize)
+BOOL CXReg::Read (LPCTSTR lpszKeyName, LPCTSTR lpszValue, BYTE *&pbData, DWORD& dwSize)
 {	
 	assert(NULL != pbData && dwSize > 0);
-	DWORD dwType;
-	if(ERROR_SUCCESS == RegQueryValueEx (m_hSubKey, lpszKeyName, NULL,
-		&dwType, pbData, &dwSize))
-	{		
-		return TRUE;
+	if (!pbData)
+	{
+		return FALSE;
 	}
-	return FALSE;
+	DWORD dwType;
+	HKEY hSubKey = NULL;
+	BOOL blRet = FALSE;
+	dwSize = 0;
+	hSubKey = OpenKey(lpszKeyName, KEY_READ);
+	if (!hSubKey)
+	{
+		return FALSE;
+	}
+	if(ERROR_SUCCESS == RegQueryValueEx (hSubKey, lpszValue, NULL,	&dwType, NULL, &dwSize) &&
+		REG_BINARY == dwType)
+	{		
+		if (dwSize)
+		{
+			VERIFY(pbData = new BYTE[dwSize]);
+			VERIFY(ERROR_SUCCESS == RegQueryValueEx (hSubKey, lpszValue, NULL,	&dwType, pbData, &dwSize));
+		}
+		blRet = TRUE;		
+	}
+	if (hSubKey)
+	{
+		RegCloseKey(hSubKey);
+		hSubKey = NULL;
+	}
+	return blRet;
 }
 
 /*================================================================ 
@@ -247,14 +294,25 @@ BOOL CXReg::Read (LPCTSTR lpszKeyName, BYTE *pbData, DWORD dwSize)
 * 返回值：    BOOL
 * 作 者：     
 ================================================================*/ 
-BOOL CXReg::DeleteValue (LPCTSTR pszValue)
+BOOL CXReg::DeleteValue( LPCTSTR pszKey, LPCTSTR pszValue )
 {
-	if(ERROR_SUCCESS == ::RegDeleteValue(m_hSubKey, pszValue))		
+	BOOL blRet = TRUE;
+	HKEY hSubKey = NULL;
+	if (!(hSubKey = OpenKey(pszKey)))
+	{
 		return TRUE;
-	else
-		return FALSE;
+	}
+	if(ERROR_SUCCESS != ::RegDeleteValue(hSubKey, pszValue))		
+	{
+		blRet = FALSE;
+	}
+	if (hSubKey)
+	{
+		RegCloseKey(hSubKey);
+		hSubKey = NULL;
+	}
+	return blRet;
 }
-
 /*================================================================ 
 * 函数名：    DeleteKey
 * 参数：      (HKEY hRootKey, LPCTSTR pszPath) 
@@ -262,53 +320,27 @@ BOOL CXReg::DeleteValue (LPCTSTR pszValue)
 * 返回值：    BOOL
 * 作 者：     
 ================================================================*/ 
-BOOL CXReg::DeleteKey (LPCTSTR pszPath)
+void CXReg::DeleteKey (LPCTSTR pszPath)
 {	
 	assert(NULL != pszPath);
-	BOOL blRet = TRUE;
-	HKEY hOldSubKey;
+	BOOL blRet = TRUE;	
 	if (!pszPath)
-	{
-		blRet = FALSE;
-		goto Exit_;
-	}
-	hOldSubKey = m_hSubKey;
-	if(FALSE == VerifyKey(pszPath))
 	{		
-		blRet = FALSE;
-		goto Exit_;
+		return;
 	}
-	DeletaKeyTree(m_hSubKey);
-	m_hSubKey = hOldSubKey;		
+	HKEY hSubKey = OpenKey(pszPath);
+	if (hSubKey)
+	{
+		DeletaKeyTree(hSubKey);
+		RegCloseKey(hSubKey);
+		hSubKey = NULL;
+	}		
 	if (ERROR_SUCCESS == RegDeleteKey(m_hRootKey, pszPath))
 	{
-		blRet = TRUE;		
+		;		
 	}
-Exit_:
-	return blRet;
+	return;
 }
-BOOL CXReg::DeleteKey()
-{	
-	assert(NULL != m_hSubKey);
-	BOOL blRet = FALSE;
-	TCHAR szKeyPath[REG_BufferMaxLen];
-	DWORD dwBufferLen = REG_BufferMaxLen;
-	if (ERROR_SUCCESS != (blRet = RegQueryInfoKey(m_hSubKey, szKeyPath, &dwBufferLen, 
-		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)))
-	{
-		goto Exit_;
-	}
-	DeletaKeyTree(m_hSubKey);		
-	if (ERROR_SUCCESS != RegDeleteKey(m_hRootKey, szKeyPath))
-	{
-		goto Exit_;	
-	}
-	blRet = TRUE;
-	m_hSubKey = NULL;
-Exit_:
-	return blRet;
-}
-
 /*================================================================ 
 * 函数名：    Close
 * 参数：      
@@ -316,40 +348,46 @@ Exit_:
 * 返回值：    void
 * 作 者：     
 ================================================================*/ 
-void CXReg::Close()
-{
-	if (m_hSubKey)
-	{
-		::RegCloseKey (m_hSubKey);
-		m_hSubKey = NULL;
-	}
-}
-BOOL CXReg::RestoreKey(LPCTSTR lpFileName)
-{
-	assert(m_hSubKey);
+
+BOOL CXReg::RestoreKey(LPCTSTR lpszKey, LPCTSTR lpFileName)
+{	
 	assert(lpFileName);
-	BOOL blRet = TRUE;
-	
-	if(ERROR_SUCCESS != RegRestoreKey(m_hSubKey, lpFileName, REG_WHOLE_HIVE_VOLATILE))
+	BOOL blRet = FALSE;
+	HKEY hKey = NULL;
+	if (!(hKey = OpenKey(lpszKey)))
 	{
-		blRet = FALSE;
-		goto Err;
+		return FALSE;
+	}	
+	if(ERROR_SUCCESS == RegRestoreKey(hKey, lpFileName, REG_WHOLE_HIVE_VOLATILE))
+	{
+		blRet = TRUE;		
 	}
-Err:
+	if (hKey)
+	{
+		RegCloseKey(hKey);
+		hKey = NULL;
+	}
 	return blRet;
 }
 
-BOOL CXReg::SaveKey(LPCTSTR lpFileName)
-{
-	assert(m_hSubKey);
+BOOL CXReg::SaveKey(LPCTSTR lpszKey, LPCTSTR lpFileName)
+{	
 	assert(lpFileName);
-	BOOL blRet = TRUE;
-	if(ERROR_SUCCESS != (blRet = RegSaveKey(m_hSubKey, lpFileName, NULL)))
+	BOOL blRet = FALSE;
+	HKEY hKey = NULL;
+	if (!(hKey = OpenKey(lpszKey)))
 	{
-		blRet = FALSE;
-		goto Err;
+		return FALSE;
+	}	
+	if(ERROR_SUCCESS == (blRet = RegSaveKey(hKey, lpFileName, NULL)))
+	{
+		blRet = TRUE;		
 	}
-Err:	
+	if (hKey)
+	{
+		RegCloseKey(hKey);
+		hKey = NULL;
+	}	
 	return blRet;
 }
 void  CXReg::DeletaKeyTree(HKEY hKey) 
@@ -357,7 +395,11 @@ void  CXReg::DeletaKeyTree(HKEY hKey)
 	DWORD   dwCount = 0;   
 	TCHAR	szSubkeyName[128];   
 	HKEY   hKeySub; 
-    
+   
+	if (!hKey)
+	{
+		return;
+	}
 	if(ERROR_SUCCESS != RegQueryInfoKey(hKey, 0, 0, 0, &dwCount, 0, 0, 0, 0, 0, 0, 0))   
 	{   		
 		return;   
@@ -386,3 +428,49 @@ void  CXReg::DeletaKeyTree(HKEY hKey)
 		}  
 	}		
 } 
+HKEY CXReg::OpenKey( LPCTSTR pthPath, REGSAM samReg)
+{
+	HKEY hKey = NULL;
+	if (!pthPath)
+	{
+		return hKey;
+	}
+	RegOpenKeyEx (m_hRootKey, pthPath, 0L, samReg, &hKey);		
+	return hKey;
+}
+/*================================================================ 
+* 函数名：    VerifyValue
+* 参数：      (LPCTSTR pszValue)
+* 功能描述:   判断给定的值是否存在 （请先调用VerifyKey，然后在使用该函数）
+* 返回值：    BOOL
+* 作 者：     
+================================================================*/ 
+
+BOOL CXReg::VerifyValue( LPCTSTR pthKey, LPCTSTR pthValue)
+{
+	BOOL blExist = FALSE;
+	HKEY subKey = NULL;
+	if (!pthKey || !pthValue)
+	{
+		blExist = FALSE;
+		return blExist;
+	}	
+	if(ERROR_SUCCESS != RegOpenKeyEx (m_hRootKey, pthKey, 0L,
+		KEY_ALL_ACCESS, &subKey))
+	{	
+		blExist = FALSE;
+		return blExist;
+	}
+	if(ERROR_SUCCESS == RegQueryValueEx(subKey, pthValue, NULL,
+		NULL, NULL, NULL))
+	{
+		blExist = FALSE;
+		return blExist;
+	}
+	if (subKey)
+	{
+		RegCloseKey(subKey);   
+		subKey = NULL;
+	}
+	return blExist;
+}
