@@ -14,948 +14,806 @@ Copyright (c) 2002-2003 汉王科技有限公司. 版权所有.
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
-//CXString CXRegistryManager::m_strINIFileName;
+//CXString CXRegistryManager::m_strPath;
 /////////////////////////////////////////////////////////////////////////////
 // CHKey - helper automatically closes open HKEY
-class CXRegistryManager::CHKey
-{
-public:
-	CHKey(HKEY hKey = NULL) : m_hKey(hKey)
-	{
-	}
+#define SAFE_CLOSEKEY(hKey)  if (hKey) {::RegCloseKey(hKey),hKey = NULL;}
 
-	~CHKey()
-	{
-		if (m_hKey != NULL)
-		{
-			::RegCloseKey(m_hKey);
-		}
-	}
 
-	HKEY& operator=(HKEY hKey)
-	{
-		if (m_hKey != NULL)
-		{
-			::RegCloseKey(m_hKey);
-		}
-
-		m_hKey = hKey;
-		return m_hKey;
-	}
-
-	BOOL operator==(HKEY hKey)
-	{
-		return m_hKey == hKey;
-	}
-
-	operator HKEY() const
-	{
-		return m_hKey;
-	}
-
-	operator PHKEY()
-	{
-		return &m_hKey;
-	}
-
-private:
-	HKEY m_hKey;
-};
 
 /////////////////////////////////////////////////////////////////////////////
 // CXRegistryManager
 
 CXRegistryManager::CXRegistryManager(HKEY hKeyBase/*= HKEY_CURRENT_USER*/)
-	: m_pszRegistryKey(NULL)
-	, m_pszProfileName(NULL)
+	: m_hAppKey(NULL), m_hKeyBase(hKeyBase)	
 	, m_lResult(ERROR_SUCCESS)
-  , m_strINIFileName()
+  , m_strPath(), m_nMode(0)
 {
-	ASSERT(hKeyBase == HKEY_CURRENT_USER || hKeyBase == HKEY_LOCAL_MACHINE);
-	m_hKeyBase = hKeyBase;
+	assert(hKeyBase == HKEY_CURRENT_USER || hKeyBase == HKEY_LOCAL_MACHINE);	
 }
 CXRegistryManager::CXRegistryManager(LPCTSTR strPath)
-: m_pszRegistryKey(NULL)
-, m_pszProfileName(NULL)
-, m_lResult(ERROR_SUCCESS)
-, m_strINIFileName(strPath)
+: m_hAppKey(NULL), m_hKeyBase(NULL)
+, m_lResult(ERROR_SUCCESS), m_strPath(strPath)
 {
   assert(strPath);
+	SetMode(Mode_INI);
+}
+CXRegistryManager::CXRegistryManager( HKEY hKeyBase /*= HKEY_CURRENT_USER*/, LPCTSTR lpszKey)
+: m_hAppKey(NULL), m_hKeyBase(hKeyBase)
+, m_lResult(ERROR_SUCCESS)
+, m_strPath(lpszKey)
+{
+	assert(hKeyBase == HKEY_CURRENT_USER || hKeyBase == HKEY_LOCAL_MACHINE);
+	SetMode(Mode_REG);
 }
 CXRegistryManager::~CXRegistryManager()
 {
-
+	SAFE_CLOSEKEY(m_hAppKey);
 }
 
-BOOL CXRegistryManager::GetProfileInfo()
-{
-	if (m_pszRegistryKey == NULL || m_pszProfileName == NULL)
-	{
-		CWinApp* pWinApp = AfxGetApp();
-		if (pWinApp != NULL)
-		{
-			m_pszRegistryKey = pWinApp->m_pszRegistryKey;
-			m_pszProfileName = pWinApp->m_pszProfileName;
-		}
-
-		// If this fails, you need to call SetRegistryKey(...); in your
-		// applications CWinApp::InitInstance() override, or you have called
-		// this method before you call SetRegistryKey..  Calling SetRegistryKey
-		// will initialize m_pszProfileName and m_pszRegistryKey for CWinApp.
-
-		// NOTE: If you want to write to an INI file instead of the system
-		// registry, call CXRegistryManager::SetINIFileName(...) prior to
-		// making this call.
-
-		if (m_pszRegistryKey == NULL || m_pszProfileName == NULL)
-		{
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-HKEY CXRegistryManager::GetAppRegistryKey(REGSAM samDesired)
-{
-	if (!GetProfileInfo())
-		return 0;
-
-	HKEY hAppKey = NULL;
-	CHKey hSoftKey;
-	CHKey hCompanyKey;
-
-	m_lResult = ::RegOpenKeyEx(m_hKeyBase, _T("Software"), 0,
-		samDesired, hSoftKey);
-
-	if (m_lResult != ERROR_SUCCESS)
-		return NULL;
-
-	DWORD dw = 0;
-	m_lResult = ::RegCreateKeyEx(hSoftKey, m_pszRegistryKey, 0, REG_NONE,
-		REG_OPTION_NON_VOLATILE, samDesired, NULL, hCompanyKey, &dw);
-
-	if (m_lResult != ERROR_SUCCESS)
-		return NULL;
-
-	m_lResult = ::RegCreateKeyEx(hCompanyKey, m_pszProfileName, 0, REG_NONE,
-		REG_OPTION_NON_VOLATILE, samDesired, NULL, &hAppKey, &dw);
-
-	if (m_lResult != ERROR_SUCCESS)
-		return NULL;
-
-	return hAppKey;
-}
 
 HKEY CXRegistryManager::GetSectionKey(LPCTSTR lpszSection, REGSAM samDesired)
 {
-	ASSERT(lpszSection != NULL);
-	if (!lpszSection)
-		return 0;
-
+	assert(lpszSection != NULL);
 	HKEY hSectionKey = NULL;
-	CHKey hAppKey(GetAppRegistryKey(samDesired));
+	DWORD dwTmp = 0;
+	__try
+	{
+		if (!lpszSection)
+		{
+			__leave;	
+		}
+		if (!m_hAppKey)
+		{
+			m_lResult = ::RegCreateKeyEx(m_hKeyBase, m_strPath, 0L, REG_NONE,
+				REG_OPTION_NON_VOLATILE, samDesired, NULL, &m_hAppKey, &dwTmp);	
+			if (m_lResult != ERROR_SUCCESS || !m_hAppKey)
+			{
+				__leave;
+			}
+		}
 
-	if (hAppKey == NULL)
-		return NULL;
-
-	DWORD dw = 0;
-	m_lResult = ::RegCreateKeyEx(hAppKey, lpszSection, 0, REG_NONE,
-		REG_OPTION_NON_VOLATILE, samDesired, NULL, &hSectionKey, &dw);
-
-	if (m_lResult != ERROR_SUCCESS)
-		return NULL;
+		if (!m_hAppKey)
+		{
+			__leave;	
+		}
+		m_lResult = ::RegCreateKeyEx(m_hAppKey, lpszSection, 0, REG_NONE,	REG_OPTION_NON_VOLATILE,
+			samDesired, NULL, &hSectionKey, &dwTmp);
+		if (m_lResult != ERROR_SUCCESS)
+		{
+			__leave;
+		}
+	}
+	__finally
+	{
+		 ;
+	}
 
 	return hSectionKey;
 }
 
-BOOL CXRegistryManager::WriteProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nValue)
+
+BOOL CXRegistryManager::WriteProfileBinary(LPCTSTR lpszSection, LPCTSTR lpszEntry,
+																					 LPBYTE pData, const LONG& nBytes)
 {
-	ASSERT(lpszSection != NULL);
-	ASSERT(lpszEntry != NULL);
-	if (!lpszSection)
-		return 0;
-
-	if (m_strINIFileName.IsEmpty())
+	assert(lpszSection);	
+	BOOL blRet = FALSE;
+	HKEY hSection = NULL;
+	__try
 	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		m_lResult = ::RegSetValueEx(hSecKey, lpszEntry, NULL,
-			REG_DWORD, (LPBYTE)&nValue, sizeof(nValue));
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		return TRUE;
+		if (!lpszSection || nBytes <= 0)
+		{
+			__leave;
+		}
+		if (Mode_REG == m_nMode)
+		{		
+			if(!(hSection = GetSectionKey(lpszSection)))
+			{
+				__leave;
+			}	
+			if (ERROR_SUCCESS == (m_lResult = ::RegSetValueEx(hSection, lpszEntry, NULL, REG_BINARY,
+				pData, nBytes)))
+			{
+				blRet = TRUE;		
+				__leave;
+			}							
+		}
+		else if (Mode_INI == m_nMode)
+		{
+			LPTSTR lpszBuffer = NULL;
+			VERIFY(lpszBuffer = (LPTSTR)_alloca(nBytes * 2 + 1));
+			LONG i;
+			for (i = 0; i < (LONG)nBytes; i ++)
+			{
+				lpszBuffer[i * 2] = (TCHAR)((pData[i] & 0x0F) + 'A'); 
+				lpszBuffer[i * 2 + 1] = (TCHAR)(((pData[i] >> 4) & 0x0F) + 'A'); 
+			}
+			lpszBuffer[i * 2] = 0;
+			assert(!m_strPath.IsEmpty());
+			blRet = WriteProfileString(lpszSection, lpszEntry, lpszBuffer);	
+			__leave;
+		}	
 	}
-	else
+	__finally
 	{
-		ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-
-		TCHAR szT[16];
-		wsprintf(szT, _T("%d"), nValue);
-		return ::WritePrivateProfileString(lpszSection, lpszEntry, szT,
-			m_strINIFileName);
+		SAFE_CLOSEKEY(hSection);
 	}
-}
-
-BOOL CXRegistryManager::WriteProfileBinary(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPBYTE pData, UINT nBytes)
-{
-	ASSERT(lpszSection != NULL);
-	ASSERT(lpszEntry != NULL);
-
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		m_lResult = ::RegSetValueEx(hSecKey, lpszEntry, NULL, REG_BINARY,
-			pData, nBytes);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		return TRUE;
-	}
-
-	// convert to string and write out
-	LPTSTR lpsz = new TCHAR[nBytes * 2 + 1];
-	UINT i;
-	for (i = 0; i < nBytes; i++)
-	{
-		lpsz[i * 2] = (TCHAR)((pData[i] & 0x0F) + 'A'); //low nibble
-		lpsz[i * 2 + 1] = (TCHAR)(((pData[i] >> 4) & 0x0F) + 'A'); //high nibble
-	}
-	lpsz[i * 2] = 0;
-
-	ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-
-	BOOL bResult = WriteProfileString(lpszSection, lpszEntry, lpsz);
-	delete[] lpsz;
-	return bResult;
+	return blRet;
 }
 
 BOOL CXRegistryManager::WriteProfileString(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszValue)
 {
-	ASSERT(lpszSection != NULL);
+	assert(lpszSection);
+	BOOL blRet = FALSE;
+	HKEY hSection = NULL;
+	__try
+	{	
+		if (!lpszSection)
+		{
+			__leave;
+		}
+		if (Mode_REG == m_nMode)
+		{					
+			if (!(hSection =  GetSectionKey(lpszSection)))
+			{
+				__leave;
+			}
+
+			if(ERROR_SUCCESS == (m_lResult = ::RegSetValueEx(hSection, lpszEntry, NULL, REG_SZ,
+				(LPBYTE)lpszValue, (lstrlen(lpszValue) + 1) * sizeof(TCHAR))))
+			{
+				blRet = TRUE;
+				__leave;
+			}
+		}	
+		else if (Mode_INI == m_nMode)
+		{
+			assert(!m_strPath.IsEmpty());
+			assert(m_strPath.StrLen() < 4095); 
+			blRet = ::WritePrivateProfileString(lpszSection, lpszEntry, lpszValue,
+				m_strPath);
+			__leave;
+		}	
+	}
+	__finally
+	{
+		SAFE_CLOSEKEY(hSection);
+	}
+	return blRet;
+}
+
+UINT CXRegistryManager::GetProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, const int& nDefault)
+{
+	assert(lpszSection != NULL);
+	HKEY hSection = NULL;
+	DWORD dwValue;
+	DWORD dwType;
+	DWORD dwCount = sizeof(DWORD);
+	dwValue = nDefault;
+	__try
+	{
+		if (!lpszSection)
+		{
+			__leave;
+		}
+		if (Mode_REG == m_nMode) 
+		{
+			if(!(hSection = GetSectionKey(lpszSection, KEY_READ)))
+			{
+				__leave;
+			}
+			m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType, (LPBYTE)&dwValue, &dwCount);
+			if (m_lResult != ERROR_SUCCESS || dwType != REG_DWORD)
+			{
+				__leave;
+			}		
+			__leave;
+		}
+		else if (Mode_INI == m_nMode)
+		{
+			assert(!m_strPath.IsEmpty());
+			return ::GetPrivateProfileInt(lpszSection, lpszEntry, nDefault,	m_strPath);
+		}	
+	}
+	__finally
+	{
+		SAFE_CLOSEKEY(hSection);
+	}
+	return dwValue;
+}
+
+BOOL CXRegistryManager::WriteProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, const int& nValue)
+{
+	assert(lpszSection);
+	assert(lpszEntry);
+	static TCHAR szBuffer[MAX_PATH];
+	HKEY hSection = NULL;
+	BOOL blRet = FALSE;
+	__try
+	{
+		if (!lpszSection)
+		{
+			__leave;
+		}
+		if (Mode_REG == m_nMode)
+		{		
+			if (!(hSection = GetSectionKey(lpszSection)))
+			{
+				__leave;
+			}		
+			if (ERROR_SUCCESS == (m_lResult = ::RegSetValueEx(hSection, lpszEntry, NULL,
+				REG_DWORD, (LPBYTE)&nValue, sizeof(nValue))))
+			{
+				blRet = TRUE;
+				__leave;
+			}			
+		}	
+		else if (Mode_INI == m_nMode)
+		{
+			assert(!m_strPath.IsEmpty());		
+			_stprintf_s(szBuffer, MAX_PATH, TEXT("%d"), nValue);
+			blRet = ::WritePrivateProfileString(lpszSection, lpszEntry, szBuffer,	m_strPath);
+			__leave;
+		}	
+	}
+	__finally
+	{
+		SAFE_CLOSEKEY(hSection);
+	}
+	return blRet;
+}
+BYTE* CXRegistryManager::GetProfileBinary(LPCTSTR lpszSection, LPCTSTR lpszEntry,
+																					LONG& nBytes)
+{
+	assert(lpszSection != NULL);			
+	BYTE *pData = NULL;
+	HKEY hSection = NULL;
+	nBytes = 0;
 	if (!lpszSection)
-		return 0;
-
-	if (m_strINIFileName.IsEmpty())
 	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		if (lpszEntry == NULL) //delete whole section
-		{
-			CHKey hAppKey(GetAppRegistryKey(FALSE));
-			if (hAppKey == NULL)
-				return FALSE;
-
-			m_lResult = ::RegDeleteKey(hAppKey, lpszSection);
-
-			if (m_lResult != ERROR_SUCCESS)
-				return FALSE;
-		}
-		else if (lpszValue == NULL)
-		{
-			CHKey hSecKey(GetSectionKey(lpszSection));
-			if (hSecKey == NULL)
-				return FALSE;
-
-			// necessary to cast away const below
-			m_lResult = ::RegDeleteValue(hSecKey, (LPTSTR)lpszEntry);
-
-			if (m_lResult != ERROR_SUCCESS)
-				return FALSE;
-		}
-		else
-		{
-			CHKey hSecKey(GetSectionKey(lpszSection));
-			if (hSecKey == NULL)
-				return FALSE;
-
-			m_lResult = ::RegSetValueEx(hSecKey, lpszEntry, NULL, REG_SZ,
-				(LPBYTE)lpszValue, (lstrlen(lpszValue)+1)*sizeof(TCHAR));
-
-			if (m_lResult != ERROR_SUCCESS)
-				return FALSE;
-		}
-
-		return TRUE;
-	}
-	else
+		return pData;
+	}			
+	if (Mode_REG == m_nMode)
 	{
-		ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-		ASSERT(m_strINIFileName.StrLen() < 4095); // can't read in bigger
-		return ::WritePrivateProfileString(lpszSection, lpszEntry, lpszValue,
-			m_strINIFileName);
-	}
-}
-
-UINT CXRegistryManager::GetProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault)
-{
-	ASSERT(lpszSection != NULL);
-	ASSERT(lpszEntry != NULL);
-	if (!lpszSection || !lpszEntry)
-		return 0;
-
-	if (m_strINIFileName.IsEmpty()) // use registry
-	{
-		if (!GetProfileInfo())
-			return nDefault;
-
-		CHKey hSecKey(GetSectionKey(lpszSection, KEY_READ));
-		if (hSecKey == NULL)
-			return nDefault;
-
-		DWORD dwValue;
 		DWORD dwType;
-		DWORD dwCount = sizeof(DWORD);
-
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			(LPBYTE)&dwValue, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return nDefault;
-
-		ASSERT(dwType == REG_DWORD);
-		ASSERT(dwCount == sizeof(dwValue));
-
-		return (UINT)dwValue;
-	}
-	else
-	{
-		ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-		return ::GetPrivateProfileInt(lpszSection, lpszEntry, nDefault,
-			m_strINIFileName);
-	}
-}
-
-BOOL CXRegistryManager::GetProfileBinary(LPCTSTR lpszSection, LPCTSTR lpszEntry,
-                                         BYTE** ppData, UINT* pBytes)
-{
-	ASSERT(lpszSection != NULL);
-	ASSERT(lpszEntry != NULL);
-	ASSERT(ppData != NULL);
-	ASSERT(pBytes != NULL);
-	if (!ppData || !pBytes)
-		return FALSE;
-
-	*ppData = NULL;
-	*pBytes = 0;
-
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection, KEY_READ));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		DWORD dwType, dwCount;
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			NULL, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		*pBytes = dwCount;
-		*ppData = new BYTE[*pBytes];
-		ASSERT(dwType == REG_BINARY);
-
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			*ppData, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
+		if(hSection = GetSectionKey(lpszSection, KEY_READ))
 		{
-			SAFE_DELETE_AR(*ppData);
-			return FALSE;
+			m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType, NULL, (LPDWORD)&nBytes);
+			if (m_lResult == ERROR_SUCCESS && REG_BINARY == dwType)
+			{
+				if (nBytes > 0)
+				{				
+					VERIFY(pData = new BYTE[nBytes]);	
+					memset(pData, 0, sizeof(*pData) * nBytes);
+					if(ERROR_SUCCESS != (m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType, 
+						pData, (LPDWORD)&nBytes)))
+					{
+						SAFE_DELETE_AR(pData);
+					}
+				}	
+			}			
 		}
-
-		ASSERT(dwType == REG_BINARY);
-		return TRUE;
+		SAFE_CLOSEKEY(hSection);
+		
+		return pData;
 	}
-	else
+	else if(Mode_INI == m_nMode)
 	{
-		ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-
-		CXString str = GetProfileString(lpszSection, lpszEntry, NULL);
-/*
-		if (str.IsEmpty())
-			return FALSE;		
-		LONG nLen = str.C_Str();
-		*pBytes = nLen * 2;
-		*ppData = new BYTE[*pBytes];
-		int i;
-		for (i = 0; i < nLen; i += 2)
+		assert(!m_strPath.IsEmpty());
+		CXString strBuffer = GetProfileString(lpszSection, lpszEntry, TEXT(""));
+		if (strBuffer.IsEmpty())
 		{
-			(*ppData)[i/2] = (BYTE)
-				(((str[i + 1] - 'A') << 4) + (str[i] - 'A'));
-		}*/
-
-		return TRUE;
-	}
+			return pData;	
+		}
+		nBytes = (LONG)strBuffer.StrLen() * 2;	
+		if (nBytes > 0)
+		{
+			VERIFY(pData = new BYTE[nBytes]);
+			memset(pData, 0, sizeof(*pData) * nBytes);
+			LONG i = 0;
+			for (; i < nBytes; i += 2)
+			{
+				(pData)[i/2] = (BYTE)	(((strBuffer[i + 1] - 'A') << 4) + (strBuffer[i] - 'A'));
+			}
+		}			
+		return pData;
+	}	
+	return pData;
 }
 
 CXString CXRegistryManager::GetProfileString(LPCTSTR lpszSection, 
                                              LPCTSTR lpszEntry, LPCTSTR lpszDefault)
 {
-	ASSERT(lpszSection != NULL);
-	ASSERT(lpszEntry != NULL);
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return lpszDefault;
+	assert(lpszSection != NULL);
+	assert(lpszEntry != NULL);
+	HKEY hSection = NULL;
+	CXString strValue(lpszDefault);
+	TCHAR szBuffer[4096];
+	memset(szBuffer, 0, sizeof(szBuffer));
+	if (Mode_REG == m_nMode)
+	{		
+		DWORD dwType, dwCount = 0;
+		if (hSection = GetSectionKey(lpszSection, KEY_READ))
 
-		CHKey hSecKey(GetSectionKey(lpszSection, KEY_READ));
-		if (hSecKey == NULL)
-			return lpszDefault;
-
-		CXString strValue;
-		DWORD dwType, dwCount;
-
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			NULL, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return lpszDefault;
-
-		ASSERT(dwType == REG_SZ);
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			(LPBYTE)strValue.GetBuffer(dwCount/sizeof(TCHAR)), &dwCount);
-		strValue.ReleaseBuffer();
-
-		if (m_lResult != ERROR_SUCCESS)
-			return lpszDefault;
-
-		ASSERT(dwType == REG_SZ);
-		return strValue;
+		{
+			m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType, NULL, &dwCount);
+			if ((m_lResult == ERROR_SUCCESS && dwType == REG_SZ))
+			{
+				m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType,	
+					(LPBYTE)strValue.GetBuffer(dwCount / sizeof(TCHAR) + 1), &dwCount);
+				strValue.ReleaseBuffer();
+			}					
+		}	
+		SAFE_CLOSEKEY(hSection);
+		return strValue;		
 	}
-	else
+	else if(Mode_INI == m_nMode)
 	{
 		TCHAR chNil = '\0';
-
-		ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-
-		if (lpszDefault == NULL)
+		assert(!m_strPath.IsEmpty());
+		if (!lpszDefault)
 		{
-			lpszDefault = &chNil;    // don't pass in NULL
-		}
-
-		TCHAR szT[4096];
-		DWORD dw = ::GetPrivateProfileString(lpszSection, lpszEntry,
-			lpszDefault, szT, _countof(szT), m_strINIFileName);
-		ASSERT(dw < 4095);
-		return szT;
-	}
+			lpszDefault = &chNil;
+		}		
+		strValue = lpszDefault;
+		if (::GetPrivateProfileString(lpszSection, lpszEntry,
+			lpszDefault, szBuffer, sizeof(szBuffer), m_strPath) > 0)
+		{
+			strValue =  szBuffer;
+		}			
+		return strValue;
+	}	
+	return strValue;
 }
 
-int CXRegistryManager::EnumValues(LPCTSTR lpszSection, 
+LONG CXRegistryManager::EnumValues(LPCTSTR lpszSection, 
                                   CMap<CXString, LPCTSTR, DWORD, DWORD&>* mapItems,
-									vector<CXString> * arrayNames)
+									vector<CXString> * pvArrayNames)
 {
-	ASSERT(lpszSection != NULL);
-
-	CHKey hKey(GetSectionKey(lpszSection, KEY_READ));
-	if (hKey == NULL)
-		return 0;
-
-	int index = 0;
-
-	TCHAR szValue[512];
-	DWORD dwLen = 512;
+	static TCHAR szValue[1024];
+	DWORD dwLen = 1024;
+	assert(lpszSection != NULL);
+	HKEY hSection = NULL;
+	LONG nCount = 0;
 	DWORD dwType;
 
-	while (::RegEnumValue(hKey, index++, szValue, &dwLen,
+	if (!(hSection = GetSectionKey(lpszSection, KEY_READ)))			
+	{
+		return 0;
+	}				
+	while (::RegEnumValue(hSection, nCount ++, szValue, &dwLen,
 		NULL, &dwType, NULL, NULL) == ERROR_SUCCESS)
 	{
 		if (mapItems)
-      mapItems->SetAt(szValue, dwType);
-		if (arrayNames) 
-      arrayNames->push_back(szValue);
-		dwLen = 512;
+		{
+			mapItems->SetAt(szValue, dwType);
+		}
+		if (pvArrayNames) 
+		{
+			pvArrayNames->push_back(szValue);
+		}
+		memset(szValue, 0, sizeof(szValue));
+		dwLen = 1024;
 	}
+	SAFE_CLOSEKEY(hSection);
 
-	return --index;
+	return -- nCount;
 }
 
-LONG CXRegistryManager::EnumKeys(LPCTSTR lpszSection, vector<CXString> & arrayKeys)
+LONG CXRegistryManager::EnumKeys(LPCTSTR lpszSection, vector<CXString> & vstrKeys)
 {
-	ASSERT(lpszSection != NULL);
-
-	CHKey hKey(GetSectionKey(lpszSection, KEY_READ));
-	if (hKey == NULL)
-		return 0;
-
-	int index = 0;
-
-	TCHAR szValue[512];
-	DWORD dwLen = 512;
-
-	while (::RegEnumKeyEx(hKey, index++, szValue, &dwLen,
-		NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+	static TCHAR szValue[1024] = {0};
+	assert(lpszSection != NULL);
+	HKEY hSection = NULL;	
+	DWORD dwLen = 1024;
+	LONG nCount = 0;
+	if (hSection = GetSectionKey(lpszSection, KEY_READ))
 	{
-		arrayKeys.push_back(szValue);
-		dwLen = 512;
-	}
-
-	return --index;
+		while (::RegEnumKeyEx(hSection, nCount ++, szValue, &dwLen,
+			NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+		{
+			vstrKeys.push_back(szValue);
+			dwLen = 1024;		
+		}	
+	}	
+	SAFE_CLOSEKEY(hSection);
+	return nCount > 0 ?  -- nCount : nCount;
 }
 
-LONG CXRegistryManager::RecurseDeleteKey(HKEY hKey, LPCTSTR lpszKey)
+BOOL CXRegistryManager::RecurseDeleteKey(HKEY hKey, LPCTSTR lpszKey)
 {
-	CHKey hSubKey;
-	LONG lRes = ::RegOpenKeyEx(hKey, lpszKey, 0, KEY_READ | KEY_WRITE, hSubKey);
-	if (lRes != ERROR_SUCCESS)
-		return lRes;
-
+	HKEY hSubKey = NULL;
 	FILETIME time;
-	DWORD dwSize = 256;
-	TCHAR szBuffer[256];
-
+	DWORD dwSize = 1024;
+	static TCHAR szBuffer[1024];
+	
+	if (ERROR_SUCCESS != (m_lResult = ::RegOpenKeyEx(hKey, lpszKey, 0,
+		KEY_READ | KEY_WRITE, &hSubKey)))
+	{
+		return FALSE;
+	}	
 	while (::RegEnumKeyEx(hSubKey, 0, szBuffer, &dwSize, NULL, NULL, NULL,
 		&time) == ERROR_SUCCESS)
-	{
-		lRes = RecurseDeleteKey(hSubKey, szBuffer);
-		if (lRes != ERROR_SUCCESS)
-			return lRes;
-
-		dwSize = 256;
+	{		
+		if (!RecurseDeleteKey(hSubKey, szBuffer))
+		{
+			return FALSE;
+		}
+		dwSize = 1024;
+		szBuffer[0] = 0;
 	}
-
+	if (hSubKey)
+	{
+		RegCloseKey(hSubKey);
+		hSubKey = NULL;
+	}
 	m_lResult = ::RegDeleteKey(hKey, lpszKey);
+	return m_lResult == ERROR_SUCCESS;
+}
+
+BOOL CXRegistryManager::DeleteKey(LPCTSTR lpszSection, LPCTSTR lpszKey)
+{
+	HKEY hSection = NULL;	
+	if (!(hSection = GetSectionKey(lpszSection)))
+	{
+		return FALSE;
+	}
+	return (RecurseDeleteKey(hSection, lpszKey) == ERROR_SUCCESS);
+}
+
+BOOL CXRegistryManager::DeleteValue(LPCTSTR lpszSection, LPCTSTR lpszValue)
+{
+	HKEY hSection = NULL;	
+	BOOL blReturn = FALSE;
+	if (hSection = GetSectionKey(lpszSection, KEY_ALL_ACCESS))
+	{
+		blReturn = ERROR_SUCCESS == (m_lResult = ::RegDeleteValue(hSection, (LPTSTR)lpszValue));
+	}	
+	SAFE_CLOSEKEY(hSection);
 	return m_lResult;
 }
 
-bool CXRegistryManager::DeleteKey(LPCTSTR lpszSection, LPCTSTR lpszKey)
+BOOL CXRegistryManager::WriteProfilePoint(LPCTSTR lpszSection, LPCTSTR lpszEntry, 
+																					const POINT& Value)
 {
-	CHKey hSectionKey(GetSectionKey(lpszSection));
-	if (hSectionKey == NULL)
-		return false;
-
-	return (RecurseDeleteKey(hSectionKey, lpszKey) == ERROR_SUCCESS);
-}
-
-bool CXRegistryManager::DeleteValue(LPCTSTR lpszSection, LPCTSTR lpszValue)
-{
-	CHKey hSecKey(GetSectionKey(lpszSection, KEY_ALL_ACCESS));
-	if (hSecKey == NULL)
-		return false;
-
-	m_lResult = ::RegDeleteValue(hSecKey, (LPTSTR)lpszValue);
-	return (m_lResult == ERROR_SUCCESS);
-}
-
-BOOL CXRegistryManager::WriteProfilePoint(LPCTSTR lpszSection, LPCTSTR lpszEntry, CPoint* pValue)
-{
-	ASSERT(lpszSection != NULL);
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		m_lResult = ::RegSetValueEx(hSecKey, lpszEntry, NULL, REG_BINARY,
-			(LPBYTE)pValue, sizeof(CPoint));
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		return TRUE;
-	}
-
-	ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-
-	CXString str;
-	str.Format(_T("%i,%i"), pValue->x, pValue->y);
-
-	BOOL bResult = WriteProfileString(lpszSection, lpszEntry, str);
-
-	return bResult;
-}
-
-BOOL CXRegistryManager::GetProfilePoint(LPCTSTR lpszSection, LPCTSTR lpszEntry, CPoint* ptResult)
-{
-	ASSERT(lpszSection != NULL);
-	ASSERT(lpszEntry != NULL);
-
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection, KEY_READ));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		DWORD dwType, dwCount;
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			NULL, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		ASSERT(dwType == REG_BINARY);
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			(LPBYTE)ptResult, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		ASSERT(dwType == REG_BINARY);
-		return TRUE;
-	}
-	else
-	{
-		ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-
-		CXString str = GetProfileString(lpszSection, lpszEntry, NULL);
-		if (str.IsEmpty())
-			return FALSE;
-
-		SCANF_S(str, _T("%ld,%ld"), &ptResult->x, &ptResult->y);
-		return TRUE;
-	}   
-}
-
-BOOL CXRegistryManager::WriteProfileRect(LPCTSTR lpszSection, LPCTSTR lpszEntry, CRect* pValue)
-{
-	ASSERT(lpszSection != NULL);
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		m_lResult = ::RegSetValueEx(hSecKey, lpszEntry, NULL, REG_BINARY,
-			(LPBYTE)pValue, sizeof(CRect));
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		return TRUE;
-	}
-
-	CXString str;
-	str.Format(_T("%i,%i,%i,%i"), pValue->left, pValue->top, pValue->right, pValue->bottom);
-
-	BOOL bResult = WriteProfileString(lpszSection, lpszEntry, str);
-
-	return bResult;
-}
-
-BOOL CXRegistryManager::GetProfileRect(LPCTSTR lpszSection, LPCTSTR lpszEntry, CRect* rcResult)
-{
-	ASSERT(lpszSection != NULL);
-	ASSERT(lpszEntry != NULL);
-
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection, KEY_READ));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		DWORD dwType, dwCount;
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			NULL, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		ASSERT(dwType == REG_BINARY);
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			(LPBYTE)rcResult, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		return TRUE;
-	}
-	else
-	{
-
-		ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-
-		// convert to string and write out
-		CXString str = GetProfileString(lpszSection, lpszEntry, NULL);
-		if (str.IsEmpty())
-			return FALSE;
-
-		SCANF_S(str, _T("%ld,%ld,%ld,%ld"), &rcResult->left, &rcResult->top, &rcResult->right, &rcResult->bottom);
-		return TRUE;
-	}
-}
-
-BOOL CXRegistryManager::WriteProfileSize(LPCTSTR lpszSection, LPCTSTR lpszEntry, CSize* pValue)
-{
-	ASSERT(lpszSection != NULL);
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		m_lResult = ::RegSetValueEx(hSecKey, lpszEntry, NULL, REG_BINARY,
-			(LPBYTE)pValue, sizeof(CSize));
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		return TRUE;
-	}
-
-	CXString str;
-	str.Format(_T("%i,%i"), pValue->cx, pValue->cy);
-
-	BOOL bResult = WriteProfileString(lpszSection, lpszEntry, str);
-	return bResult;
-}
-
-BOOL CXRegistryManager::GetProfileSize(LPCTSTR lpszSection, LPCTSTR lpszEntry, CSize* szResult)
-{
-	ASSERT(lpszSection != NULL);
-	ASSERT(lpszEntry != NULL);
-
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection, KEY_READ));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		DWORD dwType, dwCount;
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			NULL, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		ASSERT(dwType == REG_BINARY);
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			(LPBYTE)szResult, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		ASSERT(dwType == REG_BINARY);
-		return TRUE;
-	}
-	else
-	{
-		ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-
-		// convert to string and write out
-		CXString str = GetProfileString(lpszSection, lpszEntry, NULL);
-		if (str.IsEmpty())
-			return FALSE;
-
-		SCANF_S(str, _T("%i,%i"), &szResult->cx, &szResult->cy);
-		return TRUE;
-	}
-}
-
-BOOL CXRegistryManager::WriteProfileDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double* pValue)
-{
-	ASSERT(lpszSection != NULL);
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		m_lResult = ::RegSetValueEx(hSecKey, lpszEntry, NULL, REG_BINARY,
-			(LPBYTE)pValue, sizeof(*pValue));
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		return TRUE;
-	}
-
-	LPBYTE pData = (LPBYTE) pValue;
-	UINT nBytes = sizeof(double);
-	LPTSTR lpsz = new TCHAR[nBytes * 2 + 1];
-	UINT i;
-	for (i = 0; i < nBytes; i++)
-	{
-		lpsz[i * 2] = (TCHAR)((pData[i] & 0x0F) + 'A'); //low nibble
-		lpsz[i * 2 + 1] = (TCHAR)(((pData[i] >> 4) & 0x0F) + 'A'); //high nibble
-	}
-	lpsz[i * 2] = 0;
-
-	ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-
-	BOOL bResult = WriteProfileString(lpszSection, lpszEntry, lpsz);
-	delete[] lpsz;
-	return bResult;
-
-}
-
-BOOL CXRegistryManager::GetProfileDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double* dResult)
-{
-	ASSERT(lpszSection != NULL);
-	ASSERT(lpszEntry != NULL);
-
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection, KEY_READ));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		DWORD dwType, dwCount;
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			NULL, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		ASSERT(dwType == REG_BINARY);
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			(LPBYTE)dResult, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		ASSERT(dwType == REG_BINARY);
-		return TRUE;
-	}
-	else
-	{
-		ASSERT(m_strINIFileName.IsEmpty() == FALSE);
-
-		CXString str = GetProfileString(lpszSection, lpszEntry, NULL);
-		if (str.IsEmpty())
-			return FALSE;
-/*
+	HKEY hSection = NULL;
+	assert(lpszSection != NULL);
+	BOOL blReturn = FALSE;
+	if (Mode_REG == m_nMode)
+	{		
+		if (hSection = GetSectionKey(lpszSection))
+		{
+			if (ERROR_SUCCESS == (m_lResult = ::RegSetValueEx(hSection, lpszEntry, NULL, REG_BINARY,
+				(LPBYTE)&Value, 
+				sizeof(Value))))
+			{
+				blReturn = TRUE;					
+			}	
+		}				
+
+		SAFE_CLOSEKEY(hSection);
+		return blReturn;
 		
-				ASSERT(str.GetLength()%2 == 0);
-				int nLen = str.GetLength();
-		
-				LPBYTE pData = (LPBYTE) dResult;
-		
-				int i;
-				for (i = 0; i < nLen; i += 2)
-				{
-					(pData)[i/2] = (BYTE)
-						(((str[i + 1] - 'A') << 4) + (str[i] - 'A'));
-				}*/
-		
-
-		return TRUE;
 	}
+	else if (Mode_INI == m_nMode)
+	{
+		assert(!m_strPath.IsEmpty());
+		CXString str;
+		str.Format(_T("%i,%i"), Value.x, Value.y);
+		blReturn = m_lResult = ::WriteProfileString(lpszSection, lpszEntry, str);
+	}		
+	return blReturn;
 }
 
-BOOL CXRegistryManager::WriteProfileDword(LPCTSTR lpszSection, LPCTSTR lpszEntry, DWORD* pValue)
+POINT CXRegistryManager::GetProfilePoint(LPCTSTR lpszSection, LPCTSTR lpszEntry, 
+																					const POINT& tDefault)
 {
-	ASSERT(lpszSection != NULL);
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
+	assert(lpszSection != NULL);
+	assert(lpszEntry != NULL);
+	POINT tPointRet = tDefault;	
+	if (Mode_REG == m_nMode)
+	{				
+		HKEY hSection = NULL;	
+		DWORD dwType, dwCount = 0;
+		if (hSection = GetSectionKey(lpszSection, KEY_READ))
+		{
+			m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType,NULL, &dwCount);
 
-		CHKey hSecKey(GetSectionKey(lpszSection));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		m_lResult = ::RegSetValueEx(hSecKey, lpszEntry, NULL, REG_DWORD,
-			(LPBYTE)pValue, sizeof(*pValue));
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		return TRUE;
-	}
-
-
-	BOOL bResult = WriteProfileInt(lpszSection, lpszEntry, int(*pValue));
-	return bResult;
-}
-
-BOOL CXRegistryManager::GetProfileDword(LPCTSTR lpszSection, LPCTSTR lpszEntry, DWORD* dwResult)
-{
-	ASSERT(lpszSection != NULL);
-	ASSERT(lpszEntry != NULL);
-
-	if (m_strINIFileName.IsEmpty())
-	{
-		if (!GetProfileInfo())
-			return FALSE;
-
-		CHKey hSecKey(GetSectionKey(lpszSection, KEY_READ));
-		if (hSecKey == NULL)
-			return FALSE;
-
-		DWORD dwType, dwCount;
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			NULL, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		ASSERT(dwType == REG_DWORD);
-		m_lResult = ::RegQueryValueEx(hSecKey, (LPTSTR)lpszEntry, NULL, &dwType,
-			(LPBYTE)dwResult, &dwCount);
-
-		if (m_lResult != ERROR_SUCCESS)
-			return FALSE;
-
-		ASSERT(dwType == REG_DWORD);
-		return TRUE;
+			if (m_lResult == ERROR_SUCCESS && dwType == REG_BINARY && dwCount == sizeof(tPointRet))
+			{
+				m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType,	
+					(LPBYTE)&tPointRet, &dwCount);				
+			}		
+		}		
+		SAFE_CLOSEKEY(hSection);	
+		return tPointRet;
 	}
 	else
 	{
-		ASSERT(m_strINIFileName.IsEmpty() == FALSE);
+		assert(!m_strPath.IsEmpty());
 
-		CXString str = GetProfileString(lpszSection, lpszEntry, NULL);
-		if (str.IsEmpty())
-			return FALSE;
+		CXString str = GetProfileString(lpszSection, lpszEntry, TEXT(""));
+		if (!str.IsEmpty())
+		{
+			_tscanf_s(str, _T("%ld,%ld"), &tPointRet.x, &tPointRet.y);	
+		}			
+	}  
+	return tPointRet;
+}
 
-		*dwResult = (DWORD)GetProfileInt(lpszSection, lpszEntry, 0);
-		return TRUE;
+BOOL CXRegistryManager::WriteProfileRect(LPCTSTR lpszSection, LPCTSTR lpszEntry, 
+																				 const RECT& rtDefault)
+{
+	assert(lpszSection != NULL);
+	BOOL blReturn = FALSE;
+	if (Mode_REG == m_nMode)
+	{		
+		HKEY hSection = NULL;
+		if (hSection = GetSectionKey(lpszSection))
+		{
+			if(ERROR_SUCCESS == (m_lResult = ::RegSetValueEx(hSection, lpszEntry, NULL, REG_BINARY,
+				(LPBYTE)&rtDefault, sizeof(rtDefault))))
+			{
+				blReturn = TRUE;				
+			}	
+		}
+		SAFE_CLOSEKEY(hSection);
+		return blReturn;
 	}
+	else if (Mode_INI == m_nMode)
+	{
+		CXString str;
+		str.Format(_T("%i,%i,%i,%i"), rtDefault.left, rtDefault.top, rtDefault.right, rtDefault.bottom);
+		return blReturn = WriteProfileString(lpszSection, lpszEntry, str);
+	}
+	return blReturn;
 }
 
-BOOL CXRegistryManager::WriteProfileColor(LPCTSTR lpszSection, LPCTSTR lpszEntry, COLORREF* pValue)
+RECT CXRegistryManager::GetProfileRect(LPCTSTR lpszSection, LPCTSTR lpszEntry,
+																			 const RECT& rtDefault)
 {
-	return WriteProfileDword(lpszSection, lpszEntry, pValue);
+	assert(lpszSection != NULL);
+	assert(lpszEntry != NULL);
+	CRect rtReturn = rtDefault;
+	if (Mode_REG == m_nMode)
+	{	
+		HKEY hSection = NULL;
+		hSection = GetSectionKey(lpszSection, KEY_READ);
+		DWORD dwType, dwCount = 0;
+		m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType,NULL, &dwCount);
+
+		if (!(m_lResult != ERROR_SUCCESS || dwType != REG_BINARY || dwCount != sizeof(rtReturn)))
+		{
+			m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType,	
+				(LPBYTE)&rtReturn, &dwCount);
+		}		
+		SAFE_CLOSEKEY(hSection);
+		return rtReturn;
+	}
+	else if(Mode_INI == m_nMode)
+	{
+		assert(!m_strPath.IsEmpty());		
+		CXString str = GetProfileString(lpszSection, lpszEntry,  TEXT(""));
+		if (!str.IsEmpty())
+		{
+			_tscanf_s(str, _T("%ld,%ld,%ld,%ld"),
+				&rtReturn.left, &rtReturn.top, &rtReturn.right, &rtReturn.bottom);
+		}		
+		return rtReturn;
+	}
+	return rtReturn;
 }
 
-BOOL CXRegistryManager::GetProfileColor(LPCTSTR lpszSection, LPCTSTR lpszEntry, COLORREF* rgbResult)
+BOOL CXRegistryManager::WriteProfileSize(LPCTSTR lpszSection, LPCTSTR lpszEntry, 
+																				 const SIZE& tValue)
 {
-	return GetProfileDword(lpszSection, lpszEntry, rgbResult);
+	assert(lpszSection != NULL);
+	BOOL blReturn = FALSE;
+	if (Mode_REG == m_nMode)
+	{	
+		HKEY hSection = NULL;
+		hSection = GetSectionKey(lpszSection);		
+		m_lResult = ::RegSetValueEx(hSection, lpszEntry, NULL, REG_BINARY,
+			(LPBYTE)&tValue, sizeof(tValue));
+
+		if (m_lResult == ERROR_SUCCESS)
+		{
+			blReturn = TRUE;
+		}
+		SAFE_CLOSEKEY(hSection);
+		return blReturn;
+	}
+	else if (Mode_INI == m_nMode)
+	{
+		CXString str;
+		str.Format(_T("%i,%i"), tValue.cx, tValue.cy);		
+		return blReturn = WriteProfileString(lpszSection, lpszEntry, str);;
+	}
+	return blReturn;
+}
+
+SIZE CXRegistryManager::GetProfileSize(LPCTSTR lpszSection, LPCTSTR lpszEntry, 
+																				const SIZE& szResult)
+{
+	assert(lpszSection != NULL);
+	assert(lpszEntry != NULL);
+	SIZE tRet = szResult;
+	if (Mode_REG == m_nMode)
+	{	
+		HKEY hSection = NULL;
+		DWORD dwType, dwCount = 0;
+		hSection = GetSectionKey(lpszSection, KEY_READ);		
+		m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType, NULL, &dwCount);
+
+		if (!(m_lResult != ERROR_SUCCESS || REG_BINARY != dwType || dwCount != sizeof(tRet)))
+		{
+			m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType,(LPBYTE)&tRet, &dwCount);
+		}		
+		SAFE_CLOSEKEY(hSection);				
+		return tRet;
+	}
+	else if(Mode_INI == m_nMode)
+	{
+		assert(!m_strPath.IsEmpty());		
+		CXString str = GetProfileString(lpszSection, lpszEntry,  TEXT(""));
+		if (!str.IsEmpty())
+		{
+			_tscanf_s(str, TEXT("%d,%d"), &tRet.cx, &tRet.cy);
+		}		
+		return tRet;
+	}
+	return tRet;
+}
+
+BOOL CXRegistryManager::WriteProfileDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, 
+																					 const double& dbValue)
+{
+	assert(lpszSection != NULL);
+	BOOL blReturn = FALSE;
+	if (Mode_REG == m_nMode)
+	{		
+		HKEY hSection = NULL;
+		hSection = GetSectionKey(lpszSection);
+		m_lResult = ::RegSetValueEx(hSection, lpszEntry, NULL, REG_BINARY,
+			(LPBYTE)&dbValue, sizeof(dbValue));
+
+		if (m_lResult == ERROR_SUCCESS)
+		{
+			blReturn	= TRUE;
+		}
+		SAFE_CLOSEKEY(hSection);
+		return blReturn;
+	}
+	else if (Mode_INI == m_nMode)
+	{
+		LPBYTE pData = (LPBYTE) &dbValue;
+		UINT nBytes = sizeof(double);
+		LPTSTR lpsz = (LPTSTR)_alloca(sizeof(TCHAR) * (nBytes * 2 + 1));
+		LONG i = 0;
+		for (; i < (LONG)nBytes; i ++)
+		{
+			lpsz[i * 2] = (TCHAR)((pData[i] & 0x0F) + 'A'); 
+			lpsz[i * 2 + 1] = (TCHAR)(((pData[i] >> 4) & 0x0F) + 'A'); 
+		}
+		lpsz[i * 2] = 0;
+
+		assert(!m_strPath.IsEmpty());		
+		return blReturn = WriteProfileString(lpszSection, lpszEntry, lpsz);
+	}
+	return blReturn;
+}
+
+double CXRegistryManager::GetProfileDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, 
+																					 const double& dbDefault)
+{
+	assert(lpszSection != NULL);
+	assert(lpszEntry != NULL);
+	double dbReturn = dbDefault;
+	if (Mode_REG == m_nMode)
+	{		
+		HKEY hSection = NULL;
+		DWORD dwType, dwCount = 0;
+		hSection = GetSectionKey(lpszSection, KEY_READ);			
+		m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType, NULL, &dwCount);
+
+		if (!(m_lResult != ERROR_SUCCESS || dwType != REG_BINARY || dwCount != sizeof(double)))
+		{
+			m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType,
+				(LPBYTE)&dbReturn, &dwCount);
+		}
+		SAFE_CLOSEKEY(hSection);
+		return dbReturn;
+	}
+	else if(Mode_INI == m_nMode)
+	{
+		assert(!m_strPath.IsEmpty());
+		CXString str = GetProfileString(lpszSection, lpszEntry, TEXT(""));
+		if (!str.IsEmpty())
+		{
+			assert(str.StrLen() % 2 == 0);
+			LONG nLen = str.StrLen();
+
+			LPBYTE pData = (LPBYTE)&dbReturn;
+			LONG i;
+			for (i = 0; i < nLen; i += 2)
+			{
+				(pData)[i / 2] = (BYTE)(((str[i + 1] - 'A') << 4) + (str[i] - 'A'));
+			}
+		}		
+		return dbReturn;
+	}
+	return dbReturn;
+}
+
+BOOL CXRegistryManager::WriteProfileDword(LPCTSTR lpszSection, LPCTSTR lpszEntry, 
+																					const DWORD& dwValue)
+{
+	assert(lpszSection != NULL);
+	BOOL blReturn = FALSE;
+	if (Mode_REG == m_nMode)
+	{
+		HKEY hSection = NULL;
+		hSection = GetSectionKey(lpszSection);
+		m_lResult = ::RegSetValueEx(hSection, lpszEntry, NULL, REG_DWORD,
+			(LPBYTE)dwValue, sizeof(dwValue));
+
+		if (m_lResult == ERROR_SUCCESS)
+		{
+			blReturn = TRUE;
+		}
+		SAFE_CLOSEKEY(hSection);
+		return blReturn;
+	}
+	else if (Mode_INI == m_nMode)
+	{
+		m_lResult = WriteProfileInt(lpszSection, lpszEntry, int(dwValue));
+	}	 
+	return m_lResult;
+}
+
+DWORD CXRegistryManager::GetProfileDword(LPCTSTR lpszSection, LPCTSTR lpszEntry, const DWORD& dwDefault)
+{
+	assert(lpszSection != NULL);
+	assert(lpszEntry != NULL);
+	DWORD dwReturn = dwDefault;
+	if (Mode_REG == m_nMode)
+	{
+		HKEY hSection = NULL;
+		DWORD dwType, dwCount;
+		hSection  = GetSectionKey(lpszSection, KEY_READ);			
+		m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType,	NULL, &dwCount);
+
+		if (!(m_lResult != ERROR_SUCCESS || dwType != REG_DWORD || dwCount != sizeof(DWORD)))
+		{
+			m_lResult = ::RegQueryValueEx(hSection, (LPTSTR)lpszEntry, NULL, &dwType, (LPBYTE)&dwReturn, &dwCount);
+		}		
+		SAFE_CLOSEKEY(hSection);		
+		return dwReturn;
+	}
+	else if(Mode_INI == m_nMode)
+	{
+		assert(!m_strPath.IsEmpty());
+
+		CXString str = GetProfileString(lpszSection, lpszEntry, TEXT(""));
+		if (!str.IsEmpty())
+		{
+			dwReturn = (DWORD)GetProfileInt(lpszSection, lpszEntry, 0);
+		}		
+		return dwReturn;
+	}
+	return dwReturn;
+}
+
+BOOL CXRegistryManager::WriteProfileColor(LPCTSTR lpszSection, LPCTSTR lpszEntry, 
+																					const COLORREF& crValue)
+{
+	return WriteProfileDword(lpszSection, lpszEntry, crValue);
+}
+
+COLORREF CXRegistryManager::GetProfileColor(LPCTSTR lpszSection, LPCTSTR lpszEntry, 
+																				const COLORREF& crDefault)
+{
+	return GetProfileDword(lpszSection, lpszEntry, crDefault);
 }
 
 CXString CXRegistryManager::GetErrorMessage() const
@@ -974,24 +832,37 @@ CXString CXRegistryManager::GetErrorMessage() const
 		NULL
 		);
 
-	CXString csMessage((LPCTSTR)lpMsgBuf);
-
-	// Free the buffer.
+	CXString csMessage((LPCTSTR)lpMsgBuf);	
 	::LocalFree( lpMsgBuf );
-
 	return csMessage;
 }
-void CXRegistryManager::SetINIFileName(LPCTSTR strINIFileName) 
+void CXRegistryManager::Set(LPCTSTR strINIFileName, LONG nMode, HKEY hKeyBase) 
 {
+	/*
   TCHAR strShortPath[_MAX_PATH + 1];
+	if (!HWXIsFileExist(strINIFileName))
+	{
+		HWXCreateFile(strINIFileName);
+	}
   VERIFY(_MAX_PATH > GetShortPathName(strINIFileName, strShortPath, _MAX_PATH));
-  m_strINIFileName = strShortPath;
+	*/
+  m_strPath = strINIFileName;
+	SetMode(nMode);
+	m_hKeyBase = hKeyBase;
 }
-CXString& CXRegistryManager::GetINIFileName() 
+CXString& CXRegistryManager::GetPath() 
 {
-  return m_strINIFileName;
+  return m_strPath;
 }
 LONG CXRegistryManager::GetErrorCode() const 
 {
   return m_lResult;
+}
+void CXRegistryManager::SetMode(LONG nMode)
+{
+	m_nMode = nMode;
+}
+LONG CXRegistryManager::GetMode()
+{
+	return m_nMode;
 }

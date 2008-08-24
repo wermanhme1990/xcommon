@@ -24,8 +24,7 @@ CXString CXViewWnd:: m_strDefWndName = TEXT("HWX_RENDER");
 IMPLEMENT_DYNCREATE(CXViewWnd, CScrollView)
 
 BEGIN_MESSAGE_MAP(CXViewWnd, CScrollView)
-	//{{AFX_MSG_MAP(CXViewWnd)		
-  
+	//{{AFX_MSG_MAP(CXViewWnd)		  
 	ON_WM_SIZE()	
 	ON_WM_ERASEBKGND()		
 	ON_WM_SETFOCUS()	
@@ -288,7 +287,7 @@ int CXViewWnd::OnMouseActivate(CWnd* pDesktopWnd, UINT nHitTest, UINT message)
 {
   // TODO: 在此添加消息处理程序代码和/或调用默认值
   LONG nResult = CWnd::OnMouseActivate(pDesktopWnd, nHitTest, message);
-  OnActivateView(TRUE, this, this);  
+  OnActivateView(TRUE, this, NULL);  
   return nResult;
 }
 
@@ -342,8 +341,7 @@ void CXViewWnd::OnSize(UINT nType, int cx, int cy)
 void CXViewWnd::OnActivateFrame(UINT nState, CFrameWnd* pDeactivateFrame)
 {
 	// TODO: 在此添加专用代码和/或调用基类
-	//CScrollView::OnActivateFrame(nState, pDeactivateFrame);
-	//LONG n = 1;
+	__super::OnActivateFrame(nState, pDeactivateFrame);	
 }
 
 void CXViewWnd::OnActivateView(BOOL bActivate, CView* pActiveView,

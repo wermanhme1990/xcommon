@@ -60,11 +60,13 @@ void CXStringW::Init()
 //////////////////////////////////////////////////////////////////////////
 CXStringW::~CXStringW()
 {
+
 #if defined(_DEBUG) || defined(DEBUG)
-	{
-		Clear();
-	}
+		{
+			Clear();
+		}
 #endif  
+	
 }
 
 void CXStringW::AssertValid() const
@@ -182,18 +184,20 @@ BOOL CXStringW::SetAt(LONG nIndex, WCHAR whB)
 }
 BOOL CXStringW::Strcat(LPCWSTR pwhA)
 {
-  assert(NULL != pwhA);  
-  LONG nLen = (LONG)wcslen(pwhA); 
-  Reserve(m_nLength + nLen + 1);    
-  LPWSTR pwhOrgString = (LPWSTR)C_Str();
-  wcscat(pwhOrgString, pwhA);
-  m_nLength += nLen; 
-#if defined(_DEBUG) || defined(DEBUG)
+  if (pwhA)
   {
-    LONG nNewLen = (LONG)wcslen(pwhOrgString);
-    assert(nNewLen == m_nLength);
-  }
-#endif  
+		LONG nLen = (LONG)wcslen(pwhA); 
+		Reserve(m_nLength + nLen + 1);    
+		LPWSTR pwhOrgString = (LPWSTR)C_Str();
+		wcscat(pwhOrgString, pwhA);
+		m_nLength += nLen; 
+#if defined(_DEBUG) || defined(DEBUG)
+		{
+			LONG nNewLen = (LONG)wcslen(pwhOrgString);
+			assert(nNewLen == m_nLength);
+		}
+#endif
+  }    
   return TRUE;
 }
 BOOL CXStringW::Strcat(LPCWSTR pwhA, LONG nDstLen)
@@ -958,18 +962,20 @@ BOOL CXStringA::SetAt(LONG nIndex, CHAR chB)
 }
 BOOL CXStringA::Strcat(LPCSTR pchA)
 {
-  assert(NULL != pchA);  
-  LONG nLen = (LONG)strlen(pchA);  
-  Reserve(m_nLength + nLen + 1);    
-  LPSTR pwhOrgString = (LPSTR)C_Str();
-  strcat(pwhOrgString, pchA);
-  m_nLength += nLen; 
+	if (pchA)
+	{
+		LONG nLen = (LONG)strlen(pchA);  
+		Reserve(m_nLength + nLen + 1);    
+		LPSTR pwhOrgString = (LPSTR)C_Str();
+		strcat(pwhOrgString, pchA);
+		m_nLength += nLen; 
 #if defined(_DEBUG) || defined(DEBUG)
-  {
-    LONG nNewLen = (LONG)strlen(pwhOrgString);
-    assert(nNewLen == m_nLength);
-  }
-#endif  
+		{
+			LONG nNewLen = (LONG)strlen(pwhOrgString);
+			assert(nNewLen == m_nLength);
+		}
+#endif 
+	}   
   return TRUE;
 }
 BOOL CXStringA::Strcat(LPCSTR pwhA, LONG nDstLen)

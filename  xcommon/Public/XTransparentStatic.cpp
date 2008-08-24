@@ -22,6 +22,7 @@ CXTransparentStatic::CXTransparentStatic()
 	//{{AFX_DATA_INIT(CXTransparentStatic)
 	// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
+	m_bAdjustToFit = TRUE;
 }
 
 CXTransparentStatic::~CXTransparentStatic()
@@ -58,3 +59,56 @@ BOOL CXTransparentStatic::Create( LPCTSTR lpszText, DWORD dwStyle, const RECT& r
 	return __super::Create(lpszText, dwStyle, rect, pParentWnd, nID);
 }
 
+void CXTransparentStatic::PositionWindow()
+{
+	if (!::IsWindow(GetSafeHwnd()) || !m_bAdjustToFit) 
+		return;
+
+	// Get the current window position
+	CRect rect;
+	GetWindowRect(rect);
+
+	CWnd* pParent = GetParent();
+	if (pParent)
+	{
+		pParent->ScreenToClient(rect);
+	}
+
+	// Get the size of the window text
+	CString strWndText;
+	GetWindowText(strWndText);
+
+	CDC* pDC = GetDC();
+	//CFont* pOldFont = pDC->SelectObject(&m_Font);
+	CSize Extent = pDC->GetTextExtent(strWndText);
+	//pDC->SelectObject(pOldFont);
+	ReleaseDC(pDC);
+
+	// Get the text justification via the window style
+	DWORD dwStyle = GetStyle();
+
+	// Recalc the window size and position based on the text justification
+	if (dwStyle & SS_CENTERIMAGE)
+	{
+		rect.DeflateRect(0, (rect.Height() - Extent.cy)/2);
+	}
+	else
+	{
+		rect.bottom = rect.top + Extent.cy;
+	}
+
+	if (dwStyle & SS_CENTER)   
+	{
+		rect.DeflateRect((rect.Width() - Extent.cx)/2, 0);
+	}
+	else if (dwStyle & SS_RIGHT) 
+	{
+		rect.left  = rect.right - Extent.cx;
+	}
+	else // SS_LEFT = 0, so we can't test for it explicitly 
+	{
+		rect.right = rect.left + Extent.cx;
+	}
+	// Move the window
+	SetWindowPos(NULL, rect.left, rect.top, rect.Width(), rect.Height(), SWP_NOZORDER);
+}

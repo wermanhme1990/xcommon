@@ -457,10 +457,8 @@ CXStringA WINAPI XGetFileNameA(LPCSTR lpszFilePath)
 }
 
 BOOL WINAPI XCreateDirA(HWX_IN LPCSTR pchDstFilePath )
-{  
-  CXStringA strPath = pchDstFilePath;
-  strPath.ReplaceChar('\\', '/');
-  LPCSTR pchTail = strPath.C_Str();  
+{   
+  LPCSTR pchTail = pchDstFilePath;  
   CHAR szPairentPath[MAX_PATH] = {0};
   BOOL blRet = TRUE;
   int nPairentPathLen;
@@ -472,13 +470,17 @@ BOOL WINAPI XCreateDirA(HWX_IN LPCSTR pchDstFilePath )
 
   while(pchTail)
   {    
-    pchTail = strchr( pchTail, '/');
+    pchTail = strchr( pchTail, '\\');
     if(pchTail)
     {
       nPairentPathLen = (LONG)strlen( pchDstFilePath ) - (LONG)strlen( pchTail ) + 1;
       strncpy(szPairentPath, pchDstFilePath, nPairentPathLen); 
       szPairentPath[nPairentPathLen + 1] = 0;
-      mkdir(szPairentPath);      
+      if (!mkdir(szPairentPath))
+      {
+				blRet = FALSE;
+				break;
+      }            
       pchTail ++;
     }
   }
@@ -487,10 +489,8 @@ _Error:
   return blRet;
 }
 BOOL WINAPI XCreateDirW(HWX_IN LPCWSTR pwhDstFilePath )
-{  
-  CXStringW strPath(pwhDstFilePath);
-  strPath.ReplaceChar('\\', '/');
-  LPCWSTR pwhTail = strPath.C_Str();  
+{    
+  LPCWSTR pwhTail = pwhDstFilePath;  
   WCHAR szPairentPath[MAX_PATH] = {0};
   BOOL blRet = TRUE;
   int nPairentPathLen;
@@ -502,13 +502,17 @@ BOOL WINAPI XCreateDirW(HWX_IN LPCWSTR pwhDstFilePath )
 
   while(pwhTail)
   {    
-    pwhTail = wcschr( pwhTail, L'/');
+    pwhTail = wcschr( pwhTail, L'\\');
     if(pwhTail)
     {
       nPairentPathLen = (LONG)wcslen( pwhDstFilePath ) - (LONG)wcslen( pwhTail ) + 1;
       wcsncpy(szPairentPath, pwhDstFilePath, nPairentPathLen);  
       szPairentPath[nPairentPathLen + 1] = 0;
-      _wmkdir(szPairentPath);      
+      if (!_wmkdir(szPairentPath))
+      {
+				blRet = FALSE;
+				break;
+      }         
       pwhTail ++;
     }
   }
