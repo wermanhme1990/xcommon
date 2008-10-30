@@ -1,0 +1,83 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: freepy - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x804 /fo"Release/freepy.res" /d "NDEBUG" "D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\freepy.rc"" 
+Creating temporary file "C:\DOCUME~1\崔占民\LOCALS~1\Temp\RSPD6.tmp" with contents
+[
+/nologo /MT /W3 /GX /O2 /I "./" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FREEPY_EXPORTS" /Fp"Release/freepy.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\freepy.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\global.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\handle.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\HZlib.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\HZmodei.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\HZmodenormal.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\HZmodephtoch.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\HZmodeu.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\HZmodev.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\HZspecial.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\HZutil.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\imm.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\subs.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\uicand.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\uicomp.c"
+"D:\ProgramsExample\VCExample\Free拼音输入法\freepy31\source\uistatus.c"
+]
+Creating command line "cl.exe @"C:\DOCUME~1\崔占民\LOCALS~1\Temp\RSPD6.tmp"" 
+Creating temporary file "C:\DOCUME~1\崔占民\LOCALS~1\Temp\RSPD7.tmp" with contents
+[
+imm32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /incremental:no /pdb:"Release/freepy.pdb" /machine:I386 /def:".\freepy.def" /out:"Release/freepy.dll" /implib:"Release/freepy.lib" 
+".\Release\freepy.obj"
+".\Release\gb2big.obj"
+".\Release\global.obj"
+".\Release\handle.obj"
+".\Release\HZlib.obj"
+".\Release\HZmodei.obj"
+".\Release\HZmodenormal.obj"
+".\Release\HZmodephtoch.obj"
+".\Release\HZmodeu.obj"
+".\Release\HZmodev.obj"
+".\Release\HZspecial.obj"
+".\Release\HZutil.obj"
+".\Release\imm.obj"
+".\Release\Process.obj"
+".\Release\subs.obj"
+".\Release\uicand.obj"
+".\Release\uicomp.obj"
+".\Release\uistatus.obj"
+".\Release\freepy.res"
+]
+Creating command line "link.exe @"C:\DOCUME~1\崔占民\LOCALS~1\Temp\RSPD7.tmp""
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+freepy.c
+global.c
+handle.c
+HZlib.c
+HZmodei.c
+HZmodenormal.c
+HZmodephtoch.c
+HZmodeu.c
+HZmodev.c
+HZspecial.c
+HZutil.c
+imm.c
+subs.c
+uicand.c
+uicomp.c
+uistatus.c
+Linking...
+   Creating library Release/freepy.lib and object Release/freepy.exp
+
+
+
+<h3>Results</h3>
+freepy.dll - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
