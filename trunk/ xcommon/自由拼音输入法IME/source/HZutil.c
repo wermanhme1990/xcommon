@@ -1,23 +1,23 @@
 /*
- * Copyright (C) 1999.4  Li ZhenChun
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License; or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that is will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
- *
- * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
- * 
- */
+* Copyright (C) 1999.4  Li ZhenChun
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License; or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that is will be useful, but
+* WITHOUT ANY WARRANTY; without even the implied warranty of 
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+* General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
+*
+* Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
+* 
+*/
 
 #include "freepy.h"
 
@@ -34,7 +34,7 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 
 	wPYLen = _tcslen(lpPY);
 	if( wPYLen < 1 || wPYLen > MAX_PHRASE_LEN*wMaxPYLen ) return 0;
-	
+
 	if(wPYLen == 1){
 		if(*lpPY >= _T('a') && *lpPY <= _T('z')){
 			_tcscpy(lpTranBuf,lpPY);
@@ -57,8 +57,9 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 		szSlStr[i][1] = _T('h');
 		szSlStr[i][2] = _T('\0');
 	}
-	
-	while(1){
+
+	while(1)
+	{
 		wHead = *(lpPY+wOffset) - _T('a');
 		if((wHead < 0 || wHead > 25) && *(lpPY+wOffset) != _T('\'')){
 			return 0;
@@ -66,7 +67,7 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 		if(*(lpPY+wOffset) == _T('\'')){
 			if(wTotal > 0 && *(lpTranBuf + (wTotal-1)*wMaxPYLen) >= _T('a')
 				&& *(lpTranBuf + (wTotal-1)*wMaxPYLen) <= _T('z') ){
-				_tcscpy(lpTranBuf+((wTotal)++)*wMaxPYLen,_T("\'"));
+					_tcscpy(lpTranBuf+((wTotal)++)*wMaxPYLen,_T("\'"));
 			}
 			wOffset++;
 			if(wOffset == wPYLen){
@@ -75,7 +76,8 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 			continue;
 		}
 		wCount=1;
-		while((wOffset+wCount) <= wPYLen){
+		while((wOffset+wCount) <= wPYLen)
+		{
 			_tcsncpy(szStr,lpPY+wOffset,wCount);
 			szStr[wCount] = _T('\0');
 			if(wCount == 1) flag=1;
@@ -88,13 +90,16 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 					}
 				}
 			}
-			
-			if( (wOffset+wCount) == wPYLen ){
-				if(flag) {
+
+			if( (wOffset+wCount) == wPYLen )
+			{
+				if(flag) 
+				{
 					_tcscpy(lpTranBuf+((wTotal)++)*wMaxPYLen,szStr);
 					return wTotal;
 				}
-				else {
+				else 
+				{
 					if(wCount==2){
 						_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,wCount-1);
 						*(lpTranBuf+((wTotal)++)*wMaxPYLen+wCount-1)=_T('\0');
@@ -106,18 +111,23 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 					_tcsncpy(szTmpStr,szStr,wCount-1);
 					szTmpStr[wCount-1]='\0';
 					eqflag=0;
-					for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++){
+					for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++)
+					{
 						if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) ){
 							eqflag=1;
 							break;
 						}
 					}
-					if(eqflag){
+					if(eqflag)
+					{
 						yunflag = 0;
-						if( _tcsrchr(szYun,szStr[wCount-2]) == NULL && _tcsrchr(szYun,nTemp) != NULL) {
+						if( _tcsrchr(szYun,szStr[wCount-2]) == NULL && _tcsrchr(szYun,nTemp) != NULL) 
+						{
 							szTmpStr[_tcslen(szTmpStr)-1] = _T('\0');
-							for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++){
-								if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) ){
+							for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++)
+							{
+								if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) )
+								{
 									goto my_next1;
 								}
 							}
@@ -125,21 +135,25 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 						goto my_next2;
 my_next1:
 						_tcscpy(szTmpStr,szStr + _tcslen(szStr) -2);
-						for(i=0;(lpPYTab+(szTmpStr[0] - _T('a'))*MAX_EACH_PY_NUM+i)->wKey;i++){
-							if( !_tcscmp((lpPYTab+(szTmpStr[0] - _T('a'))*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) ){
+						for(i=0;(lpPYTab+(szTmpStr[0] - _T('a'))*MAX_EACH_PY_NUM+i)->wKey;i++)
+						{
+							if( !_tcscmp((lpPYTab+(szTmpStr[0] - _T('a'))*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) )
+							{
 								yunflag = 1;
 								break;
 							}
 						}
 
 my_next2:
-						if(yunflag){
+						if(yunflag)
+						{
 							_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,wCount-2);
 							*(lpTranBuf+((wTotal)++)*wMaxPYLen+wCount-2)=_T('\0');
 							_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr+wCount-2,2);
 							*(lpTranBuf+((wTotal)++)*wMaxPYLen+2)=_T('\0');
 						}
-						else {
+						else 
+						{
 							_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,wCount-1);
 							*(lpTranBuf+((wTotal)++)*wMaxPYLen+wCount-1)=_T('\0');
 							_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr+wCount-1,1);
@@ -147,20 +161,25 @@ my_next2:
 						}
 						return wTotal;
 					}	   
-					else{
-						for(i=wCount-2 ;i;i--){
+					else
+					{
+						for(i=wCount-2 ;i;i--)
+						{
 							_tcsncpy(szTmpStr,szStr,i);
 							szTmpStr[i]=_T('\0');
 							rflag = 0;
-							for(j=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+j)->wKey;j++){
-								if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+j)->szPY,szTmpStr) ){
+							for(j=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+j)->wKey;j++)
+							{
+								if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+j)->szPY,szTmpStr) )
+								{
 									rflag = 1;
 									break;
 								}
 							}
 							if(rflag) break;
 						}
-						if(rflag){
+						if(rflag)
+						{
 							wOffset += i;
 							_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,i);
 							*(lpTranBuf+((wTotal)++)*wMaxPYLen+i)=_T('\0');
@@ -169,20 +188,24 @@ my_next2:
 						_tcsncpy(szTmpStr,szStr,2);
 						szTmpStr[2]=_T('\0');
 						slflag=0;
-						
-						for(i=0;i<3;i++){
-							if( !_tcscmp(szTmpStr,szSlStr[i]) ){
+
+						for(i=0;i<3;i++)
+						{
+							if( !_tcscmp(szTmpStr,szSlStr[i]) )
+							{
 								slflag=1;
 								break;
 							}
 						}
-						if(slflag){
+						if(slflag)
+						{
 							wOffset += 2;
 							_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,2);
 							*(lpTranBuf+((wTotal)++)*wMaxPYLen+2)=_T('\0');
 							break;
 						}
-						else{
+						else
+						{
 							wOffset++;
 							_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,1);
 							*(lpTranBuf+((wTotal)++)*wMaxPYLen+1)=_T('\0');
@@ -191,10 +214,12 @@ my_next2:
 					}
 				}
 			}
-			
+
 			if(flag) wCount++;
-			else {
-				if(wCount==2){
+			else 
+			{
+				if(wCount==2)
+				{
 					wOffset++;
 					_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,wCount-1);
 					*(lpTranBuf+((wTotal)++)*wMaxPYLen+wCount-1)=_T('\0');
@@ -204,18 +229,24 @@ my_next2:
 				_tcsncpy(szTmpStr,szStr,wCount-1);
 				szTmpStr[wCount-1]='\0';
 				eqflag=0;
-				for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++){
-					if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) ){
+				for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++)
+				{
+					if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) )
+					{
 						eqflag=1;
 						break;
 					}
 				}
-				if(eqflag){
+				if(eqflag)
+				{
 					yunflag = 0;
-					if( _tcsrchr(szYun,szStr[wCount-2]) == NULL && _tcsrchr(szYun,nTemp) != NULL) {
+					if( _tcsrchr(szYun,szStr[wCount-2]) == NULL && _tcsrchr(szYun,nTemp) != NULL)
+					{
 						szTmpStr[_tcslen(szTmpStr)-1] = _T('\0');
-						for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++){
-							if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) ){
+						for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++)
+						{
+							if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) )
+							{
 								goto my_next3;
 							}
 						}
@@ -223,9 +254,11 @@ my_next2:
 					goto my_next4;
 my_next3:
 					_tcscpy(szTmpStr,szStr + _tcslen(szStr) -2);
-					for(i=0;(lpPYTab+(szTmpStr[0] - _T('a'))*MAX_EACH_PY_NUM+i)->wKey;i++){
+					for(i=0;(lpPYTab+(szTmpStr[0] - _T('a'))*MAX_EACH_PY_NUM+i)->wKey;i++)
+					{
 						if( (pDest = _tcsstr((lpPYTab+(szTmpStr[0] - _T('a'))*MAX_EACH_PY_NUM+i)->szPY,szTmpStr)) != NULL ){
-							if(pDest == (lpPYTab+(szTmpStr[0] - _T('a'))*MAX_EACH_PY_NUM+i)->szPY) {
+							if(pDest == (lpPYTab+(szTmpStr[0] - _T('a'))*MAX_EACH_PY_NUM+i)->szPY) 
+							{
 								yunflag = 1;
 								break;
 							}
@@ -233,31 +266,38 @@ my_next3:
 					}
 my_next4:
 
-					if(yunflag) {
+					if(yunflag)
+					{
 						wOffset += wCount-2;
 						_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,wCount-2);
 						*(lpTranBuf+((wTotal)++)*wMaxPYLen+wCount-2)=_T('\0');
 					}
-					else {
+					else 
+					{
 						wOffset += wCount-1;
 						_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,wCount-1);
 						*(lpTranBuf+((wTotal)++)*wMaxPYLen+wCount-1)=_T('\0');
 					}
 				}
-				else{
-					for(i=wCount-2 ;i;i--){
+				else
+				{
+					for(i=wCount-2 ;i;i--)
+					{
 						_tcsncpy(szTmpStr,szStr,i);
 						szTmpStr[i]=_T('\0');
 						rflag = 0;
-						for(j=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+j)->wKey;j++){
-							if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+j)->szPY,szTmpStr) ){
+						for(j=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+j)->wKey;j++)
+						{
+							if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+j)->szPY,szTmpStr) )
+							{
 								rflag = 1;
 								break;
 							}
 						}
 						if(rflag) break;
 					}
-					if(rflag){
+					if(rflag)
+					{
 						wOffset += i;
 						_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,i);
 						*(lpTranBuf+((wTotal)++)*wMaxPYLen+i)=_T('\0');
@@ -267,19 +307,22 @@ my_next4:
 					_tcsncpy(szTmpStr,szStr,2);
 					szTmpStr[2]=_T('\0');
 					slflag=0;
-					
+
 					for(i=0;i<3;i++){
-						if( !_tcscmp(szTmpStr,szSlStr[i]) ){
+						if( !_tcscmp(szTmpStr,szSlStr[i]) )
+						{
 							slflag=1;
 							break;
 						}
 					}
-					if(slflag){
+					if(slflag)
+					{
 						wOffset += 2;
 						_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,2);
 						*(lpTranBuf+((wTotal)++)*wMaxPYLen+2)=_T('\0');
 					}
-					else{
+					else
+					{
 						wOffset++;
 						_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,1);
 						*(lpTranBuf+((wTotal)++)*wMaxPYLen+1)=_T('\0');
@@ -290,7 +333,7 @@ my_next4:
 		}
 	}
 }
-	
+
 WORD CreatePYKey(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,WORD awPYArrayKey[][2*MAX_EACH_PY_NUM+1])
 {
 	LPPINYIN lpPYTab = (LPPINYIN)aPYTab;
@@ -302,11 +345,12 @@ WORD CreatePYKey(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,WORD awPYArray
 	TCHAR cTempChar;
 	LPTSTR lpDest;
 	int i,j,k;
-	
+
 	szBStr[0][0] = _T('a');
 	szBStr[1][0] = _T('e');
 	szBStr[2][0] = _T('i');
-	for(i=0;i<3;i++){
+	for(i=0;i<3;i++)
+	{
 		szBStr[i][1] = _T('n');
 		szBStr[i][2] = _T('g');
 		szBStr[i][3] = _T('\0');
@@ -315,15 +359,18 @@ WORD CreatePYKey(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,WORD awPYArray
 	szSlStr[0][0] = _T('c');
 	szSlStr[1][0] = _T('s');
 	szSlStr[2][0] = _T('z');
-	for(i=0;i<3;i++){
+	for(i=0;i<3;i++)
+	{
 		szSlStr[i][1] = _T('h');
 		szSlStr[i][2] = _T('\0');
 	}
-	
-	for(i=0;i<3;i++){
+
+	for(i=0;i<3;i++)
+	{
 		wTemp = 0;
 		wTemp1 = 0;
-		for(j=0;(lpPYTemp=(lpPYTab+ (szSlStr[i][0] - _T('a'))*MAX_EACH_PY_NUM+j))->wKey;j++){
+		for(j=0;(lpPYTemp=(lpPYTab+ (szSlStr[i][0] - _T('a'))*MAX_EACH_PY_NUM+j))->wKey;j++)
+		{
 			if( _tcsstr(lpPYTemp->szPY,szSlStr[i] ) != NULL )
 				awSlKey[i][wTemp++] = lpPYTemp->wKey;
 			else
@@ -334,9 +381,10 @@ WORD CreatePYKey(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,WORD awPYArray
 	}
 
 	wCount = 0;
-	for(i=0;i<wPYArrayLen;i++){
+	for(i=0;i<wPYArrayLen;i++)
+	{
 		if((cTempChar = *(lpPYArray + i*wMaxPYLen))== _T('i') || 
-				cTempChar == _T('u') || cTempChar == _T('v') ) 
+			cTempChar == _T('u') || cTempChar == _T('v') ) 
 			continue;
 
 		_tcscpy(szPY[0],lpPYArray + i*wMaxPYLen);
@@ -346,21 +394,25 @@ WORD CreatePYKey(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,WORD awPYArray
 		szPY[2][0] = _T('\0');
 		szPY[3][0] = _T('\0');
 
-		if( wConversionSet & CONVERSION_SET_FUZZYC ) {
+		if( wConversionSet & CONVERSION_SET_FUZZYC ) 
+		{
 			if( (cTempChar = szPY[0][0]) == _T('c') ||
-				cTempChar == _T('s') || cTempChar == _T('z') ) {
+				cTempChar == _T('s') || cTempChar == _T('z') )
+			{
 				if( szPY[0][1] == _T('h') ) {
 					szPY[1][0] = cTempChar;
 					_tcscpy(szPY[1]+1,szPY[0] + 2);
 				}
-				else{
+				else
+				{
 					szPY[1][0] = cTempChar;
 					szPY[1][1] = _T('h');
 					_tcscpy(szPY[1]+2,szPY[0] + 1);
 				}
 			}
 		}
-		if( wConversionSet & CONVERSION_SET_FUZZYN ) {
+		if( wConversionSet & CONVERSION_SET_FUZZYN )
+		{
 			if( szPY[0][0] == _T('n') ) {
 				szPY[1][0] = _T('l');
 				_tcscpy(szPY[1]+1,szPY[0] + 1);
@@ -371,23 +423,31 @@ WORD CreatePYKey(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,WORD awPYArray
 			}
 		}
 
-		if( wConversionSet & CONVERSION_SET_FUZZYH ) {
-			if( szPY[0][0] == _T('h') ) {
+		if( wConversionSet & CONVERSION_SET_FUZZYH ) 
+		{
+			if( szPY[0][0] == _T('h') )
+			{
 				szPY[1][0] = _T('f');
 				_tcscpy(szPY[1]+1,szPY[0] + 1);
 			}
-			else if(szPY[0][0] == _T('f') ) {
+			else if(szPY[0][0] == _T('f') ) 
+			{
 				szPY[1][0] = _T('h');
 				_tcscpy(szPY[1]+1,szPY[0] + 1);
 			}
 		}
 
-		if( wConversionSet & CONVERSION_SET_FUZZYB ) {
-			for(k=0;k<2;k++){
+		if( wConversionSet & CONVERSION_SET_FUZZYB ) 
+		{
+			for(k=0;k<2;k++)
+			{
 				wFlag = 0;
-				for(j=0;j<3;j++){
-					if( (lpDest = _tcsstr(szPY[k],szBStr[j])) != NULL){
-						if( (szPY[k] + _tcslen(szPY[k]) - _tcslen(szBStr[j])) == lpDest) {
+				for(j=0;j<3;j++)
+				{
+					if( (lpDest = _tcsstr(szPY[k],szBStr[j])) != NULL)
+					{
+						if( (szPY[k] + _tcslen(szPY[k]) - _tcslen(szBStr[j])) == lpDest) 
+						{
 							wFlag = 1;
 							break;
 						}
@@ -398,19 +458,24 @@ WORD CreatePYKey(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,WORD awPYArray
 					szPY[k+2][_tcslen(szPY[k+2])-1] = _T('\0');
 				}
 			}
-			for(k=0;k<2;k++){
+			for(k=0;k<2;k++)
+			{
 				wFlag = 0;
-				for(j=0;j<3;j++){
+				for(j=0;j<3;j++)
+				{
 					_tcscpy(szTemp,szBStr[j]);
 					szTemp[_tcslen(szTemp)-1] = _T('\0');
-					if( (lpDest = _tcsstr(szPY[k],szTemp)) != NULL){
-						if( (szPY[k] + _tcslen(szPY[k]) - _tcslen(szTemp)) == lpDest) {
+					if( (lpDest = _tcsstr(szPY[k],szTemp)) != NULL)
+					{
+						if( (szPY[k] + _tcslen(szPY[k]) - _tcslen(szTemp)) == lpDest) 
+						{
 							wFlag = 1;
 							break;
 						}
 					}
 				}
-				if(wFlag){
+				if(wFlag)
+				{
 					_tcscpy(szPY[k+2],szPY[k]);
 					szPY[k+2][_tcslen(szPY[k+2])+1] = _T('\0');
 					szPY[k+2][_tcslen(szPY[k+2])] = _T('g');
@@ -419,42 +484,54 @@ WORD CreatePYKey(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,WORD awPYArray
 		}
 
 		wKeyLen = 0;
-		for(k = 0;k < 4;k++) {
+		for(k = 0;k < 4;k++) 
+		{
 			wHead = (WORD)(szPY[k][0] - _T('a'));
 			if( _tcslen(szPY[k]) == 0 ) continue;
-			if( _tcslen(szPY[k]) == 1){
+			if( _tcslen(szPY[k]) == 1)
+			{
 				if( (cTempChar = szPY[k][0]) == _T('c') ||
-					cTempChar == _T('s') || cTempChar == _T('z') ) {
+					cTempChar == _T('s') || cTempChar == _T('z') ) 
+				{
 					if( cTempChar == _T('c') ) wTemp = 0;
 					else if( cTempChar == _T('s') ) wTemp = 1;
 					else if( cTempChar == _T('z') ) wTemp = 2;
 					else wTemp = 0;
-					for(j=0;awNmKey[wTemp][j];j++){
+					for(j=0;awNmKey[wTemp][j];j++)
+					{
 						awPYArrayKey[wCount][wKeyLen++] = awNmKey[wTemp][j];
 					}
 				}
-				else {
+				else
+				{
 					for(j=0;wTempKey=((lpPYTab + wHead*MAX_EACH_PY_NUM +j)->wKey);j++)
 						awPYArrayKey[wCount][wKeyLen++]=wTempKey;
 				}
 			}
-			else{
+			else
+			{
 				wFlag = 0;
-				for(j=0;j<3;j++){
-					if( !_tcscmp(szPY[k],szSlStr[j]) ){
+				for(j=0;j<3;j++)
+				{
+					if( !_tcscmp(szPY[k],szSlStr[j]) )
+					{
 						wFlag=1;
 						wSlPos=j;
 						break;
 					}
 				}
-				if(wFlag){
-					for(j=0;awSlKey[wSlPos][j];j++){
+				if(wFlag)
+				{
+					for(j=0;awSlKey[wSlPos][j];j++)
+					{
 						awPYArrayKey[wCount][wKeyLen++] = awSlKey[wSlPos][j];
 					}
 				}
 				else {
-					for(j=0;(lpPYTab + wHead*MAX_EACH_PY_NUM+j)->wKey;j++){
-						if( !_tcscmp(szPY[k],(lpPYTab + wHead*MAX_EACH_PY_NUM +j)->szPY)){
+					for(j=0;(lpPYTab + wHead*MAX_EACH_PY_NUM+j)->wKey;j++)
+					{
+						if( !_tcscmp(szPY[k],(lpPYTab + wHead*MAX_EACH_PY_NUM +j)->szPY))
+						{
 							awPYArrayKey[wCount][wKeyLen++] = (lpPYTab + wHead*MAX_EACH_PY_NUM+j)->wKey;
 							break;
 						}
@@ -474,10 +551,13 @@ void SortPhrase(LPPHRASE lpPh, WORD wLen)
 	PHRASE TempPh;
 	DWORD dwAttrib;
 
-	for(i=0;i<wLen;i++){
+	for(i=0;i<wLen;i++)	
+	{
 		dwAttrib=(lpPh+i)->lpHZPH->dwAttrib;
-		for(j=i;j<wLen;j++){
-			if( dwAttrib < (lpPh+j)->lpHZPH->dwAttrib){
+		for(j=i;j<wLen;j++)
+		{
+			if( dwAttrib < (lpPh+j)->lpHZPH->dwAttrib)
+			{
 				TempPh = *(lpPh+i);
 				*(lpPh+i)=*(lpPh+j);
 				*(lpPh+j)=TempPh;
@@ -485,8 +565,9 @@ void SortPhrase(LPPHRASE lpPh, WORD wLen)
 		}
 	}
 	dwCurPhraseAttrib=lpPh->lpHZPH->dwAttrib;
-	
-	if (dwMaxPhraseAttrib < lpPh->lpHZPH->dwAttrib) {
+
+	if (dwMaxPhraseAttrib < lpPh->lpHZPH->dwAttrib) 
+	{
 		dwMaxPhraseAttrib=lpPh->lpHZPH->dwAttrib;
 	}
 }
@@ -508,7 +589,8 @@ void ConvertPY(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,LPFREEPYCAND lpP
 	int i,j,k;
 	WORD wPhLen,wTotalPh=0;
 
-	if(wPYArrayLen < 1){
+	if(wPYArrayLen < 1)
+	{
 		lpPYCand->wPhraseNum = 0;
 		lpPYCand->wHZNum = 0;
 		return;
@@ -518,7 +600,7 @@ void ConvertPY(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,LPFREEPYCAND lpP
 
 	awKeyArrayLen[0]=0;
 	awKeyArrayLen[1]=0;
-	
+
 	wHZLen = 0;
 	wTotal = 0;
 	for(k=0;awPYArrayKey[0][k];k++){
@@ -531,24 +613,27 @@ void ConvertPY(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,LPFREEPYCAND lpP
 #else
 		(lpHanZi++)->wLen = wHZLen/2;
 #endif	
-		
+
 		abKey[1] = (BYTE)( awPYArrayKey[0][k] & 0xff);
 		abKey[0] = 0;
 		abKey[0] |= (BYTE)(( awPYArrayKey[0][k] & 0x0100) >> 8);
-		
+
 		wResult=QueryPhrase(abKey,1,alpTempKeyPh);
 		if( alpTempKeyPh[0] != NULL) *(alpKeyPh + (wTotal++)) = alpTempKeyPh[0];
 		if( alpTempKeyPh[1] != NULL) *(alpKeyPh + (wTotal++)) = alpTempKeyPh[1];
 		if(wResult > 0)
 			memcpy(abKeyArray[0][awKeyArrayLen[0]++],abKey,2);
 	}
-	
+
 	lpPYCand->wHZNum = lpHanZi - lpPYCand->aHanZi;
-	
+
 #define TOGGLE(i) ( (i%2) ? 0 : 1 )	
-	for(i=1;i<wCount;i++){
-		for(j=awKeyArrayLen[TOGGLE(i)]-1;j+1;j--){
-			for(k=0;awPYArrayKey[i][k];k++){
+	for(i=1;i<wCount;i++)
+	{
+		for(j=awKeyArrayLen[TOGGLE(i)]-1;j+1;j--)
+		{
+			for(k=0;awPYArrayKey[i][k];k++)
+			{
 				memcpy(abKey,abKeyArray[TOGGLE(i)][j],i+1);
 				abKey[i+1] = (BYTE) ( awPYArrayKey[i][k] & 0xff);
 				abKey[0] |= (BYTE)(( awPYArrayKey[i][k] & 0x0100) >> (8-i));
@@ -565,31 +650,37 @@ void ConvertPY(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,LPFREEPYCAND lpP
 
 #undef TOGGLE
 
-	if(wTotal > 0){
+	if(wTotal > 0)
+	{
 		wTotalPh = 0;
 		wPhLen = 0;
 		wTemp = alpKeyPh[wTotal-1]->wLen;
-		
-		for(i=wTotal-1;i+1;i--){
-			if(alpKeyPh[i]->wLen == wTemp){
+
+		for(i=wTotal-1;i+1;i--)
+		{
+			if(alpKeyPh[i]->wLen == wTemp)
+			{
 				aTempPh[wPhLen].lpHZPH = alpKeyPh[i]->lpHZPH;
 				aTempPh[wPhLen].lpKeyPH = alpKeyPh[i];
 				wPhLen++;
-				
-				while(aTempPh[wPhLen-1].lpHZPH->lpNext != NULL){
+
+				while(aTempPh[wPhLen-1].lpHZPH->lpNext != NULL)
+				{
 					aTempPh[wPhLen].lpHZPH = aTempPh[wPhLen-1].lpHZPH->lpNext;
 					aTempPh[wPhLen].lpKeyPH = alpKeyPh[i];
 					wPhLen++;
 				}
 				wTemp = alpKeyPh[i]->wLen;
-				if( i==0 ){
+				if( i==0 )
+				{
 					if( wConversionSet & CONVERSION_SET_SORT)
 						SortPhrase(aTempPh,wPhLen);
 					memcpy(lpPhrase + wTotalPh,aTempPh,wPhLen*sizeof(PHRASE));
 					wTotalPh += wPhLen;
 				}
 			}
-			else{
+			else
+			{
 				if( wConversionSet & CONVERSION_SET_SORT)
 					SortPhrase(aTempPh,wPhLen);
 				memcpy(lpPhrase + wTotalPh,aTempPh,wPhLen*sizeof(PHRASE));
@@ -626,38 +717,44 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 
 	DebugLog(0,(DebugLogFile,"CreateCandStr: %d  %d  %d\n",awLen[1],awLen[0],*lpwStatus));	
 
-	if( *lpwStatus && awLen[*lpwStatus] < 1){
+	if( *lpwStatus && awLen[*lpwStatus] < 1)
+	{
 		*lpwStatus = 0;
 	}
-	
+
 	if(!(*lpwStatus) && awLen[*lpwStatus]<1) return wCount;
 	hDC = GetDC(NULL);
 	oldFont = SelectObject(hDC, hUIFont);
 	_tcscpy(szTotal,"<>");
 
-	switch(wDirect){
+	switch(wDirect)
+	{
 	case SELECT_FORWARD:
-		if( !(lpPYCand->wSelectDirect & wDirect) ){
+		if( !(lpPYCand->wSelectDirect & wDirect) )
+		{
 			wTempPos = *(lpwCurPos+(*lpwStatus));
 			*(lpwCurPos+(*lpwStatus)) = *(lpwBfPos+(*lpwStatus))+1;
 			*(lpwBfPos+(*lpwStatus)) = wTempPos+1;
 			lpPYCand->wSelectDirect = wDirect;
 		}
-		
-		if( *(lpwCurPos+(*lpwStatus)) > awLen[*lpwStatus] - 1){
-			if(!(*lpwStatus)){
+
+		if( *(lpwCurPos+(*lpwStatus)) > awLen[*lpwStatus] - 1)
+		{
+			if(!(*lpwStatus))
+			{
 				MessageBeep(0xFFFFFFFF );
 				return wCount;
 			}
-			else{
+			else
+			{
 				*lpwStatus = 0;
 				*(lpwBfPos+(*lpwStatus)) = 0;
 				*(lpwCurPos+(*lpwStatus)) = 0;
 			}
 		}
-		
+
 		if(*(lpwCurPos+(*lpwStatus)) < 0) *(lpwCurPos+(*lpwStatus)) = 0;
-		
+
 		if((!(*lpwStatus) && awLen[1]>0) || *(lpwCurPos+(*lpwStatus)) > 0)
 			_tcscpy( lpCandStr , _T("<") );
 		else
@@ -665,12 +762,16 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 
 		*(lpwBfPos+(*lpwStatus)) = *(lpwCurPos+(*lpwStatus));
 		wCount = 2;
-		while( *(lpwCurPos+(*lpwStatus)) < awLen[*lpwStatus] && wCount <= CAND_PAGESIZE+1) {
-			if(*lpwStatus){
+		while( *(lpwCurPos+(*lpwStatus)) < awLen[*lpwStatus] && wCount <= CAND_PAGESIZE+1)
+		{
+			if(*lpwStatus)
+			{
 				_tcscpy( szHZStr,(lpPhrase+(*(lpwCurPos+(*lpwStatus))))->lpHZPH->szHZ );
 			}
-			else{
-				for(i=0;i<lpPYCand->wHZNum;i++){
+			else
+			{
+				for(i=0;i<lpPYCand->wHZNum;i++)
+				{
 					if((lpHanZi+i)->wLen > *(lpwCurPos+(*lpwStatus)) ) break;
 				}
 #ifdef _UNICODE
@@ -689,18 +790,23 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 			}
 
 			_stprintf(szTemp,"%d%s ",wCount%10,szHZStr);
-			
-			if(wConversionSet & CONVERSION_SET_GBK) {
-				if(wConversionSet & CONVERSION_SET_SHAPE) {
+
+			if(wConversionSet & CONVERSION_SET_GBK) 
+			{
+				if(wConversionSet & CONVERSION_SET_SHAPE) 
+				{
 					_tcscat(szTotal,szTemp);
 					GetTextExtentPoint(hDC,szTotal,_tcslen(szTotal),&sz);
 					if(sz.cx > sizeCand[1].cx) break;
 				}
 				_tcscpy( (lpCandStr + (wCount++)*wMaxCandStrSize),szHZStr);
 			}
-			else {
-				if(*lpwStatus){
-					if(wConversionSet & CONVERSION_SET_SHAPE) {
+			else 
+			{
+				if(*lpwStatus)
+				{
+					if(wConversionSet & CONVERSION_SET_SHAPE) 
+					{
 						_tcscat(szTotal,szTemp);
 						GetTextExtentPoint(hDC,szTotal,_tcslen(szTotal),&sz);
 						if(sz.cx > sizeCand[1].cx) break;
@@ -709,8 +815,10 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 				}
 				else{
 					if( (*((LPBYTE)szHZStr) >= GB_QUFIRST && *((LPBYTE)szHZStr) <= GB_QULAST) && 
-						(*((LPBYTE)szHZStr+1) >= GB_WEIFIRST && *((LPBYTE)szHZStr+1) <= GB_WEILAST) ) {
-						if(wConversionSet & CONVERSION_SET_SHAPE) {
+						(*((LPBYTE)szHZStr+1) >= GB_WEIFIRST && *((LPBYTE)szHZStr+1) <= GB_WEILAST) )
+					{
+						if(wConversionSet & CONVERSION_SET_SHAPE)
+						{
 							_tcscat(szTotal,szTemp);
 							GetTextExtentPoint(hDC,szTotal,_tcslen(szTotal),&sz);
 							if(sz.cx > sizeCand[1].cx) break;
@@ -721,40 +829,47 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 			}
 			*(lpwCurPos+(*lpwStatus)) += 1;
 		}
-		
-		if(*lpwStatus || *(lpwCurPos+(*lpwStatus)) < awLen[*lpwStatus] - 1 && wCount > 1){
+
+		if(*lpwStatus || *(lpwCurPos+(*lpwStatus)) < awLen[*lpwStatus] - 1 && wCount > 1)
+		{
 			_tcscpy( (lpCandStr + wMaxCandStrSize),_T(">"));
 		}
-		else {
+		else 
+		{
 			_tcscpy( (lpCandStr + wMaxCandStrSize),_T(""));
 		}
-		
+
 		break;
-		
+
 	case SELECT_BACKWARD:
 		if( (*lpwStatus && !(*(lpwBfPos+(*lpwStatus))))
-			|| (!(*lpwStatus) && awLen[1]<1 && !(*(lpwBfPos+(*lpwStatus)))) ){
+			|| (!(*lpwStatus) && awLen[1]<1 && !(*(lpwBfPos+(*lpwStatus)))) )
+		{
 			MessageBeep(0xFFFFFFFF );
 			return wCount;
 		}
-		if( !(lpPYCand->wSelectDirect & wDirect) ){
+		if( !(lpPYCand->wSelectDirect & wDirect) )
+		{
 			*(lpwCurPos+(*lpwStatus)) = *(lpwBfPos+(*lpwStatus))-1;
 			lpPYCand->wSelectDirect = wDirect;
 		}
-		
+
 		flag=0;
-		if( *(lpwCurPos+(*lpwStatus)) < 0 ){
-			if(*lpwStatus || awLen[1] < 1 ){
+		if( *(lpwCurPos+(*lpwStatus)) < 0 )
+		{
+			if(*lpwStatus || awLen[1] < 1 )
+			{
 				MessageBeep(0xFFFFFFFF );
 				return wCount;
 			}
-			else{
+			else
+			{
 				*lpwStatus = 1;
 				flag = 1;
 				wTempBfPos = *(lpwBfPos+1);
 			}
 		}
-		
+
 		if(flag && *(lpwCurPos+(*lpwStatus)) < awLen[*lpwStatus]-1)
 			*(lpwCurPos+(*lpwStatus)) = awLen[*lpwStatus] - 1;
 
@@ -764,17 +879,21 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 		if( *lpwStatus || *(lpwCurPos+(*lpwStatus)) < awLen[*lpwStatus] -1)
 			_tcscpy( szStrBuf[0], _T(">"));
 		else szStrBuf[0][0]=_T('\0');
-		
+
 		*(lpwBfPos+(*lpwStatus)) = *(lpwCurPos+(*lpwStatus));
 
 		wCount = 2;	
-		while( *(lpwCurPos+(*lpwStatus)) >= 0  && wCount <= CAND_PAGESIZE+1) {
-			if(*lpwStatus){
+		while( *(lpwCurPos+(*lpwStatus)) >= 0  && wCount <= CAND_PAGESIZE+1) 
+		{
+			if(*lpwStatus)
+			{
 				_tcscpy( szStrBuf[wCount],(lpPhrase+(*(lpwCurPos+(*lpwStatus))))->lpHZPH->szHZ );
 				_stprintf(szTemp,"%d%s ",wCount%10,(lpPhrase+(*(lpwCurPos+(*lpwStatus))))->lpHZPH->szHZ );
 			}
-			else{
-				for(i=0;i<lpPYCand->wHZNum;i++){
+			else
+			{
+				for(i=0;i<lpPYCand->wHZNum;i++)
+				{
 					if((lpHanZi+i)->wLen > *(lpwCurPos+(*lpwStatus)) ) break;
 				}
 #ifdef _UNICODE
@@ -797,27 +916,35 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 
 			if(flag && *(lpwCurPos+(*lpwStatus)) == wTempBfPos-1) break;
 
-			if(wConversionSet & CONVERSION_SET_GBK) {
-				if(wConversionSet & CONVERSION_SET_SHAPE) {
+			if(wConversionSet & CONVERSION_SET_GBK) 
+			{
+				if(wConversionSet & CONVERSION_SET_SHAPE)
+				{
 					_tcscat(szTotal,szTemp);
 					GetTextExtentPoint(hDC,szTotal,_tcslen(szTotal),&sz);
 					if(sz.cx > sizeCand[1].cx) break;
 				}
 				wCount++;
 			}
-			else {
-				if(*lpwStatus) {
-					if(wConversionSet & CONVERSION_SET_SHAPE) {
+			else 
+			{
+				if(*lpwStatus) 
+				{
+					if(wConversionSet & CONVERSION_SET_SHAPE)
+					{
 						_tcscat(szTotal,szTemp);
 						GetTextExtentPoint(hDC,szTotal,_tcslen(szTotal),&sz);
 						if(sz.cx > sizeCand[1].cx) break;
 					}
 					wCount++;
 				}
-				else{
+				else
+				{
 					if( (*((LPBYTE)szHZStr) >= GB_QUFIRST && *((LPBYTE)szHZStr) <= GB_QULAST) && 
-						(*((LPBYTE)szHZStr+1) >= GB_WEIFIRST && *((LPBYTE)szHZStr+1) <= GB_WEILAST) ) {
-						if(wConversionSet & CONVERSION_SET_SHAPE) {
+						(*((LPBYTE)szHZStr+1) >= GB_WEIFIRST && *((LPBYTE)szHZStr+1) <= GB_WEILAST) ) 
+					{
+						if(wConversionSet & CONVERSION_SET_SHAPE)
+						{
 							_tcscat(szTotal,szTemp);
 							GetTextExtentPoint(hDC,szTotal,_tcslen(szTotal),&sz);
 							if(sz.cx > sizeCand[1].cx) break;
@@ -836,32 +963,35 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 			_tcscpy( lpCandStr, _T("") );
 
 		wCount = 2;
-		for(i = wTemp-1;i>1;i--){
+		for(i = wTemp-1;i>1;i--)
+		{
 			_tcscpy( (lpCandStr + (wCount++)*wMaxCandStrSize),szStrBuf[i]);
 		}
-		if( _tcslen(szStrBuf[0])){
+		if( _tcslen(szStrBuf[0]))
+		{
 			_tcscpy( (lpCandStr + wMaxCandStrSize),szStrBuf[0]);
 		}
 		else{
 			_tcscpy( (lpCandStr + wMaxCandStrSize),_T(""));
 		}
-		
+
 		break;
-		
+
 	default:
 		break; 
-  }
-  SelectObject(hDC, oldFont);
-  ReleaseDC(NULL,hDC);
-  return wCount -2;
+	}
+	SelectObject(hDC, oldFont);
+	ReleaseDC(NULL,hDC);
+	return wCount -2;
 }
 
 void CreatePaintStr(LPTSTR lpPYArray,WORD wMaxSize,WORD wLen,LPTSTR lpConvStr,LPTSTR lpPaintStr)
 {
-	
+
 	int i;
 	_tcscpy(lpPaintStr,lpConvStr);
-	for(i=0;i<wLen;i++){
+	for(i=0;i<wLen;i++)
+	{
 		_tcscat(lpPaintStr,lpPYArray+i*wMaxSize);
 		if(i==wLen-1 || 
 			*(lpPYArray+(i+1)*wMaxSize)==_T('\'')|| *(lpPYArray+i*wMaxSize)==_T('\''))
@@ -877,8 +1007,9 @@ WORD EffectPYArrayLen( LPTSTR lpPYArray,WORD wMaxSize,WORD wLen)
 	int i;
 	TCHAR ch;
 	WORD wCount=0;
-	
-	for(i=0;i<wLen;i++){
+
+	for(i=0;i<wLen;i++)
+	{
 		ch = *(lpPYArray + i * wMaxSize);
 		if(ch == _T('i') || ch == _T('u') || ch == _T('v') ) continue;
 		if(ch < _T('a') || ch > _T('z')) continue;
@@ -892,8 +1023,9 @@ WORD CalculatePosSpan(LPTSTR lpPYArray,WORD wMaxSize,WORD wLen,WORD wCount)
 	WORD i;
 	TCHAR ch;
 	WORD wNum=0;
-	
-	for(i=0;i<wLen;i++){
+
+	for(i=0;i<wLen;i++)
+	{
 		ch=*(lpPYArray + i*wMaxSize);
 		if(ch == _T('i') || ch == _T('u') || ch == _T('v')) continue;
 		if(ch < _T('a') || ch > _T('z')) continue;
