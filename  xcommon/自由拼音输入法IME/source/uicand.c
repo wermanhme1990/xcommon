@@ -1,82 +1,83 @@
 /*
- * Copyright (C) 1999.4  Li ZhenChun
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License; or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that is will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
- *
- * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
- * 
- */
+* Copyright (C) 1999.4  Li ZhenChun
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License; or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that is will be useful, but
+* WITHOUT ANY WARRANTY; without even the implied warranty of 
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+* General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
+*
+* Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
+* 
+*/
 
 #include "freepy.h"
 
 LRESULT WINAPI CandWndProc( 
-		HWND hWnd,
-		UINT message,
-		WPARAM wParam,
-		LPARAM lParam)
+													 HWND hWnd,
+													 UINT message,
+													 WPARAM wParam,
+													 LPARAM lParam)
 {
-    switch (message)
-    {
-        case WM_PAINT:
-            PaintCandWindow(hWnd);
-            break;
+	switch (message)
+	{
+	case WM_PAINT:
+		PaintCandWindow(hWnd);
+		break;
 
-        case WM_SETCURSOR:
-        case WM_MOUSEMOVE:
-        case WM_LBUTTONUP:
-        case WM_RBUTTONUP:
-            DragUI(hWnd,NULL,message,wParam,lParam,FALSE);
-            if ((message == WM_SETCURSOR) &&
-                (HIWORD(lParam) != WM_LBUTTONDOWN) &&
-                (HIWORD(lParam) != WM_RBUTTONDOWN)) 
-                    return DefWindowProc(hWnd,message,wParam,lParam);
-            if ((message == WM_LBUTTONUP) || (message == WM_RBUTTONUP))
-                SetWindowLong(hWnd,FIGWL_MOUSE,0L);
-            break;
+	case WM_SETCURSOR:
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+		DragUI(hWnd,NULL,message,wParam,lParam,FALSE);
+		if ((message == WM_SETCURSOR) &&
+			(HIWORD(lParam) != WM_LBUTTONDOWN) &&
+			(HIWORD(lParam) != WM_RBUTTONDOWN)) 
+			return DefWindowProc(hWnd,message,wParam,lParam);
+		if ((message == WM_LBUTTONUP) || (message == WM_RBUTTONUP))
+			SetWindowLong(hWnd,FIGWL_MOUSE,0L);
+		break;
 
-        default:
-            if (!MyIsIMEMessage(message)){
-                return DefWindowProc(hWnd,message,wParam,lParam);
-			}
-            break;
-    }
-    return 0L;
+	default:
+		if (!MyIsIMEMessage(message))
+		{
+			return DefWindowProc(hWnd,message,wParam,lParam);
+		}
+		break;
+	}
+	return 0L;
 }
 
 void CreateCandWindow( HWND hUIWnd,LPUIEXTRA lpUIExtra)
 {
-    if (!IsWindow(lpUIExtra->uiCand.hWnd))
-    {
+	if (!IsWindow(lpUIExtra->uiCand.hWnd))
+	{
 		HDC hDC;
 		HFONT oldFont;
 		TCHAR szStr[100];
 
-        lpUIExtra->uiCand.hWnd = 
-                CreateWindowEx(WS_EX_WINDOWEDGE,
-                             CANDCLASSNAME,NULL,
-                             WS_DISABLED | WS_POPUP | WS_DLGFRAME,
-                             0,
-                             0,
-                             1,
-							 1,
-                             hUIWnd,NULL,hInst,NULL);
+		lpUIExtra->uiCand.hWnd = 
+			CreateWindowEx(WS_EX_WINDOWEDGE,
+			CANDCLASSNAME,NULL,
+			WS_DISABLED | WS_POPUP | WS_DLGFRAME,
+			0,
+			0,
+			1,
+			1,
+			hUIWnd,NULL,hInst,NULL);
 		SetWindowLong(lpUIExtra->uiCand.hWnd,FIGWL_SVRWND,(DWORD)hUIWnd);
 
 		hDC = GetDC(lpUIExtra->uiCand.hWnd);
 		oldFont = SelectObject(hDC, hUIFont);
-		
+
 		_stprintf(szStr,_T("AAAAAAAAAAAAA"));
 		GetTextExtentPoint(hDC,szStr,_tcslen(szStr),sizeCand);
 		_stprintf(szStr,_T("<< 1가 2가 3가 4가 5가 6가 7가 8가 9가 0가 >>"));
@@ -88,48 +89,48 @@ void CreateCandWindow( HWND hUIWnd,LPUIEXTRA lpUIExtra)
 		sizeCand[0].cy *= 11;
 		sizeCand[1].cy *= 2;
 		sizeCand[1].cy -= 4;
-		
-//		if(wConversionSet & CONVERSION_SET_SHAPE) {
-//			lpUIExtra->uiCand.sz.cx = sizeCand[1].cx;
-//			lpUIExtra->uiCand.sz.cy = sizeCand[1].cy;
-//		}
-//		else {
-			lpUIExtra->uiCand.sz.cx = sizeCand[0].cx;
-			lpUIExtra->uiCand.sz.cy = sizeCand[0].cy;
-//		}
-    }
-    ShowWindow(lpUIExtra->uiCand.hWnd, SW_HIDE);
-    return;
+
+		//		if(wConversionSet & CONVERSION_SET_SHAPE) {
+		//			lpUIExtra->uiCand.sz.cx = sizeCand[1].cx;
+		//			lpUIExtra->uiCand.sz.cy = sizeCand[1].cy;
+		//		}
+		//		else {
+		lpUIExtra->uiCand.sz.cx = sizeCand[0].cx;
+		lpUIExtra->uiCand.sz.cy = sizeCand[0].cy;
+		//		}
+	}
+	ShowWindow(lpUIExtra->uiCand.hWnd, SW_HIDE);
+	return;
 }
 
 BOOL GetCandPosFromCompWnd(LPUIEXTRA lpUIExtra,LPSIZE lpsz)
 {
 	if (IsWindow(lpUIExtra->uiComp.hWnd))
-    {
+	{
 		RECT rc,screenrc;
 		POINT pt;
 
 		GetWindowRect(lpUIExtra->uiComp.hWnd,&rc);
-
-		if(wConversionSet & CONVERSION_SET_SHAPE) {	
+		if(wConversionSet & CONVERSION_SET_SHAPE) 
+		{	
 			pt.x = rc.left;
 			pt.y = rc.bottom;
 		}
-		else {
+		else 
+		{
 			pt.x = rc.right + 5;
 			pt.y = rc.top;
 		}
-		SystemParametersInfo(SPI_GETWORKAREA,
-							0,
-							&screenrc,
-							0);
-		if(wConversionSet & CONVERSION_SET_SHAPE) {	
+		SystemParametersInfo(SPI_GETWORKAREA,	0, &screenrc,	0);
+		if(wConversionSet & CONVERSION_SET_SHAPE) 
+		{	
 			if( (pt.x + sizeCand[1].cx) > screenrc.right)
 				pt.x = screenrc.right - sizeCand[1].cx;
 			if( (pt.y + sizeCand[1].cy) > screenrc.bottom)
 				pt.y = rc.top - sizeCand[1].cy;
 		}
-		else {
+		else
+		{
 			if( (pt.x + lpsz->cx) > screenrc.right)
 				pt.x = rc.left - lpsz->cx - 5;
 			if( (pt.y + lpsz->cy) > screenrc.bottom)
@@ -139,8 +140,8 @@ BOOL GetCandPosFromCompWnd(LPUIEXTRA lpUIExtra,LPSIZE lpsz)
 		lpUIExtra->uiCand.pt.x = pt.x;
 		lpUIExtra->uiCand.pt.y = pt.y;
 		return TRUE;
-    }
-    return FALSE;
+	}
+	return FALSE;
 }
 
 
@@ -151,8 +152,8 @@ void MoveCandWindow(HWND hUIWnd,LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 
 	if (IsWindow(lpUIExtra->uiCand.hWnd))
 	{
-	    LPCANDIDATEINFO lpCandInfo;
-	    LPCANDIDATELIST lpCandList;
+		LPCANDIDATEINFO lpCandInfo;
+		LPCANDIDATELIST lpCandList;
 		HDC hDC;
 		HFONT oldFont;
 		SIZE sz;
@@ -164,7 +165,8 @@ void MoveCandWindow(HWND hUIWnd,LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 		if (lpCandInfo = (LPCANDIDATEINFO)ImmLockIMCC(lpIMC->hCandInfo))
 		{
 			lpCandList = (LPCANDIDATELIST)((LPSTR)lpCandInfo  + lpCandInfo->dwOffset[0]);
-			if( lpCandList->dwCount <= 0) {
+			if( lpCandList->dwCount <= 0) 
+			{
 				ShowWindow(lpUIExtra->uiCand.hWnd, SW_HIDE);
 				ImmUnlockIMCC(lpIMC->hCandInfo);
 				return;
@@ -178,13 +180,15 @@ void MoveCandWindow(HWND hUIWnd,LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 			if(_tcslen(lpStr))	sz.cx += 3*sz.cx/_tcslen(lpStr);
 			ImmUnlockIMCC(lpIMC->hCandInfo);
 		}
-		if(wConversionSet & CONVERSION_SET_SHAPE) {	
+		if(wConversionSet & CONVERSION_SET_SHAPE) 
+		{	
 			sz.cx = sizeCand[1].cx;
 			sz.cy = sizeCand[1].cy;
 		}
-		else{
+		else
+		{
 			if(sz.cx < lpUIExtra->uiCand.sz.cx)
-					sz.cx = lpUIExtra->uiCand.sz.cx;
+				sz.cx = lpUIExtra->uiCand.sz.cx;
 			sz.cy = lpUIExtra->uiCand.sz.cy;
 		}
 
@@ -203,37 +207,37 @@ void MoveCandWindow(HWND hUIWnd,LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 
 void PaintCandWindow( HWND hCandWnd)
 {
-    PAINTSTRUCT ps;
-    HIMC hIMC;
-    LPINPUTCONTEXT lpIMC;
-    LPCANDIDATEINFO lpCandInfo;
-    LPCANDIDATELIST lpCandList;
-    HDC hDC;
+	PAINTSTRUCT ps;
+	HIMC hIMC;
+	LPINPUTCONTEXT lpIMC;
+	LPCANDIDATEINFO lpCandInfo;
+	LPCANDIDATELIST lpCandList;
+	HDC hDC;
 	HFONT oldFont;
-    RECT rc;
-    LPTSTR lpstr;
+	RECT rc;
+	LPTSTR lpstr;
 	TCHAR szStr[100];
-    int height,width;
-    DWORD i;
-    SIZE sz;
-    HWND hSvrWnd;
+	int height,width;
+	DWORD i;
+	SIZE sz;
+	HWND hSvrWnd;
 	HBRUSH hBrush = (HBRUSH)NULL;
 	HBRUSH hOldBrush = (HBRUSH)NULL;
 	HPEN hPen = (HPEN)NULL;
 	HPEN hOldPen = (HPEN)NULL;
-	
-    hDC = BeginPaint(hCandWnd,&ps);
+
+	hDC = BeginPaint(hCandWnd,&ps);
 	oldFont = SelectObject(hDC, hUIFont);
-	
+
 	GetClientRect(hCandWnd,&rc);
 	hBrush = GetStockObject(LTGRAY_BRUSH);
 	hOldBrush=SelectObject(hDC,hBrush);
 	PatBlt(hDC,
-			rc.left,
-			rc.top ,
-			rc.right,
-			rc.bottom,
-			PATCOPY);
+		rc.left,
+		rc.top ,
+		rc.right,
+		rc.bottom,
+		PATCOPY);
 	if(hBrush && hOldBrush)
 		SelectObject(hDC,hOldBrush);
 
@@ -252,23 +256,24 @@ void PaintCandWindow( HWND hCandWnd)
 	SelectObject(hDC,hOldPen);
 	DeleteObject(hPen);
 
-    hSvrWnd = (HWND)GetWindowLong(hCandWnd,FIGWL_SVRWND);
-	
-    if (hIMC = (HIMC)GetWindowLong(hSvrWnd,IMMGWL_IMC))
-    {
-        lpIMC = ImmLockIMC(hIMC);
-        if (lpCandInfo = (LPCANDIDATEINFO)ImmLockIMCC(lpIMC->hCandInfo))
-        {
+	hSvrWnd = (HWND)GetWindowLong(hCandWnd,FIGWL_SVRWND);
+
+	if (hIMC = (HIMC)GetWindowLong(hSvrWnd,IMMGWL_IMC))
+	{
+		lpIMC = ImmLockIMC(hIMC);
+		if (lpCandInfo = (LPCANDIDATEINFO)ImmLockIMCC(lpIMC->hCandInfo))
+		{
 			DWORD dwMaxPaintPos;
 			WORD  wCount;
 
-            height = 3;
+			height = 3;
 			width = 1;
-            lpCandList = (LPCANDIDATELIST)((LPSTR)lpCandInfo  + lpCandInfo->dwOffset[0]);
+			lpCandList = (LPCANDIDATELIST)((LPSTR)lpCandInfo  + lpCandInfo->dwOffset[0]);
 			SetBkMode(hDC,TRANSPARENT);
 			SetPaintColor(hDC, wConversionMode);
 
-			if(wConversionSet & CONVERSION_SET_SHAPE) {
+			if(wConversionSet & CONVERSION_SET_SHAPE) 
+			{
 				lpstr = GETLPCANDSTR(lpCandList,0);
 				TextOut(hDC,width,height,lpstr,_tcslen(lpstr));
 				GetTextExtentPoint(hDC,lpstr,_tcslen(lpstr),&sz);
@@ -279,25 +284,28 @@ void PaintCandWindow( HWND hCandWnd)
 			if(dwMaxPaintPos > lpCandList->dwCount + 2)  dwMaxPaintPos = lpCandList->dwCount + 2;
 
 			wCount = 0;
-            for (i = lpCandList->dwPageStart; i < dwMaxPaintPos; i++)
-            {
+			for (i = lpCandList->dwPageStart; i < dwMaxPaintPos; i++)
+			{
 				wCount++;
-                lpstr = GETLPCANDSTR(lpCandList,i);
+				lpstr = GETLPCANDSTR(lpCandList,i);
 				GetTextExtentPoint(hDC,lpstr,_tcslen(lpstr),&sz);
-				if(wConversionSet & CONVERSION_SET_SHAPE) {
+				if(wConversionSet & CONVERSION_SET_SHAPE) 
+				{
 					_stprintf(szStr,"%d%s ",wCount%10,lpstr);
 					TextOut(hDC,width,height,szStr,_tcslen(szStr));
 					GetTextExtentPoint(hDC,szStr,_tcslen(szStr),&sz);
 					width += sz.cx;
 				}
-				else {
+				else 
+				{
 					_stprintf(szStr,"%d %s ",wCount%10,lpstr);
 					TextOut(hDC,width,height,szStr,_tcslen(szStr));
 					GetTextExtentPoint(hDC,szStr,_tcslen(szStr),&sz);
 					height += sz.cy;
 				}
-            }
-			if(wConversionSet & CONVERSION_SET_SHAPE) {
+			}
+			if(wConversionSet & CONVERSION_SET_SHAPE) 
+			{
 				lpstr = GETLPCANDSTR(lpCandList,1);
 				if(_tcslen(lpstr)) {
 					GetTextExtentPoint(hDC,"A",1,&sz);
@@ -306,18 +314,18 @@ void PaintCandWindow( HWND hCandWnd)
 				}
 			}
 
-            ImmUnlockIMCC(lpIMC->hCandInfo);
-        }
-        ImmUnlockIMC(hIMC);
-    }
+			ImmUnlockIMCC(lpIMC->hCandInfo);
+		}
+		ImmUnlockIMC(hIMC);
+	}
 	SelectObject(hDC, oldFont);
-    EndPaint(hCandWnd,&ps);
+	EndPaint(hCandWnd,&ps);
 }
 
 void HideCandWindow( LPUIEXTRA lpUIExtra)
 {
-    if (IsWindow(lpUIExtra->uiCand.hWnd))
-    {
-        ShowWindow(lpUIExtra->uiCand.hWnd, SW_HIDE);
-    }
+	if (IsWindow(lpUIExtra->uiCand.hWnd))
+	{
+		ShowWindow(lpUIExtra->uiCand.hWnd, SW_HIDE);
+	}
 }

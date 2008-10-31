@@ -1,90 +1,91 @@
 /*
- * Copyright (C) 1999.4  Li ZhenChun
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License; or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that is will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
- *
- * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
- * 
- */
+* Copyright (C) 1999.4  Li ZhenChun
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License; or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that is will be useful, but
+* WITHOUT ANY WARRANTY; without even the implied warranty of 
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+* General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
+*
+* Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
+* 
+*/
 
 #include "freepy.h"
 
 LRESULT WINAPI CompWndProc(
-			HWND   hWnd,
-			UINT   message,
-			WPARAM wParam,
-			LPARAM lParam)
+													 HWND   hWnd,
+													 UINT   message,
+													 WPARAM wParam,
+													 LPARAM lParam)
 {
 	HWND  hUIWnd;
-    HGLOBAL hUIExtra;
-    LPUIEXTRA lpUIExtra;
+	HGLOBAL hUIExtra;
+	LPUIEXTRA lpUIExtra;
 
 	hUIWnd = (HWND)GetWindowLong(hWnd,FIGWL_SVRWND);
-    hUIExtra = (HGLOBAL)GetWindowLong(hUIWnd,IMMGWL_PRIVATE);
+	hUIExtra = (HGLOBAL)GetWindowLong(hUIWnd,IMMGWL_PRIVATE);
 	lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
 
-    switch (message)
-    {
-        case WM_PAINT:
-            PaintCompWindow( hWnd);
-            break;
+	switch (message)
+	{
+	case WM_PAINT:
+		PaintCompWindow( hWnd);
+		break;
 
-        case WM_SETCURSOR:
-        case WM_MOUSEMOVE:
-        case WM_LBUTTONUP:
-        case WM_RBUTTONUP:
-            DragUI(hWnd,lpUIExtra->uiCand.hWnd,message,wParam,lParam,TRUE);
-            if ((message == WM_SETCURSOR) &&
-                (HIWORD(lParam) != WM_LBUTTONDOWN) &&
-                (HIWORD(lParam) != WM_RBUTTONDOWN)) 
-                return DefWindowProc(hWnd,message,wParam,lParam);
-            if ((message == WM_LBUTTONUP) || (message == WM_RBUTTONUP))
-                SetWindowLong(hWnd,FIGWL_MOUSE,0L);
-            break;
+	case WM_SETCURSOR:
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+		DragUI(hWnd,lpUIExtra->uiCand.hWnd,message,wParam,lParam,TRUE);
+		if ((message == WM_SETCURSOR) &&
+			(HIWORD(lParam) != WM_LBUTTONDOWN) &&
+			(HIWORD(lParam) != WM_RBUTTONDOWN)) 
+			return DefWindowProc(hWnd,message,wParam,lParam);
+		if ((message == WM_LBUTTONUP) || (message == WM_RBUTTONUP))
+			SetWindowLong(hWnd,FIGWL_MOUSE,0L);
+		break;
 
-        default:
-            if (!MyIsIMEMessage(message)) {
-				GlobalUnlock(hUIExtra);
-                return DefWindowProc(hWnd,message,wParam,lParam);
-			}
-            break;
-    }
-    GlobalUnlock(hUIExtra);
-    return 0;
+	default:
+		if (!MyIsIMEMessage(message)) 
+		{
+			GlobalUnlock(hUIExtra);
+			return DefWindowProc(hWnd,message,wParam,lParam);
+		}
+		break;
+	}
+	GlobalUnlock(hUIExtra);
+	return 0;
 }
 
 void CreateCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra)
 {
-    if (!IsWindow(lpUIExtra->uiComp.hWnd))
-    {
+	if (!IsWindow(lpUIExtra->uiComp.hWnd))
+	{
 		HDC hDC;
 		HFONT oldFont;
 		SIZE sz;
 		TCHAR szStr[100];
 
 		lpUIExtra->uiComp.hWnd = 
-            CreateWindowEx( WS_EX_WINDOWEDGE,
-                         COMPCLASSNAME,NULL,
-                         WS_DISABLED | WS_POPUP | WS_DLGFRAME,
-                         0,
-                         0,
-                         1,
-						 1,
-                         hUIWnd,NULL,hInst,NULL);
+			CreateWindowEx( WS_EX_WINDOWEDGE,
+			COMPCLASSNAME,NULL,
+			WS_DISABLED | WS_POPUP | WS_DLGFRAME,
+			0,
+			0,
+			1,
+			1,
+			hUIWnd,NULL,hInst,NULL);
 		SetWindowLong(lpUIExtra->uiComp.hWnd,FIGWL_SVRWND,(DWORD)hUIWnd);
-	
+
 		_stprintf(szStr,_T("AAAAAAAAAAAAA"));
 		hDC = GetDC(lpUIExtra->uiComp.hWnd);
 		oldFont = SelectObject(hDC, hUIFont);
@@ -94,9 +95,9 @@ void CreateCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra)
 
 		lpUIExtra->uiComp.sz.cx = sz.cx;
 		lpUIExtra->uiComp.sz.cy = sz.cy+4;
-    }
-    ShowWindow(lpUIExtra->uiComp.hWnd,SW_HIDE);
-    return;
+	}
+	ShowWindow(lpUIExtra->uiComp.hWnd,SW_HIDE);
+	return;
 }
 
 void MoveCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
@@ -122,8 +123,7 @@ void MoveCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 			if ((lpCompStr->dwSize > sizeof(COMPOSITIONSTRING))
 				&& (lpCompStr->dwCompStrLen > 0))
 			{
-				lpStr = 
-					((LPMYCOMPSTR)lpCompStr)->FreePYComp.szPaintCompStr;
+				lpStr = ((LPMYCOMPSTR)lpCompStr)->FreePYComp.szPaintCompStr;
 
 				hDC = GetDC(lpUIExtra->uiComp.hWnd);
 				oldFont = SelectObject(hDC, hUIFont);
@@ -133,7 +133,8 @@ void MoveCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 				if(_tcslen(lpStr))	sz.cx += 2*sz.cx/_tcslen(lpStr);
 				ImmUnlockIMCC(lpIMC->hCompStr);
 			}
-			else{
+			else
+			{
 				ShowWindow(lpUIExtra->uiComp.hWnd, SW_HIDE);
 				ImmUnlockIMCC(lpIMC->hCompStr);
 				return;
@@ -159,9 +160,9 @@ void MoveCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 		}
 
 		SystemParametersInfo(SPI_GETWORKAREA,
-							0,
-							&screenrc,
-							0);
+			0,
+			&screenrc,
+			0);
 
 		if( (pt.x + sz.cx) > screenrc.right )
 			pt.x = screenrc.right - sz.cx;
@@ -182,20 +183,20 @@ void MoveCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 
 void PaintCompWindow( HWND hCompWnd)
 {
-    PAINTSTRUCT ps;
-    HIMC hIMC;
-    LPINPUTCONTEXT lpIMC;
-    LPCOMPOSITIONSTRING lpCompStr;
-    HDC hDC;
+	PAINTSTRUCT ps;
+	HIMC hIMC;
+	LPINPUTCONTEXT lpIMC;
+	LPCOMPOSITIONSTRING lpCompStr;
+	HDC hDC;
 	HFONT oldFont;
 	RECT rc;
-    HWND hSvrWnd;
+	HWND hSvrWnd;
 	HBRUSH hBrush = (HBRUSH)NULL;
 	HBRUSH hOldBrush = (HBRUSH)NULL;
 	HPEN hPen = (HPEN)NULL;
 	HPEN hOldPen = (HPEN)NULL;
 
-    hDC = BeginPaint(hCompWnd,&ps);
+	hDC = BeginPaint(hCompWnd,&ps);
 	oldFont = SelectObject(hDC, hUIFont);
 
 	GetClientRect(hCompWnd,&rc);
@@ -203,11 +204,11 @@ void PaintCompWindow( HWND hCompWnd)
 	hBrush = GetStockObject(LTGRAY_BRUSH);
 	hOldBrush=SelectObject(hDC,hBrush);
 	PatBlt(hDC,
-			rc.left,
-			rc.top ,
-			rc.right - GetSystemMetrics(SM_CXEDGE)/2,
-			rc.bottom - GetSystemMetrics(SM_CYEDGE)/2,
-			PATCOPY);
+		rc.left,
+		rc.top ,
+		rc.right - GetSystemMetrics(SM_CXEDGE)/2,
+		rc.bottom - GetSystemMetrics(SM_CYEDGE)/2,
+		PATCOPY);
 	if(hBrush && hOldBrush)
 		SelectObject(hDC,hOldBrush);
 
@@ -226,21 +227,21 @@ void PaintCompWindow( HWND hCompWnd)
 	SelectObject(hDC,hOldPen);
 	DeleteObject(hPen);
 
-    hSvrWnd = (HWND)GetWindowLong(hCompWnd,FIGWL_SVRWND);
+	hSvrWnd = (HWND)GetWindowLong(hCompWnd,FIGWL_SVRWND);
 
-    if (hIMC = (HIMC)GetWindowLong(hSvrWnd,IMMGWL_IMC))
-    {
+	if (hIMC = (HIMC)GetWindowLong(hSvrWnd,IMMGWL_IMC))
+	{
 		if( (lpIMC = ImmLockIMC(hIMC)) == NULL ){
 			SelectObject(hDC, oldFont);
 			EndPaint(hCompWnd,&ps);
 			return;
 		}
-        if (lpCompStr = (LPCOMPOSITIONSTRING)ImmLockIMCC(lpIMC->hCompStr))
-        {
-            if ((lpCompStr->dwSize > sizeof(COMPOSITIONSTRING))
-               && (lpCompStr->dwCompStrLen > 0))
-            {
-                LPTSTR lpStr,lpPaintStr;
+		if (lpCompStr = (LPCOMPOSITIONSTRING)ImmLockIMCC(lpIMC->hCompStr))
+		{
+			if ((lpCompStr->dwSize > sizeof(COMPOSITIONSTRING))
+				&& (lpCompStr->dwCompStrLen > 0))
+			{
+				LPTSTR lpStr,lpPaintStr;
 				SIZE sz,sz1;
 				SHORT wEditCaret;
 				SHORT wCharNum,wCount;
@@ -270,20 +271,20 @@ void PaintCompWindow( HWND hCompWnd)
 				LineTo(hDC,sz.cx + sz1.cx*2/3,sz1.cy*11/10);
 				SelectObject(hDC,hOldPen);
 				DeleteObject(hPen);
-            }
-            ImmUnlockIMCC(lpIMC->hCompStr);
-        }
-        ImmUnlockIMC(hIMC);
-    }
+			}
+			ImmUnlockIMCC(lpIMC->hCompStr);
+		}
+		ImmUnlockIMC(hIMC);
+	}
 
 	SelectObject(hDC, oldFont);
-    EndPaint(hCompWnd,&ps);
+	EndPaint(hCompWnd,&ps);
 }
 
 void HideCompWindow(LPUIEXTRA lpUIExtra)
 {
-    if (IsWindow(lpUIExtra->uiComp.hWnd))
-    {
-        ShowWindow(lpUIExtra->uiComp.hWnd, SW_HIDE);
-    }
+	if (IsWindow(lpUIExtra->uiComp.hWnd))
+	{
+		ShowWindow(lpUIExtra->uiComp.hWnd, SW_HIDE);
+	}
 }

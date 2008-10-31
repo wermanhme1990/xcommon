@@ -1,23 +1,23 @@
 /*
- * Copyright (C) 1999.4  Li ZhenChun
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License; or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that is will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
- *
- * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
- * 
- */
+* Copyright (C) 1999.4  Li ZhenChun
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License; or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that is will be useful, but
+* WITHOUT ANY WARRANTY; without even the implied warranty of 
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+* General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
+*
+* Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
+* 
+*/
 
 #include "freepy.h"
 
@@ -27,17 +27,18 @@
 /*    DLLEntry                                                        */
 /**********************************************************************/
 BOOL WINAPI DllMain (
-					 HINSTANCE    hInstDLL,
-					 DWORD        dwFunction,
-					 LPVOID       lpNot)
+										 HINSTANCE    hInstDLL,
+										 DWORD        dwFunction,
+										 LPVOID       lpNot)
 {
-	
-    switch(dwFunction)
-    {
+
+	switch(dwFunction)
+	{
 	case DLL_PROCESS_ATTACH:
 		/* for debug ********************************/
 #ifdef _MY_DEBUG
-		if(nDebugLevel){
+		if(nDebugLevel)
+		{
 			if( (DebugLogFile=_tfopen( DEBUGLOGFILE, "w"))==NULL)
 				MessageBox(NULL,"can not open Debuglogfile","debug",MB_OK);
 			DebugLog(1,(DebugLogFile,"Entry in\n"));
@@ -50,13 +51,13 @@ BOOL WINAPI DllMain (
 		InitDictionary();
 
 		hUIFont = CreateFont(16, 0, 0, 0, FW_NORMAL,
-					FALSE, FALSE, FALSE, ANSI_CHARSET,
-					OUT_TT_PRECIS, CLIP_TT_ALWAYS, ANTIALIASED_QUALITY,
-					DEFAULT_PITCH, _T("ËÎÌו"));
+			FALSE, FALSE, FALSE, ANSI_CHARSET,
+			OUT_TT_PRECIS, CLIP_TT_ALWAYS, ANTIALIASED_QUALITY,
+			DEFAULT_PITCH, _T("ËÎÌו"));
 
 		IMERegisterClass( hInst );
 		break;
-		
+
 	case DLL_PROCESS_DETACH:
 		DeleteObject(hUIFont);
 		UnregisterClass(UICLASSNAME,hInst);
@@ -65,7 +66,7 @@ BOOL WINAPI DllMain (
 		UnregisterClass(STATUSCLASSNAME,hInst);
 
 		DestroyDictionary();
-		
+
 		/* for debug ********************************/
 #ifdef _MY_DEBUG
 		if(nDebugLevel){
@@ -76,97 +77,97 @@ BOOL WINAPI DllMain (
 #endif
 		/********************************************/
 		break;
-		
+
 	case DLL_THREAD_ATTACH:
 		break;
-		
+
 	case DLL_THREAD_DETACH:
 		break;
-    }
-    return TRUE;
+	}
+	return TRUE;
 }
 
 BOOL IMERegisterClass( HANDLE hInstance )
 {
-    WNDCLASSEX wc;
-	
-    //
-    // register class of UI window.
-    //
-    wc.cbSize         = sizeof(WNDCLASSEX);
-    wc.style          = CS_FREEPY | CS_IME;
-    wc.lpfnWndProc    = UIWndProc;
-    wc.cbClsExtra     = 0;
-    wc.cbWndExtra     = 2 * sizeof(LONG);
-    wc.hInstance      = hInstance;
-    wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
-    wc.hIcon          = NULL;
-    wc.lpszMenuName   = (LPTSTR)NULL;
-    wc.lpszClassName  = UICLASSNAME;
-    wc.hbrBackground  = NULL;
-    wc.hIconSm        = NULL;
-	
-    if( !RegisterClassEx( (LPWNDCLASSEX)&wc ) )
-        return FALSE;
-	
-    //
-    // register class of composition window.
-    //
-    wc.cbSize         = sizeof(WNDCLASSEX);
-    wc.style          = CS_FREEPY | CS_IME;
-    wc.lpfnWndProc    = CompWndProc;
-    wc.cbClsExtra     = 0;
-    wc.cbWndExtra     = UICHILDEXTRASIZE;
-    wc.hInstance      = hInstance;
-    wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
-    wc.hIcon          = NULL;
-    wc.lpszMenuName   = (LPSTR)NULL;
-    wc.lpszClassName  = COMPCLASSNAME;
-    wc.hbrBackground  = NULL;
-    wc.hIconSm        = NULL;
-	
-    if( !RegisterClassEx( (LPWNDCLASSEX)&wc ) )
-        return FALSE;
-	
-    //
-    // register class of candadate window.
-    //
-    wc.cbSize         = sizeof(WNDCLASSEX);
-    wc.style          = CS_FREEPY | CS_IME;
-    wc.lpfnWndProc    = CandWndProc;
-    wc.cbClsExtra     = 0;
-    wc.cbWndExtra     = UICHILDEXTRASIZE;
-    wc.hInstance      = hInstance;
-    wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
-    wc.hIcon          = NULL;
-    wc.lpszMenuName   = (LPSTR)NULL;
-    wc.lpszClassName  = CANDCLASSNAME;
-    wc.hbrBackground  = NULL;
-    wc.hIconSm        = NULL;
-	
-    if( !RegisterClassEx( (LPWNDCLASSEX)&wc ) )
-        return FALSE;
-	
-    //
-    // register class of status window.
-    //
-    wc.cbSize         = sizeof(WNDCLASSEX);
-    wc.style          = CS_FREEPY | CS_IME;
-    wc.lpfnWndProc    = StatusWndProc;
-    wc.cbClsExtra     = 0;
-    wc.cbWndExtra     = UICHILDEXTRASIZE;
-    wc.hInstance      = hInstance;
-    wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
-    wc.hIcon          = NULL;
-    wc.lpszMenuName   = (LPSTR)NULL;
-    wc.lpszClassName  = STATUSCLASSNAME;
-    wc.hbrBackground  = NULL;
-    wc.hIconSm        = NULL;
-	
-    if( !RegisterClassEx( (LPWNDCLASSEX)&wc ) )
-        return FALSE;
-	
-    return TRUE;
+	WNDCLASSEX wc;
+
+	//
+	// register class of UI window.
+	//
+	wc.cbSize         = sizeof(WNDCLASSEX);
+	wc.style          = CS_FREEPY | CS_IME;
+	wc.lpfnWndProc    = UIWndProc;
+	wc.cbClsExtra     = 0;
+	wc.cbWndExtra     = 2 * sizeof(LONG);
+	wc.hInstance      = hInstance;
+	wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
+	wc.hIcon          = NULL;
+	wc.lpszMenuName   = (LPTSTR)NULL;
+	wc.lpszClassName  = UICLASSNAME;
+	wc.hbrBackground  = NULL;
+	wc.hIconSm        = NULL;
+
+	if( !RegisterClassEx( (LPWNDCLASSEX)&wc ) )
+		return FALSE;
+
+	//
+	// register class of composition window.
+	//
+	wc.cbSize         = sizeof(WNDCLASSEX);
+	wc.style          = CS_FREEPY | CS_IME;
+	wc.lpfnWndProc    = CompWndProc;
+	wc.cbClsExtra     = 0;
+	wc.cbWndExtra     = UICHILDEXTRASIZE;
+	wc.hInstance      = hInstance;
+	wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
+	wc.hIcon          = NULL;
+	wc.lpszMenuName   = (LPSTR)NULL;
+	wc.lpszClassName  = COMPCLASSNAME;
+	wc.hbrBackground  = NULL;
+	wc.hIconSm        = NULL;
+
+	if( !RegisterClassEx( (LPWNDCLASSEX)&wc ) )
+		return FALSE;
+
+	//
+	// register class of candadate window.
+	//
+	wc.cbSize         = sizeof(WNDCLASSEX);
+	wc.style          = CS_FREEPY | CS_IME;
+	wc.lpfnWndProc    = CandWndProc;
+	wc.cbClsExtra     = 0;
+	wc.cbWndExtra     = UICHILDEXTRASIZE;
+	wc.hInstance      = hInstance;
+	wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
+	wc.hIcon          = NULL;
+	wc.lpszMenuName   = (LPSTR)NULL;
+	wc.lpszClassName  = CANDCLASSNAME;
+	wc.hbrBackground  = NULL;
+	wc.hIconSm        = NULL;
+
+	if( !RegisterClassEx( (LPWNDCLASSEX)&wc ) )
+		return FALSE;
+
+	//
+	// register class of status window.
+	//
+	wc.cbSize         = sizeof(WNDCLASSEX);
+	wc.style          = CS_FREEPY | CS_IME;
+	wc.lpfnWndProc    = StatusWndProc;
+	wc.cbClsExtra     = 0;
+	wc.cbWndExtra     = UICHILDEXTRASIZE;
+	wc.hInstance      = hInstance;
+	wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
+	wc.hIcon          = NULL;
+	wc.lpszMenuName   = (LPSTR)NULL;
+	wc.lpszClassName  = STATUSCLASSNAME;
+	wc.hbrBackground  = NULL;
+	wc.hIconSm        = NULL;
+
+	if( !RegisterClassEx( (LPWNDCLASSEX)&wc ) )
+		return FALSE;
+
+	return TRUE;
 }
 
 
@@ -178,30 +179,30 @@ BOOL IMERegisterClass( HANDLE hInstance )
 /*                                                                    */
 /**********************************************************************/
 LRESULT WINAPI UIWndProc(
-				HWND hWnd,
-				UINT message,
-				WPARAM wParam,
-				LPARAM lParam)
+												 HWND hWnd,
+												 UINT message,
+												 WPARAM wParam,
+												 LPARAM lParam)
 {
-	
-    HIMC           hUICurIMC;
-    LPINPUTCONTEXT lpIMC;
-    LPUIEXTRA      lpUIExtra;
-    HGLOBAL        hUIExtra;
-    LONG           lRet = 0L;
-	
+
+	HIMC           hUICurIMC;
+	LPINPUTCONTEXT lpIMC;
+	LPUIEXTRA      lpUIExtra;
+	HGLOBAL        hUIExtra;
+	LONG           lRet = 0L;
+
 	DebugLog(1,(DebugLogFile,"UIWnd\n"));
-	
-    hUICurIMC = (HIMC)GetWindowLong(hWnd,IMMGWL_IMC);
-	
-    //
-    // Even if there is no current UI. these messages should not be pass to 
-    // DefWindowProc().
-    //
-    if (!hUICurIMC)
-    {
-        switch (message)
-        {
+
+	hUICurIMC = (HIMC)GetWindowLong(hWnd,IMMGWL_IMC);
+
+	//
+	// Even if there is no current UI. these messages should not be pass to 
+	// DefWindowProc().
+	//
+	if (!hUICurIMC)
+	{
+		switch (message)
+		{
 		case WM_IME_STARTCOMPOSITION:
 		case WM_IME_ENDCOMPOSITION:
 		case WM_IME_COMPOSITION:
@@ -213,14 +214,14 @@ LRESULT WINAPI UIWndProc(
 			return 0L;
 		default:
 			break;
-        }
-    }
-	
-    switch (message)
-    {
+		}
+	}
+
+	switch (message)
+	{
 	case WM_CREATE:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_CREATE\n"));
-		
+
 		//
 		// Allocate UI's extra memory block.
 		//
@@ -236,15 +237,15 @@ LRESULT WINAPI UIWndProc(
 		GlobalUnlock(hUIExtra);
 		SetWindowLong(hWnd,IMMGWL_PRIVATE,(DWORD)hUIExtra);
 		break;
-		
+
 	case WM_IME_SETCONTEXT:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_SETCONTEXT\n"));
 		if (wParam)
 		{
-			
+
 			hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
 			lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
-			
+
 			if (hUICurIMC)
 			{
 				//
@@ -269,22 +270,22 @@ LRESULT WINAPI UIWndProc(
 			{
 				HideCandWindow(lpUIExtra);
 				HideCompWindow(lpUIExtra);
-				
+
 			}
 			GlobalUnlock(hUIExtra);
 		}
 		break;
-		
+
 	case WM_IME_STARTCOMPOSITION:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_STARTCOMPOSITION\n"));
 		//
 		// Start composition! Ready to display the composition string.
 		//
 		break;
-		
+
 	case WM_IME_COMPOSITION:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_COMPOSITION\n"));
-		
+
 		//
 		// Update to display the composition string.
 		//
@@ -296,10 +297,10 @@ LRESULT WINAPI UIWndProc(
 		GlobalUnlock(hUIExtra);
 		ImmUnlockIMC(hUICurIMC);
 		break;
-		
+
 	case WM_IME_ENDCOMPOSITION:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_ENDCOMPOSITION\n"));
-		
+
 		//
 		// Finish to display the composition string.
 		//
@@ -309,41 +310,41 @@ LRESULT WINAPI UIWndProc(
 		HideCandWindow(lpUIExtra);
 		GlobalUnlock(hUIExtra);
 		break;
-		
+
 	case WM_IME_COMPOSITIONFULL:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_COMPOSITIONFULL\n"));
 		break;
-		
+
 	case WM_IME_SELECT:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_SELECT\n"));
 		break;
-		
+
 	case WM_IME_CONTROL:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_CONTROL\n"));
 		lRet = ControlHandle(hUICurIMC, hWnd,message,wParam,lParam);
 		break;
-		
-		
+
+
 	case WM_IME_NOTIFY:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY\n"));
 		lRet = NotifyHandle(hUICurIMC, hWnd,message,wParam,lParam);
 		break;
-		
+
 	case WM_DESTROY:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_DESTROY\n"));
-		
+
 		hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
 		lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
-		
+
 		if (IsWindow(lpUIExtra->uiStatus.hWnd))
 			DestroyWindow(lpUIExtra->uiStatus.hWnd);
-		
+
 		if (IsWindow(lpUIExtra->uiCand.hWnd))
 			DestroyWindow(lpUIExtra->uiCand.hWnd);
-		
+
 		if (IsWindow(lpUIExtra->uiComp.hWnd))
 			DestroyWindow(lpUIExtra->uiComp.hWnd);
-		
+
 		GlobalUnlock(hUIExtra);
 		GlobalFree(hUIExtra);
 		break;
@@ -358,8 +359,8 @@ LRESULT WINAPI UIWndProc(
 
 	default:
 		return DefWindowProc(hWnd,message,wParam,lParam);
-    }
-    return lRet;
+	}
+	return lRet;
 }
 
 /**********************************************************************/
@@ -373,51 +374,51 @@ LRESULT WINAPI UIWndProc(
 LONG NotifyHandle(HIMC hUICurIMC, HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LONG lRet = 0L;
-    LPINPUTCONTEXT lpIMC;
-    HGLOBAL hUIExtra;
-    LPUIEXTRA lpUIExtra;
+	LPINPUTCONTEXT lpIMC;
+	HGLOBAL hUIExtra;
+	LPUIEXTRA lpUIExtra;
 
-    if (!(lpIMC = ImmLockIMC(hUICurIMC)))
-        return 0L;
+	if (!(lpIMC = ImmLockIMC(hUICurIMC)))
+		return 0L;
 
-    hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
-    lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
+	hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
+	lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
 
-    switch (wParam)
-    {
+	switch (wParam)
+	{
 	case IMN_CLOSESTATUSWINDOW:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_CLOSESTATUSWINDOW\n"));
 		if (IsWindow(lpUIExtra->uiStatus.hWnd)) {
 			ShowWindow(lpUIExtra->uiStatus.hWnd,SW_HIDE);
 		}
 		break;
-		
+
 	case IMN_OPENSTATUSWINDOW:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_OPENSTATUSWINDOW\n"));
 		CreateStatusWindow( hWnd, lpUIExtra);
 		break;
-		
+
 	case IMN_OPENCANDIDATE:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_OPENCANDIDATE\n"));
 		break;
-		
+
 	case IMN_CHANGECANDIDATE:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_CHANGECANDIDATE\n"));
 		break;
-		
+
 	case IMN_CLOSECANDIDATE:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_CLOSECANDIDATE\n"));
 		break;
-		
+
 	case IMN_SETCONVERSIONMODE:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETCONVERSIONMODE\n"));
 		UpdateStatusWindow(lpUIExtra);
 		break;
-		
+
 	case IMN_SETSENTENCEMODE:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETSENTENCEMODE\n"));
 		break;
-		
+
 	case IMN_SETOPENSTATUS:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETOPENSTATUS\n"));
 		if(!IsIMEOpen(hUICurIMC)) {
@@ -425,15 +426,15 @@ LONG NotifyHandle(HIMC hUICurIMC, HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		}
 		UpdateStatusWindow(lpUIExtra);
 		break;
-		
+
 	case IMN_SETCANDIDATEPOS:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETCANDIDATEPOS\n"));
 		break;
-		
+
 	case IMN_SETCOMPOSITIONFONT:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETCOMPOSITIONFONT\n"));
 		break;
-		
+
 	case IMN_SETCOMPOSITIONWINDOW:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETCOMPOSITIONWINDOW\n"));
 		if(wConversionSet & CONVERSION_SET_FOLLOW) {
@@ -453,30 +454,30 @@ LONG NotifyHandle(HIMC hUICurIMC, HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			lpUIExtra->uiComp.pt.x = ptSrc.x + szOffset.cx;
 			lpUIExtra->uiComp.pt.y = ptSrc.y + szOffset.cy;
 		}
-	    if (IsWindow(lpUIExtra->uiComp.hWnd))
+		if (IsWindow(lpUIExtra->uiComp.hWnd))
 			InvalidateRect(lpUIExtra->uiComp.hWnd,NULL,FALSE);
 
 		break;
-		
+
 	case IMN_GUIDELINE:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_GUIDELINE\n"));
 		break;
-		
+
 	case IMN_SETSTATUSWINDOWPOS:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETSTATUSWINDOWPOS\n"));
 		break;
-		
+
 	case IMN_PRIVATE:
 		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_PRIVATE\n"));
 		break;
-		
+
 	default:
 		break;
-    }
-    GlobalUnlock(hUIExtra);
-    ImmUnlockIMC(hUICurIMC);
+	}
+	GlobalUnlock(hUIExtra);
+	ImmUnlockIMC(hUICurIMC);
 
-    return lRet;
+	return lRet;
 }
 
 /**********************************************************************/

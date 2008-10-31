@@ -1,23 +1,23 @@
 /*
- * Copyright (C) 1999.4  Li ZhenChun
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License; or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that is will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
- *
- * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
- * 
- */
+* Copyright (C) 1999.4  Li ZhenChun
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License; or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that is will be useful, but
+* WITHOUT ANY WARRANTY; without even the implied warranty of 
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+* General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
+*
+* Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
+* 
+*/
 
 #include "freepy.h"
 #include <time.h>
@@ -73,13 +73,13 @@ void ChineseNumber(int i , LPTSTR lpStr)
 
 BOOL CharHandleI( HIMC hIMC,WORD wParam,LONG lParam)
 {
-    LPINPUTCONTEXT lpIMC;
+	LPINPUTCONTEXT lpIMC;
 	LPCANDIDATEINFO lpCandInfo;
 	LPCANDIDATELIST lpCandList;
 	LPCOMPOSITIONSTRING lpCompStr;
 
 
-    lpIMC = ImmLockIMC(hIMC);
+	lpIMC = ImmLockIMC(hIMC);
 	lpCandInfo = (LPCANDIDATEINFO)ImmLockIMCC(lpIMC->hCandInfo);
 	lpCandList = (LPCANDIDATELIST)((LPSTR)lpCandInfo  + lpCandInfo->dwOffset[0]);
 	lpCompStr = (LPCOMPOSITIONSTRING)ImmLockIMCC(lpIMC->hCompStr);
@@ -193,11 +193,14 @@ BOOL CharHandleI( HIMC hIMC,WORD wParam,LONG lParam)
 		}
 		else MessageBeep(0xFFFFFFFF );
 	}
-	else {
-		if( wParam == _T('=') || wParam == _T('.') || wParam == _T('>')) {
+	else 
+	{
+		if( wParam == _T('=') || wParam == _T('.') || wParam == _T('>')) 
+		{
 			SelectForwardFromCand(hIMC,lpCandList);
 		}
-		else if( wParam == _T('-') || wParam == _T(',') || wParam == _T('<')) {
+		else if( wParam == _T('-') || wParam == _T(',') || wParam == _T('<'))
+		{
 			SelectBackwardFromCand(hIMC,lpCandList);
 		}
 
