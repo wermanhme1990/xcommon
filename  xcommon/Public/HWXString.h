@@ -215,7 +215,7 @@ public:
   void ReplaceCharWithString(const WCHAR , LPCWSTR); // szReplacementString==NULL allowed  
   void ReplaceCharWithString(const WCHAR , const CXStringW &);
 
-	void CXStringW::Remove( const WCHAR);
+	void Remove( const WCHAR);
   /************************************************************************
   名称:  Format
   全称:  void Format(const char *pchFormat, ...)
@@ -250,7 +250,7 @@ public:
 
   LPWSTR GetBuffer( const DWORD& dwSize);  
   void ReleaseBuffer();
-private:  
+protected:  
   /************************************************************************
   名称:  Reset
   全称:  void CHWXString::Reset( const char *pchSource )
@@ -492,7 +492,7 @@ public:
 
   LPSTR GetBuffer(const DWORD&);
   void ReleaseBuffer();
-private:  
+protected:  
   /************************************************************************
   名称:  Reset
   全称:  void CHWXString::Reset( const char *pchSource )

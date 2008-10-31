@@ -18,6 +18,8 @@ class CXFlash : public CWnd
 protected:
 	DECLARE_DYNCREATE(CXFlash)
 public:	
+	CXFlash();
+	virtual ~CXFlash();
 	virtual BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle,	const RECT& rect,
 		CWnd* pParentWnd, UINT nID,	CCreateContext* pContext = NULL);
 
@@ -27,6 +29,8 @@ public:
 protected:
 	CLSID const& GetClsid();
 // Operations
+
+	DECLARE_MESSAGE_MAP()
 public:
 	LONG GetReadyState();
 	LONG GetTotalFrames();
@@ -107,6 +111,16 @@ public:
 	void SetInlineData(LPUNKNOWN newValue);
 	BOOL GetSeamlessTabbing();
 	void SetSeamlessTabbing(BOOL bNewValue);
+	void EnableRButton(BOOL = TRUE);
+	void EnableLButton(BOOL = FALSE);
+protected:
+	BOOL m_blRButton;
+	BOOL m_blLButton;
+public:
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 };
 
 //{{AFX_INSERT_LOCATION}}

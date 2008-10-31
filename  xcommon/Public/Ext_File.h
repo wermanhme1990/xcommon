@@ -50,9 +50,9 @@
 
 
 
-// #ifdef __cplusplus
-// extern "C"{
-// #endif
+//  #ifdef __cplusplus
+//  extern "C"{
+//  #endif
 //将二进制数据写到文件结尾
 //基本操作
 DLLXEXPORT BOOL WINAPI File_GenTitle(HWX_IN const TCHAR *pchFileName, HWX_OUT TCHAR *ptchTitle);
@@ -102,6 +102,8 @@ DLLXEXPORT  CXStringA  WINAPI XGetModuleFilePathA(HMODULE hModule);
 DLLXEXPORT  CXStringW  WINAPI XGetModuleFilePathW(HMODULE hModule);
 DLLXEXPORT  CXStringA  WINAPI XReplaceFileNameA(LPCSTR, LPCSTR);
 DLLXEXPORT  CXStringW  WINAPI XReplaceFileNameW(LPCWSTR, LPCWSTR);
-
+// #ifdef __cplusplus
+//  }
+// #endif
 
 #endif//_DBG_FILE_H_INC_

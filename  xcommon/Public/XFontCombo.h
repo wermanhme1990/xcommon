@@ -21,14 +21,14 @@ enum XFontStyle
 };
 
 
-class CXFontCombo : public CXFlatComboBox
+class CXFontComboBox : public CXFlatComboBox
 {
-	DECLARE_DYNAMIC(CXFontCombo)
+	DECLARE_DYNAMIC(CXFontComboBox)
 
 public:
-	CXFontCombo();
+	CXFontComboBox();
 
-	virtual ~CXFontCombo();
+	virtual ~CXFontComboBox();
 
 public:	
 	virtual BOOL GetSelFont(CXLogFont& lf);
@@ -36,13 +36,12 @@ public:
 
 	virtual BOOL SetSelFont(CXLogFont& lf);
 	virtual BOOL SetSelFont(const CString& strFaceName); 
-  virtual void PreSubclassWindow(); 
+  
 	void SetListStyle(DWORD dwStyle);
 	virtual void InitControl(LPCTSTR lpszFaceName = NULL, UINT nWidth = 0, BOOL bEnable = TRUE);
 	void SetBitmap(CImageList*);
 	void SetIcon(HICON);
-protected:
-	virtual void NotifyOwner(UINT nCode);
+protected:	
   static BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
     NEWTEXTMETRICEX* lpntm,	DWORD dwFontType, LPARAM lParam);
   void InitFontLst(CDC* pDC = NULL, BYTE nCharSet = DEFAULT_CHARSET);
@@ -53,17 +52,17 @@ protected:
 	//BOOL FontCmp(const CXLogFont&, const CXLogFont&);
 	DECLARE_MESSAGE_MAP()
 
-	//{{AFX_VIRTUAL(CXFontCombo)
-	virtual void	DrawItem(LPDRAWITEMSTRUCT);
-	virtual void	MeasureItem(LPMEASUREITEMSTRUCT);
-	virtual int		CompareItem(LPCOMPAREITEMSTRUCT lpCompareItemStruct);
+	//{{AFX_VIRTUAL(CXFontComboBox)
+	afx_msg void DrawItem(LPDRAWITEMSTRUCT);
+	afx_msg void MeasureItem(LPMEASUREITEMSTRUCT);
+	//virtual int		CompareItem(LPCOMPAREITEMSTRUCT lpCompareItemStruct);
 	virtual BOOL	PreTranslateMessage(MSG* pMsg);
+	virtual void PreSubclassWindow(); 
 	//}}AFX_VIRTUAL
 
-	//{{AFX_MSG(CXFontCombo)
+	//{{AFX_MSG(CXFontComboBox)
 	afx_msg BOOL OnDropDown();
 	//}}AFX_MSG
-
 
 //{{AFX_CODEJOCK_PRIVATE
 public:

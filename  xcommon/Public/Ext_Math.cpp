@@ -10,9 +10,7 @@ Copyright (c) 2002-2003 汉王科技有限公司. 版权所有.
 #include "Ext_Math.h"
 #include <cmath>
 
-long Mth_GetMinDist(const HWPoint &tPtA, 
-           const HWPoint &tPtB, 
-           const HWPoint &tPtC, 
+LONG Mth_GetMinDist(const HWPoint &tPtA, const HWPoint &tPtB, const HWPoint &tPtC, 
            HWPoint &tNearestPt)
 {  
   HWPoint tPointAToB = HWPoint(tPtB.x - tPtA.x, tPtB.y - tPtA.y);  
@@ -227,7 +225,6 @@ below value use insertion sort */
 
 
 /* sort the array between lo and hi (inclusive) */
-
 void XQsort ( void *base, long num, long width, long *pComp )
 {
   char *lo, *hi;              /* ends of sub-array currently sorting */
@@ -376,4 +373,3 @@ recurse:
   else
     return;                 /* all subarrays done */
 }
-

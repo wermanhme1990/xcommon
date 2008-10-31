@@ -13,9 +13,9 @@
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
-
+#ifndef BS_TYPEMASK
 #define BS_TYPEMASK SS_TYPEMASK
-
+#endif
 #ifndef	TTM_SETTITLE
 #define TTM_SETTITLEA           (WM_USER + 32)  // wParam = TTI_*, lParam = char* szTitle
 #define TTM_SETTITLEW           (WM_USER + 33)  // wParam = TTI_*, lParam = wchar* szTitle

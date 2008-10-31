@@ -21,7 +21,12 @@ public:
 	CXPathA();
 	virtual ~CXPathA();
 	void Append(LPCSTR);
-
+	BOOL FileExists() const;
+	BOOL IsDirectory()	const;
+	BOOL LongPathToShortPath();
+	BOOL ShortPathToLongPath();
+	BOOL FindExt(LPSTR) const;
+	const CXPathA& operator=(LPCSTR);
 };
 
 class DLLXEXPORT CXPathW : public CXStringW
@@ -31,6 +36,12 @@ public:
 	CXPathW();
 	virtual ~CXPathW();
 	void Append(LPCWSTR);
+	BOOL FileExists() const;
+	BOOL IsDirectory() const;
+	BOOL LongPathToShortPath();
+	BOOL ShortPathToLongPath();
+	BOOL FindExt(LPWSTR) const;
+	const CXPathW& operator=(LPCWSTR);
 };
 
 
@@ -39,7 +50,8 @@ typedef CXPathW CXPathT;
 #else 
 typedef CXPathA CXPathT;
 #endif
-//typedef CXPathT CXPath;
+
+typedef CXPathT CXPath;
 
 
 #endif// HWX_PATH_H

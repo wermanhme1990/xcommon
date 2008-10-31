@@ -9,13 +9,6 @@
 /////////////////////////////////////////////////////////////////////////////
 // CCJComboBox window
 
-typedef enum tagDRAWSTATE
-{
-	FC_DRAWNORMAL = 0,
-	FC_DRAWRAISED,
-	FC_DRAWPRESSD
-} DRAWSTATE;
-
 class CXFlatComboBox : public CComboBox
 {
 	DECLARE_DYNAMIC(CXFlatComboBox)
@@ -23,18 +16,9 @@ class CXFlatComboBox : public CComboBox
 // Construction
 public:
 	CXFlatComboBox();
-
 // Attributes
-public:
-protected:
-	BOOL m_bLBtnDown;
-	BOOL m_bPainted;
+protected:	
 	BOOL m_bFlatLook;
-// Operations
-public:
-protected:
-	void DrawCombo(DRAWSTATE eStyle, COLORREF clrTopLeft, COLORREF clrBottomRight);
-
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CXFlatComboBox)
@@ -44,21 +28,19 @@ protected:
 
 // Implementation
 public:
-	virtual ~CXFlatComboBox();
-
+	virtual ~CXFlatComboBox();	
+protected:
+	virtual void NotifyOwner(UINT nCode);
 	// Generated message map functions
 protected:
-	//{{AFX_MSG(CXFlatComboBox)
-	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
-	afx_msg void OnTimer(UINT nIDEvent);
+	//{{AFX_MSG(CXFlatComboBox)	
 	afx_msg void OnPaint();
-	afx_msg void OnSetFocus(CWnd* pOldWnd);
-	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	//}}AFX_MSG
-
+	
 	DECLARE_MESSAGE_MAP()
+public:
+protected:	
+	virtual void PreSubclassWindow();
 };
 
 /////////////////////////////////////////////////////////////////////////////

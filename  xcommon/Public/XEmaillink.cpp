@@ -65,8 +65,8 @@ BOOL CXEMailLink::GotoURL(LPCTSTR url, int showcmd)
 			XMemZero(&tMessage, sizeof(tMessage));
 			CXStringA strEMailA = CXStringA::From(m_strURL);
 			CXStringA strSubjectA("About HWNotes");
-			CXStringA strContentA("jhqin:\n");
-
+			CXStringA strContentA = CXStringA::From(url);	
+			strContentA += ":\n";			
 			tRecip.lpszAddress	= (LPSTR)(LPCSTR)strEMailA;
 			tRecip.ulRecipClass = MAPI_TO;
 			//邮件结构信息				
