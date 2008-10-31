@@ -28,7 +28,7 @@ BOOL  WINAPI File_GenTitle(HWX_IN const TCHAR *ptchFilePath, HWX_OUT TCHAR *ptch
     blRet = FALSE;
     goto Exit_;
   }  
-  _tcsncpy(ptchTitle, ptchFllwHead + 1, nTitleLen);
+  _tcsncpy_s(ptchTitle, MAX_PATH, ptchFllwHead + 1, nTitleLen);
 
 Exit_:  
   return blRet;
@@ -48,7 +48,7 @@ BOOL WINAPI File_GenName(HWX_IN const TCHAR *ptchFilePath, HWX_OUT TCHAR *ptchNa
     blRet = FALSE;
     goto Exit_;
   }  
-  _tcsncpy(ptchName, ptchFllwHead + 1, nNameLen);
+  _tcsncpy_s(ptchName, MAX_PATH, ptchFllwHead + 1, nNameLen);
 
 Exit_:  
   return blRet;
@@ -76,7 +76,7 @@ BOOL WINAPI File_GenFilePath(HWX_IN const TCHAR *ptchFullPath, HWX_OUT TCHAR *pt
   
   nPathLen = (LONG)_tcslen( ptchFullPath ) - (LONG)_tcslen( pchHead );
   assert(nPathLen > 0);
-  _tcsncpy( ptchPath, ptchFullPath, nPathLen );
+  _tcsncpy_s( ptchPath, MAX_PATH, ptchFullPath, nPathLen );
     
 _Exit:
   
@@ -86,13 +86,13 @@ _Exit:
 
 BOOL WINAPI File_GenCurPath(HWX_OUT TCHAR * ptchPath)
 {
-  TCHAR atchPath[MAX_NAME];
+  TCHAR atchPath[MAX_PATH];
   TCHAR *ptchIndex;
-  LONG nLen = GetModuleFileName(NULL, atchPath, MAX_NAME);
-  assert (nLen < MAX_NAME);
+  LONG nLen = GetModuleFileName(NULL, atchPath, MAX_PATH);
+  assert (nLen < MAX_PATH);
   VERIFY(NULL != (ptchIndex = _tcsrchr(atchPath, _T('\\'))));
   *(ptchIndex) = 0;
-  _tcscpy(ptchPath, atchPath);  
+  _tcscpy_s(ptchPath, MAX_PATH, atchPath);  
   return TRUE;
 }
 
@@ -135,7 +135,7 @@ BOOL WINAPI File_CreateDirs(HWX_IN const TCHAR *ptchDstFilePath )
     if(pchTail)
     {
       nPairentPathLen = (LONG)_tcslen( ptchDstFilePath ) - (LONG)_tcslen( pchTail );
-      _tcsncpy(szPairentPath, ptchDstFilePath, nPairentPathLen);      
+      _tcsncpy_s(szPairentPath, MAX_PATH, ptchDstFilePath, nPairentPathLen);      
       _tmkdir(szPairentPath);      
       pchTail ++;
     }
@@ -342,20 +342,20 @@ _Exit:
 }
 
 BOOL WINAPI XIsFileInUseW(LPCWSTR strFileName)  
-{  
+{  	
   assert(strFileName);
-  BOOL   blRet = FALSE;
-  if (0 != _waccess(strFileName, 0))
+  BOOL   blRet = FALSE;	
+  if (0 != _waccess_s(strFileName, 0))
   {
     return blRet;
-  }
+  }	
   HANDLE Handle = CreateFileW(strFileName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);  
-  if (INVALID_HANDLE_VALUE != Handle)  
-  {
+	if (INVALID_HANDLE_VALUE != Handle)  
+  {		
     CloseHandle(Handle); 
   }  
   else
-  {
+  {		
     blRet = TRUE;
   }
   return   blRet;  
@@ -364,7 +364,7 @@ BOOL WINAPI XIsFileInUseA(LPCSTR strFileName)
 {  
   assert(strFileName);
   BOOL   blRet = FALSE;
-  if (0 != _access(strFileName, 0))
+  if (0 != _access_s(strFileName, 0))
   {
     return blRet;
   }
@@ -380,80 +380,140 @@ BOOL WINAPI XIsFileInUseA(LPCSTR strFileName)
   return   blRet;  
 }
 CXStringW WINAPI XGetFileDirectoryW(LPCWSTR pwhFilePath)
-{
-  WCHAR szDir[_MAX_DIR];
-  WCHAR szDrive[_MAX_DRIVE];
-  _wsplitpath(pwhFilePath, szDrive, szDir, NULL, NULL);
-  return  CXStringW(szDrive) + szDir;
+{	
+	WCHAR szDir[MAX_DIR];
+	WCHAR szDrive[MAX_DRIVE];
+	if(0 == _wsplitpath_s(pwhFilePath, szDrive, MAX_DRIVE, szDir, MAX_DIR, NULL, 0, NULL, 0))
+	{
+		return  CXStringW(szDrive) + szDir;
+	}
+	else
+	{
+		return L"";
+	}
 }
 CXStringA WINAPI XGetFileDirectoryA(LPCSTR pchFilePath)
 {
-  CHAR szDir[_MAX_DIR];
-  CHAR szDrive[_MAX_DRIVE];
-  _splitpath(pchFilePath, szDrive, szDir, NULL, NULL);
-  return  CXStringA(szDrive) + szDir;
+  CHAR szDir[MAX_DIR];
+	CHAR szDrive[MAX_DRIVE];
+	if(0 == _splitpath_s(pchFilePath, szDrive, MAX_DRIVE, szDir, MAX_DIR, NULL, 0, NULL, 0))
+	{
+		return  CXStringA(szDrive) + szDir;
+	}
+	else
+	{
+		return "";
+	}
 }
 CXStringW WINAPI XGetFileExtW(LPCWSTR pwhFilePath)
 {
-  WCHAR szExt[_MAX_EXT];
-  _wsplitpath(pwhFilePath, NULL, NULL, NULL, szExt);
-  return CXStringW(szExt);
+	WCHAR szExt[MAX_EXT];
+	if(0 == _wsplitpath_s(pwhFilePath, NULL, 0, NULL, 0, NULL, 0, szExt, MAX_EXT))
+	{
+		return szExt;
+	}
+	else
+	{
+		return L"";
+	}
 }
 CXStringA WINAPI XGetFileExtA(LPCSTR pchFilePath)
 {
-  CHAR szExt[_MAX_EXT];
-  _splitpath(pchFilePath, NULL, NULL, NULL, szExt);
-  return CXStringA(szExt);
+  CHAR szExt[MAX_EXT];
+  if(0 == _splitpath_s(pchFilePath, NULL, 0, NULL, 0, NULL, 0, szExt, MAX_EXT))
+	{
+		return szExt;
+	}
+	else
+	{
+		return "";
+	}
 }
 
 
 CXStringW WINAPI XGetFileTitleW(LPCWSTR lpszFilePath)
 {
-  WCHAR szFname[_MAX_FNAME];
-  _wsplitpath(lpszFilePath, NULL, NULL, szFname, NULL);
-  return  CXStringW(szFname);
+  WCHAR szFname[MAX_NAME];
+	if(0 == _wsplitpath_s(lpszFilePath, NULL, 0, NULL, 0, szFname, MAX_NAME, NULL, 0))
+	{
+		return  szFname;
+	}
+	else
+	{
+		return L"";
+	}
 }
 CXStringA WINAPI XGetFileTitleA(LPCSTR lpszFilePath)
 {
-  CHAR szFname[_MAX_FNAME];
-  _splitpath(lpszFilePath, NULL, NULL, szFname, NULL);
-  return  CXStringA(szFname);
+  CHAR szFname[MAX_NAME];
+  if(0 == _splitpath_s(lpszFilePath, NULL, 0, NULL, 0, szFname, MAX_NAME, NULL, 0))
+	{
+		return  szFname;
+	}
+	else
+	{
+		return "";
+	}
 }
 
 CXStringW WINAPI XGetFileDirAndNameW(LPCWSTR lpszFilePath)
 {
-  WCHAR szDir[_MAX_DIR];
-  WCHAR szFname[_MAX_FNAME];
-  WCHAR szExt[_MAX_EXT];
-  _wsplitpath(lpszFilePath, NULL , szDir, szFname, szExt);
-  CXStringW strDir = szDir;
-  strDir.TrimLeft(L"\\");
-  return  strDir + szFname + szExt;
+	WCHAR szDir[MAX_DIR];
+	WCHAR szFname[MAX_NAME];
+	WCHAR szExt[MAX_EXT];
+	if (0 == _wsplitpath_s(lpszFilePath, NULL, 0,  szDir, MAX_DIR, szFname, MAX_NAME, szExt, MAX_EXT))
+	{
+		CXStringW strDir = szDir;
+		strDir.TrimLeft(L"\\");
+		return  strDir + szFname + szExt;
+	}
+	else
+	{
+		return L"";
+	}
 }
 CXStringA WINAPI XGetFileDirAndNameA(LPCSTR lpszFilePath)
 {
-  CHAR szDir[_MAX_DIR];
-  CHAR szFname[_MAX_FNAME];
-  CHAR szExt[_MAX_EXT];
-  _splitpath(lpszFilePath, NULL , szDir, szFname, szExt);
-  CXStringA strDir = szDir;
-  strDir.TrimLeft("\\");
-  return  strDir + szFname + szExt;
+  CHAR szDir[MAX_DIR];
+  CHAR szFname[MAX_NAME];
+  CHAR szExt[MAX_EXT];
+  if (0 == _splitpath_s(lpszFilePath, NULL, 0,  szDir, MAX_DIR, szFname, MAX_NAME, szExt, MAX_EXT))
+  {
+		CXStringA strDir = szDir;
+		strDir.TrimLeft("\\");
+		return  strDir + szFname + szExt;
+  }
+	else
+	{
+		return "";
+	}  
 }
 
 CXStringW WINAPI XGetFileNameW(LPCWSTR lpszFilePath)
 {
-  WCHAR szExt[_MAX_EXT];
-  WCHAR szName[_MAX_FNAME];
-  _wsplitpath(lpszFilePath, NULL, NULL, szName, szExt);
-  return CXStringW(szName) + szExt;
+  WCHAR szExt[MAX_EXT];
+  WCHAR szName[MAX_NAME];
+  if (0 == _wsplitpath_s(lpszFilePath, NULL, 0, NULL, 0, szName, MAX_NAME, szExt, MAX_EXT))
+  {
+		return CXStringW(szName) + szExt;
+  }  
+	else
+	{
+		return CXStringW();
+	}  
 }
 CXStringA WINAPI XGetFileNameA(LPCSTR lpszFilePath)
 {
-  CHAR szExt[_MAX_EXT];
-  CHAR szName[_MAX_FNAME];
-  _splitpath(lpszFilePath, NULL, NULL, szName, szExt);
-  return CXStringA(szName) + szExt;
+	CHAR szExt[MAX_EXT];
+	CHAR szName[MAX_NAME];
+	if (0 == _splitpath_s(lpszFilePath, NULL, 0, NULL, 0, szName, MAX_NAME, szExt, MAX_EXT))
+	{
+		return CXStringA(szName) + szExt;
+	}  
+	else
+	{
+		return CXStringA();
+	}  
 }
 
 BOOL WINAPI XCreateDirA(HWX_IN LPCSTR pchDstFilePath )
@@ -474,9 +534,9 @@ BOOL WINAPI XCreateDirA(HWX_IN LPCSTR pchDstFilePath )
     if(pchTail)
     {
       nPairentPathLen = (LONG)strlen( pchDstFilePath ) - (LONG)strlen( pchTail ) + 1;
-      strncpy(szPairentPath, pchDstFilePath, nPairentPathLen); 
+      strncpy_s(szPairentPath, MAX_PATH, pchDstFilePath, nPairentPathLen); 
       szPairentPath[nPairentPathLen + 1] = 0;
-      if (!mkdir(szPairentPath))
+      if (!_mkdir(szPairentPath))
       {
 				blRet = FALSE;
 				break;
@@ -486,7 +546,7 @@ BOOL WINAPI XCreateDirA(HWX_IN LPCSTR pchDstFilePath )
   }
 _Error:
 
-  return blRet;
+ return blRet;
 }
 BOOL WINAPI XCreateDirW(HWX_IN LPCWSTR pwhDstFilePath )
 {    
@@ -506,7 +566,7 @@ BOOL WINAPI XCreateDirW(HWX_IN LPCWSTR pwhDstFilePath )
     if(pwhTail)
     {
       nPairentPathLen = (LONG)wcslen( pwhDstFilePath ) - (LONG)wcslen( pwhTail ) + 1;
-      wcsncpy(szPairentPath, pwhDstFilePath, nPairentPathLen);  
+      wcsncpy_s(szPairentPath, MAX_PATH, pwhDstFilePath, nPairentPathLen);  
       szPairentPath[nPairentPathLen + 1] = 0;
       if (!_wmkdir(szPairentPath))
       {
@@ -529,7 +589,7 @@ BOOL WINAPI XGenCurPathA(HWX_OUT LPSTR pchPath)
   assert (nLen < MAX_PATH); 
   VERIFY(NULL != (pchIndex = strrchr(achPath, '\\')));
   *(pchIndex) = 0;
-  strcpy(pchPath, achPath);  
+  strcpy_s(pchPath, MAX_PATH, achPath);  
   return TRUE;
 }
 BOOL WINAPI XGenCurPathW(HWX_OUT LPWSTR pwhPath)
@@ -540,30 +600,10 @@ BOOL WINAPI XGenCurPathW(HWX_OUT LPWSTR pwhPath)
   assert (nLen < MAX_PATH);
   VERIFY(NULL != (pwhIndex = wcsrchr(awhPath, L'\\')));
   *(pwhIndex) = 0;
-  wcscpy(pwhPath, awhPath);  
+  wcscpy_s(pwhPath, MAX_PATH, awhPath);  
   return TRUE;
 }
 
-BOOL WINAPI XCreateFileW(HWX_IN LPCWSTR pwhDstFilePath)
-{
-  FILE *pFile = NULL;  
-  BOOL blRet = TRUE;
-  assert(pwhDstFilePath);
-  if (!pwhDstFilePath)
-  {
-    blRet = FALSE;
-    goto _Error;
-  }
-  VERIFY(FALSE != XCreateDirW(pwhDstFilePath));
-
-  if (NULL == (pFile = _wfopen(pwhDstFilePath, L"a+b")))
-  {
-    blRet = FALSE;
-  }
-  fclose(pFile);
-_Error:
-  return blRet;
-}
 BOOL WINAPI XCreateFileA(HWX_IN LPCSTR pchDstFilePath, BOOL blOverwrite)
 {  
   BOOL blRet = FALSE;
@@ -650,19 +690,19 @@ BOOL WINAPI XIsDirectoryExistA(LPCSTR pchDir)
 {
   char achPath[_MAX_PATH];  
   BOOL blRet = TRUE;
-  if (!getcwd(achPath, _MAX_PATH))
+  if (!_getcwd(achPath, _MAX_PATH))
   {
     blRet = FALSE;
   }
   else
   {
-    if (chdir(pchDir))
+    if (_chdir(pchDir))
     {
       blRet = FALSE;
     }
     else
     {
-      chdir(achPath);
+      _chdir(achPath);
     }    
   }
   return blRet;
@@ -714,7 +754,7 @@ BOOL WINAPI XDeleteDirectoryW(LPCWSTR pwhDir, BOOL blDelAll)
   BOOL blReturn = TRUE;
   WCHAR awhDir[_MAX_PATH];
   awhDir[0] = 0;
-  wcscpy(awhDir, pwhDir);
+  wcscpy_s(awhDir, _MAX_PATH, pwhDir);
   LONG nTail = (LONG)wcslen(awhDir) - 1;
   if (nTail <= 0)
   {
@@ -727,7 +767,7 @@ BOOL WINAPI XDeleteDirectoryW(LPCWSTR pwhDir, BOOL blDelAll)
 
   WCHAR awhFile[MAX_PATH];
   awhFile[0] = 0;
-  swprintf(awhFile, L"%s\\*.*", awhDir);
+  swprintf_s(awhFile, MAX_PATH, L"%s\\*.*", awhDir);
 
   struct _wfinddata_t tFileSet;
   intptr_t hFile;	
@@ -740,13 +780,13 @@ BOOL WINAPI XDeleteDirectoryW(LPCWSTR pwhDir, BOOL blDelAll)
       {
         if (!(0 == wcscmp(tFileSet.name,L"." )|| 0 == wcscmp(tFileSet.name, L"..")))
         {////删除子目录 排除.和..目录
-          swprintf(awhFile, L"%s\\%s", awhDir, tFileSet.name);
+          swprintf_s(awhFile, MAX_PATH, L"%s\\%s", awhDir, tFileSet.name);
           blReturn = XDeleteDirectoryW(awhFile, blDelAll);
         }			
       }
       else
       {	//删除文件
-        swprintf(awhFile, L"%s\\%s", awhDir, tFileSet.name);
+        swprintf_s(awhFile, MAX_PATH, L"%s\\%s", awhDir, tFileSet.name);
         //判定文件是否是只读的
         if (tFileSet.attrib & _A_RDONLY)
         {
@@ -780,7 +820,7 @@ BOOL WINAPI XDeleteDirectoryA(LPCSTR pchDir, BOOL blDelAll)
   BOOL blReturn = TRUE;
   char achDir[_MAX_PATH];
   achDir[0] = 0;
-  strcpy(achDir, pchDir);
+  strcpy_s(achDir, _MAX_PATH, pchDir);
   LONG nTail = (LONG)strlen(achDir) - 1;
   if (nTail <= 0)
   {
@@ -793,7 +833,7 @@ BOOL WINAPI XDeleteDirectoryA(LPCSTR pchDir, BOOL blDelAll)
 
   char achFile[_MAX_PATH];
   achFile[0] = 0;
-  sprintf(achFile, "%s\\*.*", achDir);
+  sprintf_s(achFile, _MAX_PATH, "%s\\*.*", achDir);
 
   struct _finddata_t tFileSet;
   intptr_t hFile;	
@@ -806,13 +846,13 @@ BOOL WINAPI XDeleteDirectoryA(LPCSTR pchDir, BOOL blDelAll)
       {
         if (!(0 == strcmp(tFileSet.name, "." )|| 0 == strcmp(tFileSet.name, "..")))
         {////删除子目录 排除.和..目录
-          sprintf(achFile, "%s\\%s", achDir, tFileSet.name);
+          sprintf_s(achFile, _MAX_PATH, "%s\\%s", achDir, tFileSet.name);
           blReturn = XDeleteDirectoryA(achFile, blDelAll);
         }			
       }
       else
       {	//删除文件
-        sprintf(achFile, "%s\\%s", achDir, tFileSet.name);
+        sprintf_s(achFile, _MAX_PATH, "%s\\%s", achDir, tFileSet.name);
         //判定文件是否是只读的
         if (tFileSet.attrib & _A_RDONLY)
         {
@@ -844,19 +884,15 @@ BOOL WINAPI XDeleteDirectoryA(LPCSTR pchDir, BOOL blDelAll)
 CXStringA WINAPI XGetModuleFilePathA( HMODULE hModule )
 {
   CHAR achPath[MAX_PATH];
-  GetModuleFileNameA(hModule, achPath, MAX_PATH - 1);
-	CXStringA strPath(achPath);
-	strPath.ReplaceChar('\\', '/');
-  return strPath;
+  GetModuleFileNameA(hModule, achPath, MAX_PATH - 1);	
+	return CXStringA(achPath);
 }
 CXStringW WINAPI XGetModuleFilePathW( HMODULE hModule )
 {
   WCHAR awhPath[MAX_PATH];
   LONG nLen = GetModuleFileNameW(hModule, awhPath, MAX_PATH - 1);
-  assert (nLen < MAX_PATH);
-	CXStringW strPath(awhPath);
-	strPath.ReplaceChar('\\', '/');
-  return CXStringW(awhPath);
+  assert (nLen < MAX_PATH);	
+  return awhPath;
 }
 CXStringA WINAPI XReplaceFileNameA( LPCSTR pchPath, LPCSTR pchName)
 {

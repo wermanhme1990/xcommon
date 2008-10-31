@@ -370,8 +370,7 @@ static DWORD CALLBACK EditStreamCallBack(	DWORD dwCookie, LPBYTE pbBuff, LONG cb
 {
   CXStringA *pstr = (CXStringA*)dwCookie;
   if(pstr->StrLen() < cb)
-  {
-    //TRACE(TEXT("Len = %d\n"), pstr->StrLen());
+  {   
     *pcb = pstr->StrLen();
     memcpy(pbBuff, (LPCSTR)*pstr, *pcb);
     pstr->Clear();

@@ -5,8 +5,8 @@ Copyright (c) 2002-2003 汉王科技有限公司. 版权所有.
 版本历史:	1.0
 作者:		xuejuntao xuejuntao@hanwang.com.cn 2008/08/21
 *********************************************************************/
-#ifndef HWX_EMAILLINK
-#define HWX_EMAILLINK
+#ifndef HWX_EMAILLINK_H
+#define HWX_EMAILLINK_H
 
 #if _MSC_VER >= 1000
 #pragma once
@@ -27,10 +27,10 @@ public:
 
 // Operations
 public:    
-    //}}AFX_VIRTUAL
-	virtual BOOL GotoURL(LPCTSTR url, int showcmd);
+    //}}AFX_VIRTUAL	
 // Implementation
 protected: 
+	virtual BOOL GotoURL(LPCTSTR url, int showcmd);
 	virtual void ReportError();
 // Protected attributes
 protected:   
@@ -45,4 +45,4 @@ protected:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Developer Studio will insert additional declarations immediately before the previous line.
 
-#endif // HWX_EMAILLINK
+#endif // HWX_EMAILLINK_H

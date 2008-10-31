@@ -13,9 +13,9 @@ using namespace std;
 static char THIS_FILE[] = __FILE__;
 #endif
 
-IMPLEMENT_DYNAMIC(CXFontCombo, CXFlatComboBox)
+IMPLEMENT_DYNAMIC(CXFontComboBox, CXFlatComboBox)
 
-CXFontCombo::CXFontCombo()
+CXFontComboBox::CXFontComboBox()
 {
 	m_bFlatLook = TRUE;
 	m_csSymbol  = _T("AaBbCc");
@@ -26,7 +26,7 @@ CXFontCombo::CXFontCombo()
   InitFontLst();
 }
 
-CXFontCombo::~CXFontCombo()
+CXFontComboBox::~CXFontComboBox()
 {
 	if (m_hIconFontType)
 	{
@@ -34,13 +34,15 @@ CXFontCombo::~CXFontCombo()
 		m_hIconFontType = NULL;
 	}
 }
-BEGIN_MESSAGE_MAP(CXFontCombo, CXFlatComboBox)
-	//{{AFX_MSG_MAP(CXFontCombo)
+BEGIN_MESSAGE_MAP(CXFontComboBox, CXFlatComboBox)
+	//{{AFX_MSG_MAP(CXFontComboBox)
 	ON_CONTROL_REFLECT_EX(CBN_DROPDOWN, OnDropDown)
+	ON_WM_DRAWITEM_REFLECT()
+	ON_WM_MEASUREITEM_REFLECT()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
-void CXFontCombo::DrawItem(LPDRAWITEMSTRUCT lpDIS)
+void CXFontComboBox::DrawItem(LPDRAWITEMSTRUCT lpDIS)
 {
 	CDC*  pDC       = CDC::FromHandle(lpDIS->hDC);
 	UINT  itemState = lpDIS->itemState;
@@ -135,8 +137,7 @@ void CXFontCombo::DrawItem(LPDRAWITEMSTRUCT lpDIS)
             GetDeviceCaps(pDC->m_hDC, LOGPIXELSY),       
             72);//rcText.Height() - 2;
       */
-		xLogFont.lfHeight = rcText.Height() - 2;
-    TRACE(TEXT("%d %d\n"), rcText.Height(), xLogFont.lfHeight);
+		xLogFont.lfHeight = rcText.Height() - 2;    
 		HFONT tFont =	CreateFontIndirect(&xLogFont), hFontOld = NULL;
 		hFontOld = (HFONT)SelectObject(pDC->m_hDC, tFont);
 		pDC->DrawText(csFaceName, rcText, DT_VCENTER | DT_SINGLELINE);
@@ -147,12 +148,12 @@ void CXFontCombo::DrawItem(LPDRAWITEMSTRUCT lpDIS)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// CXFontCombo diagnostics
+// CXFontComboBox diagnostics
 
 #ifdef _DEBUG
-void CXFontCombo::AssertValid() const
+void CXFontComboBox::AssertValid() const
 {
-	CXFlatComboBox::AssertValid();
+	__super::AssertValid();
 
 	DWORD dwStyle = ::GetWindowLong(m_hWnd, GWL_STYLE);
 
@@ -161,22 +162,23 @@ void CXFontCombo::AssertValid() const
 
 	ASSERT(dwStyle & CBS_OWNERDRAWFIXED);
 	ASSERT(dwStyle & CBS_DROPDOWN);
-	ASSERT(dwStyle & CBS_SORT);
-	ASSERT(dwStyle & CBS_HASSTRINGS);
+	//ASSERT(dwStyle & CBS_SORT);
+	//ASSERT(dwStyle & CBS_HASSTRINGS);
 }
 #endif
 
-void CXFontCombo::MeasureItem(LPMEASUREITEMSTRUCT lpMIS)
+void CXFontComboBox::MeasureItem(LPMEASUREITEMSTRUCT lpMIS)
 {
 	ASSERT(lpMIS->CtlType == ODT_COMBOBOX);
 	lpMIS->itemHeight = (::GetSystemMetrics(SM_CYVTHUMB) - ::GetSystemMetrics(SM_CYEDGE));
 	lpMIS->itemWidth = 0; 
+	lpMIS->itemHeight = 20;
 }
-
-int CXFontCombo::CompareItem(LPCOMPAREITEMSTRUCT lpCIS)
-{
+/*
+int CXFontComboBox::CompareItem(LPCOMPAREITEMSTRUCT lpCIS)
+{	
 	ASSERT_VALID(this);
-	ASSERT(lpCIS->CtlType == ODT_LISTBOX);
+	//ASSERT(lpCIS->CtlType == ODT_LISTBOX);
 
 	int iItem1 = (int)(WORD)lpCIS->itemID1;
 	if (iItem1 == -1)
@@ -198,8 +200,8 @@ int CXFontCombo::CompareItem(LPCOMPAREITEMSTRUCT lpCIS)
 
 	return strItem1.Collate(strItem2);
 }
-
-void CXFontCombo::InitControl(LPCTSTR lpszFaceName, UINT nWidth/*= 0*/, BOOL bEnable/*= TRUE*/)
+*/
+void CXFontComboBox::InitControl(LPCTSTR lpszFaceName, UINT nWidth/*= 0*/, BOOL bEnable/*= TRUE*/)
 {
 	ASSERT_VALID(this);
 	if (!nWidth)
@@ -212,7 +214,7 @@ void CXFontCombo::InitControl(LPCTSTR lpszFaceName, UINT nWidth/*= 0*/, BOOL bEn
 	}
 }
 
-BOOL CXFontCombo::GetSelFont(CXLogFont& lf)
+BOOL CXFontComboBox::GetSelFont(CXLogFont& lf)
 {
 	LONG iCurSel = GetCurSel();
 	if (iCurSel == CB_ERR)
@@ -239,7 +241,7 @@ BOOL CXFontCombo::GetSelFont(CXLogFont& lf)
 	return TRUE;
 }
 
-BOOL CXFontCombo::GetSelFont(CString& strFaceName)
+BOOL CXFontComboBox::GetSelFont(CString& strFaceName)
 {
 	CXLogFont lf;
 	if (GetSelFont(lf))
@@ -250,12 +252,12 @@ BOOL CXFontCombo::GetSelFont(CString& strFaceName)
 	return FALSE;
 }
 
-BOOL CXFontCombo::SetSelFont(CXLogFont& lf)
+BOOL CXFontComboBox::SetSelFont(CXLogFont& lf)
 {
 	return SetSelFont(lf.lfFaceName);
 }
 
-BOOL CXFontCombo::SetSelFont(const CString& strFaceName)
+BOOL CXFontComboBox::SetSelFont(const CString& strFaceName)
 {
 	LONG nIndex = 0;
 	list<CXLogFont>::const_iterator itlstTravel = m_listFonts.begin();
@@ -277,23 +279,14 @@ BOOL CXFontCombo::SetSelFont(const CString& strFaceName)
 	return FALSE;
 }
 
-BOOL CXFontCombo::OnDropDown()
+BOOL CXFontComboBox::OnDropDown()
 {
 	GetSelFont(m_csSelected);
 	return FALSE; // continue routing.
 }
 
-void CXFontCombo::NotifyOwner(UINT nCode)
-{
-	CWnd* pWndOwner = GetOwner();
-	if (::IsWindow(pWndOwner->GetSafeHwnd()))
-	{
-		pWndOwner->SendMessage(WM_COMMAND,
-			MAKEWPARAM(GetDlgCtrlID(), nCode), (LPARAM)m_hWnd);
-	}
-}
 
-BOOL CXFontCombo::PreTranslateMessage(MSG* pMsg)
+BOOL CXFontComboBox::PreTranslateMessage(MSG* pMsg)
 {
 	if (pMsg->message == WM_KEYUP || pMsg->message == WM_KEYDOWN)
 	{
@@ -338,11 +331,11 @@ BOOL CXFontCombo::PreTranslateMessage(MSG* pMsg)
 
 
 
-BOOL CALLBACK CXFontCombo::EnumFontFamExProc(ENUMLOGFONTEX* pelf,
+BOOL CALLBACK CXFontComboBox::EnumFontFamExProc(ENUMLOGFONTEX* pelf,
                                              NEWTEXTMETRICEX* /*lpntm*/,
                                              DWORD dwFontType, LPARAM lParam)
 {
-  CXFontCombo* pFontEnum = (CXFontCombo*)lParam;
+  CXFontComboBox* pFontEnum = (CXFontComboBox*)lParam;
   if (pFontEnum != NULL)
   {
     if (pFontEnum->AddFont(&pelf->elfLogFont, dwFontType))
@@ -355,7 +348,7 @@ BOOL CALLBACK CXFontCombo::EnumFontFamExProc(ENUMLOGFONTEX* pelf,
 }
 
 
-void CXFontCombo::InitFontLst(CDC* pDC/*= NULL*/, BYTE nCharSet/*= DEFAULT_CHARSET*/)
+void CXFontComboBox::InitFontLst(CDC* pDC/*= NULL*/, BYTE nCharSet/*= DEFAULT_CHARSET*/)
 {
   m_listFonts.clear();    
   CXLogFont lf;
@@ -378,7 +371,7 @@ void CXFontCombo::InitFontLst(CDC* pDC/*= NULL*/, BYTE nCharSet/*= DEFAULT_CHARS
 }
 
 
-BOOL CXFontCombo::AddFont(const LOGFONT* pLF, DWORD dwType)
+BOOL CXFontComboBox::AddFont(const LOGFONT* pLF, DWORD dwType)
 {  
   CString strFaceName = pLF->lfFaceName;
   strFaceName.Remove('@');
@@ -398,7 +391,7 @@ BOOL CXFontCombo::AddFont(const LOGFONT* pLF, DWORD dwType)
   return TRUE;
 }
 
-BOOL CXFontCombo::DoesFontExist(CString& strFaceName)
+BOOL CXFontComboBox::DoesFontExist(CString& strFaceName)
 {	
   list<CXLogFont>::const_iterator itlstTravel = m_listFonts.begin();
   while(itlstTravel != m_listFonts.end())
@@ -412,7 +405,7 @@ BOOL CXFontCombo::DoesFontExist(CString& strFaceName)
   return FALSE;
 }
 
-CXLogFont* CXFontCombo::GetLogFont(const CString& strFaceName)
+CXLogFont* CXFontComboBox::GetLogFont(const CString& strFaceName)
 {
   list<CXLogFont>::iterator itlstTravel = m_listFonts.begin();
   while(itlstTravel != m_listFonts.end())
@@ -427,7 +420,7 @@ CXLogFont* CXFontCombo::GetLogFont(const CString& strFaceName)
 }
 
 
-LONG CXFontCombo::GetMaxWidth()
+LONG CXFontComboBox::GetMaxWidth()
 {
   CWindowDC dc(NULL);
   HFONT hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);	
@@ -449,25 +442,35 @@ LONG CXFontCombo::GetMaxWidth()
   return iMaxWidth;
 }
 
-void CXFontCombo::PreSubclassWindow()
+void CXFontComboBox::PreSubclassWindow()
 {
   ResetContent();  
-	SetItemHeight(-1, (::GetSystemMetrics(SM_CYVTHUMB)-::GetSystemMetrics(SM_CYEDGE)));
+	DWORD dwStyple = ::GetWindowLong(m_hWnd, GWL_STYLE);
+
+	// combo box is owner drawn, and must be created with the
+	// following styles:
+	dwStyple |= CBS_OWNERDRAWFIXED;
+	dwStyple |= CBS_DROPDOWNLIST;
+	dwStyple &= ~CBS_SORT;
+	//dwStyple &= ~CBS_HASSTRINGS;
+	ModifyStyle(CBS_SORT | CBS_HASSTRINGS, 0, 0);
+	::SetWindowLong(m_hWnd, GWL_STYLE, dwStyple);
+	SetItemHeight(-1, (::GetSystemMetrics(SM_CYVTHUMB) - ::GetSystemMetrics(SM_CYEDGE)));
 	list<CXLogFont>::const_iterator itlstTravel = m_listFonts.begin();
 	while (itlstTravel != m_listFonts.end())
 	{
 		AddString((*itlstTravel).lfFaceName);
 		itlstTravel ++;
 	}	
-  CXFlatComboBox::PreSubclassWindow();
+  __super::PreSubclassWindow();
 }
 
 
-void CXFontCombo::SetListStyle(DWORD dwStyle) 
+void CXFontComboBox::SetListStyle(DWORD dwStyle) 
 {
 	m_dwStyle = dwStyle;
 }
-void CXFontCombo::SetIcon( HICON hIcon)
+void CXFontComboBox::SetIcon( HICON hIcon)
 {
 	if (m_hIconFontType)
 	{

@@ -11,6 +11,10 @@
 #define DLLXEXPORT   //__declspec(dllimport) 
 #endif
 
+#ifndef TRACE
+#include "XDebug.h"
+#endif
+
 typedef     short             SHORT;
 typedef     SHORT*            LPSHORT;
 typedef     long              LONG;
@@ -137,12 +141,13 @@ typedef   LONG    TError;
 #define MAX_DWORD       (0xffffffff) 
 
 #ifndef MAX_PATH
-#define MAX_PATH          (260)
+#define MAX_PATH          (512)
 #endif
 #define MAX_DRIVE         (3)  
-#define MAX_DIR           (256) 
-#define MAX_FNAME         (256) 
-#define MAX_EXT           (256) 
+#define MAX_DIR           (512) 
+#define MAX_FNAME         (512) 
+#define MAX_EXT           (512)
+#define MAX_DIR						(512)
 #ifndef MAX_NAME
 #define MAX_NAME          MAX_PATH
 #endif
@@ -224,21 +229,37 @@ typedef struct tagCnd8
 	hIcon = NULL;\
 }
 
-
+#undef SAFE_DELETE_HMENU
+#define SAFE_DELETE_HMENU(hMenu) \
+	if(hMenu) \
+{ \
+		::DestroyMenu(hMenu); \
+		hMenu = NULL; \
+}
+ 
 //#define SAFE_DELETE_OBJ(obj)
 #undef SAFE_DELETE_OBJ
-#define SAFE_DELETE_OBJ(obj) \
-	if (obj.GetSafeHandle()) \
+#define SAFE_DELETE_OBJ(hObj) \
+	if (hObj) \
 	{\
-		obj.DeleteObject();\
+	::DeleteObject(hObj);\
+	hObj = NULL;\
 	}
 
-#undef SAFE_FREE_LIBRARY(hModel)
+#undef SAFE_FREE_LIBRARY
 #define SAFE_FREE_LIBRARY(hModel) \
 	if (hModel)\
 	{\
 		::FreeLibrary(hModel);\
 		hModel = NULL;\
 	}
+
+#undef SAFE_CLOSE_HANDLE
+#define SAFE_CLOSE_HANDLE(hHandle) \
+	if (hHandle)\
+{\
+	::CloseHandle(hHandle);\
+	hHandle = NULL;\
+} 
 #endif//HWXUE_EXT_TYPE_H_INC
 

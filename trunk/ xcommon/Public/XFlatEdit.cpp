@@ -25,7 +25,7 @@ CXFlatEdit::CXFlatEdit()
 , m_bHasFocus(FALSE)
 , m_bPainted(FALSE)
 {
-	m_nStyle = m_nStyleEx = 0;
+	m_nStyle = m_nStyleEx = 0;		
 }
 
 CXFlatEdit::~CXFlatEdit()
@@ -41,6 +41,7 @@ BEGIN_MESSAGE_MAP(CXFlatEdit, CEdit)
 	ON_WM_SETCURSOR()
 	ON_WM_SETFOCUS()
 	ON_WM_KILLFOCUS()
+	ON_MESSAGE(WM_CREATETOOLTIP, OnCreateTip)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -126,8 +127,7 @@ void CXFlatEdit::OnNcPaint()
 		rWindow.OffsetRect(-rWindow.left, -rWindow.top);
 
 		CXBufferDC memDC(dc, rWindow);
-		dc.FillSolidRect(rWindow, IsWindowEnabled()? 
-			GetSysColor(COLOR_WINDOW) : GetSysColor(COLOR_3DFACE));
+		dc.FillSolidRect(rWindow, IsWindowEnabled()? 	GetSysColor(COLOR_WINDOW) : GetSysColor(COLOR_3DFACE));
 
 		DrawBorders(&memDC, rWindow);
 	}
@@ -141,11 +141,11 @@ void CXFlatEdit::DrawBorders(CDC* pDC, const CRect& rWindow)
 {
 	if (m_bHasFocus || PointInRect())
 	{
-		CXFlatEdit::DrawBorders(pDC, this, rWindow, TRUE);
+		DrawBorders(pDC, this, rWindow, TRUE);
 	}
 	else
 	{
-		CXFlatEdit::DrawBorders(pDC, this, rWindow, FALSE);
+		DrawBorders(pDC, this, rWindow, FALSE);
 	}
 }
 
@@ -194,4 +194,62 @@ void CXFlatEdit::OnKillFocus(CWnd* pNewWnd)
 BOOL CXFlatEdit::IsFlat() 
 {
 	return m_bFlatLook;
+}
+
+
+void CXFlatEdit::PreSubclassWindow()
+{		
+	PostMessage(WM_CREATETOOLTIP);
+	__super::PreSubclassWindow();
+}
+BOOL CXFlatEdit::PreTranslateMessage(MSG* pMsg) 
+{
+	if (IsWindow(m_ToolTip.GetSafeHwnd()))
+	{
+		m_ToolTip.RelayEvent(pMsg);
+	}	
+	return __super::PreTranslateMessage(pMsg);
+}
+void CXFlatEdit::SetToolTip(LPCTSTR lpszToolTip)
+{
+	m_strToolTip = lpszToolTip;	
+	PostMessage(WM_UPDATETIP);
+}
+CString CXFlatEdit::GetToolTip() const
+{
+	return m_strToolTip;
+}
+void CXFlatEdit::EnableToolTip( BOOL blEnable/*= TRUE*/ )
+{
+	PostMessage(WM_ENABLETIP, WPARAM(blEnable), 0);	
+}
+
+LRESULT CXFlatEdit::OnCreateTip( WPARAM, LPARAM l )
+{
+	if (!::IsWindow(m_ToolTip.GetSafeHwnd()))
+	{
+		m_ToolTip.Create(this);
+		m_ToolTip.AddTool(this, m_strToolTip/*, rtClient, GetDlgCtrlID()*/);
+	}
+	return 1L;
+}
+
+LRESULT CXFlatEdit::OnUpdateTip(WPARAM w, LPARAM l)
+{	
+	if (::IsWindow(m_ToolTip.GetSafeHwnd())) 
+	{		
+		m_ToolTip.UpdateTipText(m_strToolTip, this/*, GetDlgCtrlID()*/);	
+	}
+	return 1L;
+}
+
+LRESULT CXFlatEdit::OnEnableToolTip(WPARAM w, LPARAM l)
+{
+	BOOL blEnable = (BOOL) w;
+	BOOL blReturn = FALSE;
+	if (::IsWindow(m_ToolTip.GetSafeHwnd()))
+	{		
+		blReturn = m_ToolTip.EnableWindow(blEnable);
+	}
+	return blReturn;
 }

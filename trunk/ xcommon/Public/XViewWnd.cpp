@@ -91,8 +91,7 @@ void CXViewWnd::OnDraw(CDC* pDC)
   CRect client;
 	pDC->GetClipBox(client);
   CRect rect = client; 
-  DocToClient(rect);
-   
+  DocToClient(rect); 
   if (dc.CreateCompatibleDC(pDC))
   {
     if (bitmap.CreateCompatibleBitmap(pDC, rect.Width(), rect.Height()))
@@ -105,13 +104,7 @@ void CXViewWnd::OnDraw(CDC* pDC)
       dc.IntersectClipRect(client);
     }
   }	
-	/*
-	CRect rtBox;
-	pDrawDC->GetClipBox(rtBox);
-	TRACE(TEXT("rtBox :%d %d %d %d \t %d %d %d %d\n"), 
-		rtBox.left, rtBox.top, rtBox.Width(), rtBox.Height(),
-		client.left, client.top, client.Width(), client.Height());
-	*/
+	
 	Draw(pDrawDC->GetSafeHdc());
 
 

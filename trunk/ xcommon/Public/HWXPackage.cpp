@@ -512,7 +512,7 @@ BOOL CXPackage::Reserve(DWORD dwSize)
   }
   
   dwExpMemSize = (dwSize + m_dwIncStep - 1) / m_dwIncStep * m_dwIncStep;
-  dwExpMemSize = CalcUsedBytes(dwExpMemSize);
+  dwExpMemSize = CalcUsedBytes(dwExpMemSize);	
   assert(dwExpMemSize >= m_dwIncStep);
   assert(m_dwCapacity <= dwExpMemSize);
   if (m_dwCapacity == dwExpMemSize)
@@ -527,8 +527,7 @@ BOOL CXPackage::Reserve(DWORD dwSize)
   {
     blRet = FALSE;
     goto _Exit;
-  }    
-  
+  }   
 _Exit:
   return blRet;
 }
@@ -561,7 +560,7 @@ Exit_:
 
 //在当前包最后增加定长的缓存区 返回此缓存区地址
 BYTE *CXPackage::GetBuffer(DWORD dwBufferSize)
-{  
+{  	
   BYTE *pbBuffer = NULL;  
   if (FALSE == Reserve(dwBufferSize))
   {

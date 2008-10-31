@@ -30,14 +30,16 @@ CXHyperLink::CXHyperLink()
 	m_bUnderline        = FALSE;                // Underline the link?
 	m_bAdjustToFit      = TRUE;                 // Resize the window to fit the text?
 	m_strURL.Empty();
+	m_blTransparent			= FALSE;
 }
 
 CXHyperLink::~CXHyperLink()
 {
 	m_Font.DeleteObject();
+	m_blTransparent			= FALSE;
 }
 
-BEGIN_MESSAGE_MAP(CXHyperLink, CStatic)
+BEGIN_MESSAGE_MAP(CXHyperLink, CXTipStatic)
 	//{{AFX_MSG_MAP(CXHyperLink)
 	ON_CONTROL_REFLECT(STN_CLICKED, OnClicked)
 	ON_WM_CTLCOLOR_REFLECT()
@@ -48,12 +50,6 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CXHyperLink message handlers
-
-BOOL CXHyperLink::PreTranslateMessage(MSG* pMsg) 
-{
-	m_ToolTip.RelayEvent(pMsg);
-	return CStatic::PreTranslateMessage(pMsg);
-}
 
 void CXHyperLink::OnClicked()
 {
@@ -71,7 +67,7 @@ void CXHyperLink::OnClicked()
 HBRUSH CXHyperLink::CtlColor(CDC* pDC, UINT nCtlColor) 
 {
 	ASSERT(nCtlColor == CTLCOLOR_STATIC);
-
+	HBRUSH hBrush = NULL;
 	if (m_bOverControl)
 	{
 		pDC->SetTextColor(m_crHoverColour);
@@ -84,19 +80,23 @@ HBRUSH CXHyperLink::CtlColor(CDC* pDC, UINT nCtlColor)
 	{
 		pDC->SetTextColor(m_crLinkColour);
 	}
-
 	// transparent text.
 	if (m_blTransparent)
 	{
 		pDC->SetBkMode(TRANSPARENT);
+		hBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
+	}
+	else
+	{
+		hBrush = CreateSolidBrush(nCtlColor);
 	}
 	//
-	return (HBRUSH)GetStockObject(NULL_BRUSH);
+	return hBrush;
 }
 
 void CXHyperLink::OnMouseMove(UINT nFlags, CPoint point) 
 {
-	CStatic::OnMouseMove(nFlags, point);
+	__super::OnMouseMove(nFlags, point);
 
 	if (m_bOverControl)        // Cursor is currently over control
 	{
@@ -158,25 +158,23 @@ void CXHyperLink::PreSubclassWindow()
 	SetDefaultCursor();      // Try and load up a "hand" cursor
 
 	// Create the tooltip
-	CRect rect; 
-	GetClientRect(rect);
-	m_ToolTip.Create(this);
-	m_ToolTip.AddTool(this, m_strURL, rect, TOOLTIP_ID);
+	//CRect rect; 
+	//GetClientRect(rect);
+	//m_ToolTip.Create(this);
+	//m_ToolTip.AddTool(this, m_strURL, rect, TOOLTIP_ID);
 
-	CStatic::PreSubclassWindow();
+	__super::PreSubclassWindow();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // CXHyperLink operations
-
 void CXHyperLink::SetURL(CString strURL)
 {
 	m_strURL = strURL;
 
 	if (::IsWindow(GetSafeHwnd())) 
 	{
-		PositionWindow();
-		m_ToolTip.UpdateTipText(strURL, this, TOOLTIP_ID);
+		PositionWindow();		
 	}
 }
 

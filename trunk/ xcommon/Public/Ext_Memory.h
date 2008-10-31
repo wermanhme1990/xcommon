@@ -11,7 +11,8 @@ Copyright (c) 2002-2003 汉王科技有限公司. 版权所有.
 #include "Ext_Type.h"
 #include <malloc.h>
 //此文件中的函数 Ext_Mem_NewMemory Ext_Mem_ResizeMemory Ext_Mem_FreeMemory 在核心中不能使用
-
+#undef  ZeroMemory
+#define ZeroMemory					XMemZero
 #define Mem_ResizeMemory    XMemResize
 #define Mem_FreeMemory      XMemFree
 #define Mem_NewMemory       XMemAlloc

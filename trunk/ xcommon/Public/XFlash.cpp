@@ -11,6 +11,24 @@ Copyright (c) 2002-2003 汉王科技有限公司. 版权所有.
 /////////////////////////////////////////////////////////////////////////////
 IMPLEMENT_DYNCREATE(CXFlash, CWnd)
 
+BEGIN_MESSAGE_MAP(CXFlash, CWnd)	
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_RBUTTONDOWN()
+	ON_WM_RBUTTONUP()
+END_MESSAGE_MAP()
+
+CXFlash::CXFlash()
+{
+	m_blRButton = TRUE;
+	m_blLButton = TRUE;
+	
+}
+CXFlash::~CXFlash()
+{
+	m_blRButton = TRUE;
+	m_blLButton = TRUE;
+}
 LONG CXFlash::GetReadyState()
 {
 	LONG result;
@@ -623,4 +641,91 @@ CLSID const& CXFlash::GetClsid()
 	static CLSID const clsid
 		= { 0xd27cdb6e, 0xae6d, 0x11cf, { 0x96, 0xb8, 0x44, 0x45, 0x53, 0x54, 0x0, 0x0 } };
 	return clsid;
+}
+void CXFlash::EnableRButton( BOOL blEnable/*= TRUE*/ )
+{
+	m_blRButton = blEnable;
+}
+void CXFlash::EnableLButton( BOOL blEnable )
+{
+	m_blLButton = blEnable;
+}
+void CXFlash::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (m_blLButton)
+	{
+		CWnd::OnLButtonDown(nFlags, point);
+	}
+	else
+	{
+		CWnd *pParent = NULL;
+		if (pParent = GetParent())
+		{
+			ClientToScreen(&point);
+			pParent->ScreenToClient(&point);
+			DWORD dwPoint = 0;
+			dwPoint = ((point.y & 0x0000FFFF) << 16) | (point.x & 0x0000FFFF);
+			::SendMessage(pParent->GetSafeHwnd(), WM_LBUTTONDOWN, nFlags, dwPoint);
+		}
+	}
+}
+
+void CXFlash::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (m_blLButton)
+	{
+		CWnd::OnLButtonUp(nFlags, point);
+	}
+	else
+	{
+		CWnd *pParent = NULL;
+		if (pParent = GetParent())
+		{
+			ClientToScreen(&point);
+			pParent->ScreenToClient(&point);
+			DWORD dwPoint = 0;
+			dwPoint = ((point.y & 0x0000FFFF) << 16) | (point.x & 0x0000FFFF);
+			::SendMessage(pParent->GetSafeHwnd(), WM_LBUTTONUP, nFlags, dwPoint);
+		}
+	}
+}
+
+void CXFlash::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (m_blRButton)
+	{
+		CWnd::OnRButtonDown(nFlags, point);
+	}
+	else
+	{
+		CWnd *pParent = NULL;
+		if (pParent = GetParent())
+		{
+			DWORD dwPoint = 0;
+			dwPoint = ((point.y & 0x0000FFFF) << 16) | (point.x & 0x0000FFFF);
+			::SendMessage(pParent->GetSafeHwnd(), WM_RBUTTONDOWN, nFlags, dwPoint);
+		}
+	}
+}
+
+void CXFlash::OnRButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (m_blRButton)
+	{
+		CWnd::OnRButtonUp(nFlags, point);
+	}
+	else
+	{
+		CWnd *pParent = NULL;
+		if (pParent = GetParent())
+		{
+			DWORD dwPoint = 0;
+			dwPoint = ((point.y & 0x0000FFFF) << 16) | (point.x & 0x0000FFFF);
+			::SendMessage(pParent->GetSafeHwnd(), WM_RBUTTONUP, nFlags, dwPoint);
+		}		
+	}	
 }

@@ -336,7 +336,7 @@ void CXMaskEdit::SetWindowText(LPCTSTR lpszString)
 {
 	SetValue(lpszString, !m_bSetMaskedCharsOnly);
 
-	CWnd::SetWindowText(m_str);
+	__super::SetWindowText(m_str);
 }
 
 int CXMaskEdit::GetWindowText(LPTSTR lpszStringBuf, int nMaxCount) const
@@ -345,7 +345,7 @@ int CXMaskEdit::GetWindowText(LPTSTR lpszStringBuf, int nMaxCount) const
 
 	// Receive text
 	CString strText;
-	CWnd::GetWindowText(strText);
+	__super::GetWindowText(strText);
 
 	// Copy text
 	int nCount = min(nMaxCount, strText.GetLength());
@@ -381,7 +381,7 @@ int CXMaskEdit::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CEdit::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	
-	CWnd::SetWindowText(m_str);
+	__super::SetWindowText(m_str);
 	return 0;
 }
 
@@ -676,7 +676,7 @@ void CXMaskEdit::OnLButtonUp(UINT nFlags, CPoint point)
 		}
 	}
 	
-	CEdit::OnLButtonUp(nFlags, point);
+	__super::OnLButtonUp(nFlags, point);
 }
 
 void CXMaskEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 
@@ -692,7 +692,7 @@ void CXMaskEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 		return;
 	}
 
-	CEdit::OnChar(nChar, nRepCnt, nFlags);
+	__super::OnChar(nChar, nRepCnt, nFlags);
 } 
 
 //////////////////////////////
@@ -894,7 +894,7 @@ void CXMaskEdit::OnCharPrintchar(UINT nChar, UINT nRepCnt, UINT nFlags)
 			}
 
 			// Don't use m_chMask
-			CEdit::OnChar(nChar, nRepCnt, nFlags);
+			__super::OnChar(nChar, nRepCnt, nFlags);
 		}
 	}
 
@@ -944,7 +944,7 @@ void CXMaskEdit::OnCharPrintchar(UINT nChar, UINT nRepCnt, UINT nFlags)
 			if (nEndPos - nStartPos > nSameMaskCharsNum)
 			{
 				MessageBeep((UINT)-1);
-				CEdit::SetSel(nIndex, nIndex+nSameMaskCharsNum);
+				__super::SetSel(nIndex, nIndex+nSameMaskCharsNum);
 				return;
 			}
 
@@ -971,19 +971,19 @@ void CXMaskEdit::OnCharPrintchar(UINT nChar, UINT nRepCnt, UINT nFlags)
 			// -------------------------------------------
 			// Replace the content with the shifted string
 			// -------------------------------------------
-			CEdit::SetSel(nIndex, nIndex+nSameMaskCharsNum);
-			CEdit::ReplaceSel(strReplace, TRUE);
-			CEdit::SetSel(nIndex, nIndex);
+			__super::SetSel(nIndex, nIndex+nSameMaskCharsNum);
+			__super::ReplaceSel(strReplace, TRUE);
+			__super::SetSel(nIndex, nIndex);
 			for(int i=0; i < strReplace.GetLength(); i++)
 			{
 				m_str.SetAt(nIndex+i, strReplace[i]);
 			}
-			CEdit::SetSel(nStartPos+1, nStartPos+1);
+			__super::SetSel(nStartPos+1, nStartPos+1);
 		}
 		else
 		{
 			// Don't use m_chMaskInputTemplate
-			CEdit::OnChar(nChar, nRepCnt, nFlags);
+			__super::OnChar(nChar, nRepCnt, nFlags);
 		}
 		
 	}
@@ -995,7 +995,7 @@ void CXMaskEdit::OnCharBackspace(UINT nChar, UINT nRepCnt, UINT nFlags)
 	ASSERT(m_strMask.GetLength() == m_strInputTemplate.GetLength());
 
 	int nStartPos, nEndPos;
-	CEdit::GetSel(nStartPos, nEndPos);
+	__super::GetSel(nStartPos, nEndPos);
 
 	ASSERT(nStartPos>=0);
 	ASSERT(nEndPos>=0);
@@ -1015,7 +1015,7 @@ void CXMaskEdit::OnCharBackspace(UINT nChar, UINT nRepCnt, UINT nFlags)
 		(nEndPos < nGroupStart) || (nEndPos > nGroupEnd))
 	{
 		MessageBeep((UINT)-1);
-		CEdit::SetSel(nGroupStart, nGroupEnd);
+		__super::SetSel(nGroupStart, nGroupEnd);
 		return;
 	}
 
@@ -1042,7 +1042,7 @@ void CXMaskEdit::OnCharBackspace(UINT nChar, UINT nRepCnt, UINT nFlags)
 				// if previous group was found
 				if ((nGroupStart != -1) && (nGroupEnd < nEndPos))
 				{
-					CEdit::SetSel(nGroupEnd, nGroupEnd);
+					__super::SetSel(nGroupEnd, nGroupEnd);
 					return;
 				}
 
@@ -1109,9 +1109,9 @@ void CXMaskEdit::OnCharBackspace(UINT nChar, UINT nRepCnt, UINT nFlags)
 			// -------------------------------------------
 			// Replace the content with the shifted string
 			// -------------------------------------------
-			CEdit::SetSel(nIndex, nIndex+nSameMaskCharsNum);
-			CEdit::ReplaceSel(strReplace, TRUE);
-			CEdit::SetSel(nIndex, nIndex);
+			__super::SetSel(nIndex, nIndex+nSameMaskCharsNum);
+			__super::ReplaceSel(strReplace, TRUE);
+			__super::SetSel(nIndex, nIndex);
 			for(i=0; i < strReplace.GetLength(); i++)
 			{
 				m_str.SetAt(nIndex+i, strReplace[i]);
@@ -1120,7 +1120,7 @@ void CXMaskEdit::OnCharBackspace(UINT nChar, UINT nRepCnt, UINT nFlags)
 		}
 		else // Don't use m_chMaskInputTemplate - delete symbol
 		{
-			CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
+			__super::OnKeyDown(nChar, nRepCnt, nFlags);
 		}
 	}
 	
@@ -1158,7 +1158,7 @@ void CXMaskEdit::OnCharBackspace(UINT nChar, UINT nRepCnt, UINT nFlags)
 			if (nEndPos - nStartPos > nSameMaskCharsNum)
 			{
 				MessageBeep((UINT)-1);
-				CEdit::SetSel(nIndex, nIndex+nSameMaskCharsNum);
+				__super::SetSel(nIndex, nIndex+nSameMaskCharsNum);
 				return;
 			}
 
@@ -1183,9 +1183,9 @@ void CXMaskEdit::OnCharBackspace(UINT nChar, UINT nRepCnt, UINT nFlags)
 			// -------------------------------------------
 			// Replace the content with the shifted string
 			// -------------------------------------------
-			CEdit::SetSel(nIndex, nIndex+nSameMaskCharsNum);
-			CEdit::ReplaceSel(strReplace, TRUE);
-			CEdit::SetSel(nIndex, nIndex);
+			__super::SetSel(nIndex, nIndex+nSameMaskCharsNum);
+			__super::ReplaceSel(strReplace, TRUE);
+			__super::SetSel(nIndex, nIndex);
 			for(int i=0; i < strReplace.GetLength(); i++)
 			{
 				m_str.SetAt(nIndex+i, strReplace[i]);
@@ -1194,7 +1194,7 @@ void CXMaskEdit::OnCharBackspace(UINT nChar, UINT nRepCnt, UINT nFlags)
 		else
 		{
 			// Don't use m_chMaskInputTemplate - delete symbols
-			CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
+			__super::OnKeyDown(nChar, nRepCnt, nFlags);
 		}
 	}
 }
@@ -1214,7 +1214,7 @@ void CXMaskEdit::OnCharDelete(UINT nChar, UINT nRepCnt, UINT nFlags)
 	// Calc group bounds
 	// -----------------
 	int nGroupStart, nGroupEnd;
-	CEdit::GetSel(nGroupStart, nGroupEnd);
+	__super::GetSel(nGroupStart, nGroupEnd);
 	GetGroupBounds(nGroupStart, nGroupEnd, nGroupStart);
 
 	// ------------
@@ -1225,7 +1225,7 @@ void CXMaskEdit::OnCharDelete(UINT nChar, UINT nRepCnt, UINT nFlags)
 		(nEndPos < nGroupStart) || (nEndPos > nGroupEnd))
 	{
 		MessageBeep((UINT)-1);
-		CEdit::SetSel(nGroupStart, nGroupEnd);
+		__super::SetSel(nGroupStart, nGroupEnd);
 		return;
 	}
 
@@ -1311,7 +1311,7 @@ void CXMaskEdit::OnCharDelete(UINT nChar, UINT nRepCnt, UINT nFlags)
 		}
 		else // Don't use m_chMaskInputTemplate - delete symbol
 		{
-			CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
+			__super::OnKeyDown(nChar, nRepCnt, nFlags);
 		}
 	}
 
@@ -1349,7 +1349,7 @@ void CXMaskEdit::OnCharDelete(UINT nChar, UINT nRepCnt, UINT nFlags)
 			if (nEndPos - nStartPos > nSameMaskCharsNum)
 			{
 				MessageBeep((UINT)-1);
-				CEdit::SetSel(nIndex, nIndex+nSameMaskCharsNum);
+				__super::SetSel(nIndex, nIndex+nSameMaskCharsNum);
 				return;
 			}
 
@@ -1374,9 +1374,9 @@ void CXMaskEdit::OnCharDelete(UINT nChar, UINT nRepCnt, UINT nFlags)
 			// -------------------------------------------
 			// Replace the content with the shifted string
 			// -------------------------------------------
-			CEdit::SetSel(nIndex, nIndex+nSameMaskCharsNum);
-			CEdit::ReplaceSel(strReplace, TRUE);
-			CEdit::SetSel(nIndex, nIndex);
+			__super::SetSel(nIndex, nIndex+nSameMaskCharsNum);
+			__super::ReplaceSel(strReplace, TRUE);
+			__super::SetSel(nIndex, nIndex);
 			for(int i=0; i < strReplace.GetLength(); i++)
 			{
 				m_str.SetAt(nIndex+i, strReplace[i]);
@@ -1385,7 +1385,7 @@ void CXMaskEdit::OnCharDelete(UINT nChar, UINT nRepCnt, UINT nFlags)
 		else
 		{
 			// Don't use m_chMaskInputTemplate - delete symbols
-			CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
+			__super::OnKeyDown(nChar, nRepCnt, nFlags);
 		}
 	}
 }
@@ -1519,7 +1519,7 @@ BOOL CXMaskEdit::OnUpdateR()
 	
 	// TODO: Add your control notification handler code here
 	CString str;
-	CWnd::GetWindowText(str);
+	__super::GetWindowText(str);
 
 	if (m_str != str && !m_bPasteProcessing)
 	{
@@ -1527,23 +1527,23 @@ BOOL CXMaskEdit::OnUpdateR()
 		if (!SetValue(str, TRUE/*!m_bSetMaskedCharsOnly*/))
 		{
 			MessageBeep((UINT)-1);
-			CWnd::SetWindowText(m_str);
+			__super::SetWindowText(m_str);
 			return FALSE;
 		}
 		if (str != m_str) // str may be empty
 		{
-			CWnd::SetWindowText(m_str);
+			__super::SetWindowText(m_str);
 
 			if (m_bSelectByGroup)
 			{
 				int nBegin, nEnd;
 				GetGroupBounds(nBegin, nEnd, 0, TRUE);
 
-				CEdit::SetSel(nBegin, nEnd);
+				__super::SetSel(nBegin, nEnd);
 			}
 			else
 			{
-				CEdit::SetSel(0, -1);
+				__super::SetSel(0, -1);
 			}
 		}
 	}
@@ -1559,11 +1559,11 @@ void CXMaskEdit::OnSetFocusR()
 		if (nBegin == -1)
 		{
 		}
-		CEdit::SetSel(nBegin, nEnd);
+		__super::SetSel(nBegin, nEnd);
 	}
 	else
 	{
-		CEdit::SetSel(0, -1);
+		__super::SetSel(0, -1);
 	}
 }
 
@@ -1577,7 +1577,7 @@ LRESULT CXMaskEdit::OnPaste (WPARAM, LPARAM)
 	Default ();
 
 	int nBegin, nEnd;
-	CEdit::GetSel(nBegin, nEnd);
+	__super::GetSel(nBegin, nEnd);
 	nEnd = max (nBegin, nEnd);
 
 	CString str;
@@ -1622,13 +1622,13 @@ LRESULT CXMaskEdit::OnPaste (WPARAM, LPARAM)
 		MessageBeep((UINT)-1);
 	}
 
-	CWnd::SetWindowText(m_str);
+	__super::SetWindowText(m_str);
 
 	if (m_bSelectByGroup)
 	{
 		GetGroupBounds(nBeginOld, nEndOld, nBeginOld, TRUE);
 	}
-	CEdit::SetSel(nBeginOld, nBeginOld);
+	__super::SetSel(nBeginOld, nBeginOld);
 
 	m_bPasteProcessing = FALSE;
 
