@@ -81,33 +81,38 @@ extern WORD    wMapCount;
 extern HANDLE  hMapFile;
 #endif _NO_EXTERN_
 
-typedef struct _HZPH {
+typedef struct _HZPH 
+{
 	TCHAR szHZ[2*(MAX_PHRASE_LEN+1)];
 	DWORD dwAttrib;
 	struct _HZPH __based(lpMapFileBase) *lpNext;
 } HZPH, FAR *LPHZPH;
 
-typedef struct _KEYPH {
+typedef struct _KEYPH 
+{
 	SHORT wLen;
-	BYTE abKey[MAX_PHRASE_LEN+1];
+	BYTE abKey[MAX_PHRASE_LEN + 1];
 	HZPH __based(lpMapFileBase) *lpHZPH;
 	struct _KEYPH __based(lpMapFileBase) *lpNext;
 } KEYPH, FAR *LPKEYPH;
 
 
-typedef struct {
+typedef struct 
+{
 	KEYPH *lpKeyPH;
 	HZPH *lpHZPH;
 } PHRASE, FAR *LPPHRASE;
 
 
-typedef struct {
+typedef struct 
+{
 	LPTSTR lpHZ;
 	WORD wKey;
 	WORD wLen;
 } HANZI, FAR *LPHANZI;
 
-typedef struct {
+typedef struct 
+{
 	TCHAR szPaintCompStr[MAXCOMPSIZE];
 	TCHAR szConvCompStr[MAXCOMPSIZE];
 	TCHAR szPreResultStr[MAXCOMPSIZE];
@@ -118,7 +123,8 @@ typedef struct {
 	WORD wPYArrayCurPos;
 } FREEPYCOMP, FAR *LPFREEPYCOMP;
 
-typedef struct {
+typedef struct
+{
 	
 	HANZI aHanZi[MAX_EACH_PY_NUM];
 	PHRASE aPhrase[MAX_SELECT_PH];

@@ -724,7 +724,7 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 
 	if(!(*lpwStatus) && awLen[*lpwStatus]<1) return wCount;
 	hDC = GetDC(NULL);
-	oldFont = SelectObject(hDC, hUIFont);
+	oldFont = (HFONT)SelectObject(hDC, hUIFont);
 	_tcscpy(szTotal,"<>");
 
 	switch(wDirect)
