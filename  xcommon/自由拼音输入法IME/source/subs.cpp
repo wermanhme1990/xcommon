@@ -26,7 +26,9 @@ BOOL IsIMEOpen(HIMC hIMC)
 	BOOL fOpen;
 	LPINPUTCONTEXT lpIMC;
 	if (!(lpIMC = ImmLockIMC(hIMC)))
+	{
 		return FALSE;
+	}
 
 	fOpen = lpIMC->fOpen;
 	ImmUnlockIMC(hIMC);
@@ -40,7 +42,9 @@ BOOL IsCompStr(HIMC hIMC)
 	BOOL fRet = FALSE;
 
 	if (!(lpIMC = ImmLockIMC(hIMC)))
+	{
 		return FALSE;
+	}
 
 	if (ImmGetIMCCSize(lpIMC->hCompStr) < sizeof (COMPOSITIONSTRING))
 	{

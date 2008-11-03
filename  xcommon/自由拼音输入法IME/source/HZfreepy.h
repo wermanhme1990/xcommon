@@ -22,16 +22,6 @@
 #ifndef _HZFREEPY_H_
 #define _HZFREEPY_H_
 
-/*for debug*************************/
-//#define _MY_DEBUG
-
-#ifdef _MY_DEBUG
-#define DEBUGLOGFILE  _T("d:\\work\\c\\freepy\\release\\debug.log")
-#define DebugLog(n,f) (void)((DebugLogFile != NULL && nDebugLevel & n) ? (_ftprintf f,fflush(DebugLogFile)) : 0)
-#else
-#define DebugLog(n,f) (void)0
-#endif //_MY_DEBUG
-/***********************************/
 
 #define TABFILENAME _T("freepy.tab")
 #define SYSPHRASEFILENAME _T("freepysys.dic")

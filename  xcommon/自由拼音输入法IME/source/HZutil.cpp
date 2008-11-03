@@ -736,7 +736,7 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 	awLen[1] = lpPYCand->wPhraseNum;
 	awLen[0] = (lpPYCand->aHanZi + lpPYCand->wHZNum - 1)->wLen;
 
-	DebugLog(0,(DebugLogFile,"CreateCandStr: %d  %d  %d\n",awLen[1],awLen[0],*lpwStatus));	
+	TRACE(TEXT("CreateCandStr: %d  %d  %d\n"),awLen[1],awLen[0],*lpwStatus);	
 
 	if( *lpwStatus && awLen[*lpwStatus] < 1)
 	{
@@ -979,9 +979,13 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 		wTemp = wCount;
 
 		if((!(*lpwStatus) && awLen[1] > 0 ) || (*(lpwCurPos+(*lpwStatus)) > 0 && wCount > 1))
+		{
 			_tcscpy( lpCandStr, _T("<") );
+		}
 		else
+		{
 			_tcscpy( lpCandStr, _T("") );
+		}
 
 		wCount = 2;
 		for(i = wTemp-1;i>1;i--)
@@ -992,7 +996,8 @@ WORD CreateCandStr(LPFREEPYCAND lpPYCand, WORD wDirect, LPTSTR lpCandStr,WORD wM
 		{
 			_tcscpy( (lpCandStr + wMaxCandStrSize),szStrBuf[0]);
 		}
-		else{
+		else
+		{
 			_tcscpy( (lpCandStr + wMaxCandStrSize),_T(""));
 		}
 
@@ -1048,10 +1053,19 @@ WORD CalculatePosSpan(LPTSTR lpPYArray,WORD wMaxSize,WORD wLen,WORD wCount)
 	for(i=0;i<wLen;i++)
 	{
 		ch=*(lpPYArray + i*wMaxSize);
-		if(ch == _T('i') || ch == _T('u') || ch == _T('v')) continue;
-		if(ch < _T('a') || ch > _T('z')) continue;
-		wNum++;
-		if(wNum == wCount) return i+1;
+		if(ch == _T('i') || ch == _T('u') || ch == _T('v'))
+		{
+			continue;
+		}
+		if(ch < _T('a') || ch > _T('z'))
+		{
+			continue;
+		}
+		wNum ++;
+		if(wNum == wCount) 
+		{
+			return i+1;
+		}
 	}
 	return 0;
 }
@@ -1065,9 +1079,13 @@ SHORT CalculateUnConvPos(LPTSTR lpPYArray,WORD wMaxSize,WORD wLen,LPTSTR lpStr)
 
 	szStr[0] = _T('\0');
 	for(i=0;i<wLen;i++)
+	{
 		_tcscat(szStr,lpPYArray + i*wMaxSize);
+	}
 	lpDest = _tcsstr(lpStr,szStr);
 	if(lpDest)
+	{
 		wPos = lpDest - lpStr;
+	}
 	return wPos;
 }

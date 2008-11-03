@@ -1105,31 +1105,37 @@ int gb2big(char *pszBuf)
 	pstr=pszBuf;
 	nLen=strlen(pstr);
 	i=0;
-	while (i<nLen ) {
-		if (!IsDBCSLeadByte((BYTE)*pstr)) {
+	while (i<nLen ) 
+	{
+		if (!IsDBCSLeadByte((BYTE)*pstr)) 
+		{
 			pstr++;
 			i++;
 			continue;
 		}
 		c1=*pstr;
 		c2=*(pstr+1);
-		if ((c2 >= 0xa1) && (c2 <= 0xfe)) {
+		if ((c2 >= 0xa1) && (c2 <= 0xfe)) 
+		{
 			if ((c1 >= 0xa1) && (c1 <= 0xa9)) {
 				nPos = ((c1 - 0xa1) * 94 + (c2 - 0xa1)) * 2;
 				*pstr = GtoB[nPos++];
 				*(pstr+1) = GtoB[nPos];
 			}
-			else if ((c1 >= 0xb0) && (c1 <= 0xf7)) {
+			else if ((c1 >= 0xb0) && (c1 <= 0xf7)) 
+			{
 				nPos = ((c1 - 0xb0 + 9) * 94 + (c2 - 0xa1)) * 2;
 				*pstr = GtoB[nPos++];
 				*(pstr+1) = GtoB[nPos];
 			}
-			else {
+			else 
+			{
 				*pstr = (char)GtoB_bad1;
 				*(pstr+1) = (char)GtoB_bad2;
 			}
 		}
-		else {
+		else
+		{
 			*pstr = (char)GtoB_bad1;
 			*(pstr+1) = (char)GtoB_bad2;
 		}

@@ -35,15 +35,14 @@ BOOL CharHandleU( HIMC hIMC,WORD wParam,LONG lParam)
 	lpCompStr = (LPCOMPOSITIONSTRING)ImmLockIMCC(lpIMC->hCompStr);
 
 
-	if( !lpCandList->dwCount ){
+	if( !lpCandList->dwCount )
+	{
 		int i;
-
-
 		wHead = wParam - _T('!');
 
-		for( i=0;_tcslen(aPunct[wHead][i]);i++)
+		for( i = 0; _tcslen(aPunct[wHead][i]); i ++)
 		{
-			_tcscpy(GETLPCANDSTR(lpCandList,i+2),aPunct[wHead][i]);
+			_tcscpy(GETLPCANDSTR(lpCandList, i + 2), aPunct[wHead][i]);
 		}
 
 		if( i == 0) 
