@@ -88,7 +88,7 @@ void CreateCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra)
 
 		_stprintf(szStr,_T("AAAAAAAAAAAAA"));
 		hDC = GetDC(lpUIExtra->uiComp.hWnd);
-		oldFont = SelectObject(hDC, hUIFont);
+		oldFont = (HFONT)SelectObject(hDC, hUIFont);
 		GetTextExtentPoint(hDC,szStr,_tcslen(szStr),&sz);
 		SelectObject(hDC, oldFont);
 		ReleaseDC(lpUIExtra->uiComp.hWnd,hDC);
@@ -126,7 +126,7 @@ void MoveCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 				lpStr = ((LPMYCOMPSTR)lpCompStr)->FreePYComp.szPaintCompStr;
 
 				hDC = GetDC(lpUIExtra->uiComp.hWnd);
-				oldFont = SelectObject(hDC, hUIFont);
+				oldFont = (HFONT)SelectObject(hDC, hUIFont);
 				GetTextExtentPoint(hDC,lpStr,_tcslen(lpStr),&sz);
 				SelectObject(hDC, oldFont);
 				ReleaseDC(lpUIExtra->uiComp.hWnd,hDC);
@@ -197,23 +197,19 @@ void PaintCompWindow( HWND hCompWnd)
 	HPEN hOldPen = (HPEN)NULL;
 
 	hDC = BeginPaint(hCompWnd,&ps);
-	oldFont = SelectObject(hDC, hUIFont);
+	oldFont = (HFONT)SelectObject(hDC, hUIFont);
 
 	GetClientRect(hCompWnd,&rc);
 
-	hBrush = GetStockObject(LTGRAY_BRUSH);
-	hOldBrush=SelectObject(hDC,hBrush);
-	PatBlt(hDC,
-		rc.left,
-		rc.top ,
-		rc.right - GetSystemMetrics(SM_CXEDGE)/2,
-		rc.bottom - GetSystemMetrics(SM_CYEDGE)/2,
-		PATCOPY);
+	hBrush = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
+	hOldBrush = (HBRUSH)SelectObject(hDC,hBrush);
+	PatBlt(hDC,	rc.left, rc.top ,	rc.right - GetSystemMetrics(SM_CXEDGE)/2,
+		rc.bottom - GetSystemMetrics(SM_CYEDGE)/2,PATCOPY);
 	if(hBrush && hOldBrush)
 		SelectObject(hDC,hOldBrush);
 
-	hPen = GetStockObject(WHITE_PEN);
-	hOldPen = SelectObject(hDC,hPen);
+	hPen = (HPEN)GetStockObject(WHITE_PEN);
+	hOldPen = (HPEN)SelectObject(hDC,hPen);
 	MoveToEx(hDC,0,rc.bottom - GetSystemMetrics(SM_CXEDGE)/2,NULL);
 	LineTo(hDC,rc.right-GetSystemMetrics(SM_CXEDGE)/2,rc.bottom - GetSystemMetrics(SM_CXEDGE)/2);
 	LineTo(hDC,rc.right-GetSystemMetrics(SM_CXEDGE)/2,0);
@@ -266,7 +262,7 @@ void PaintCompWindow( HWND hCompWnd)
 				GetTextExtentPoint(hDC,"A",1,&sz1);
 
 				hPen = CreatePen(PS_SOLID,3,RGB(0,0,0));
-				hOldPen = SelectObject(hDC,hPen);
+				hOldPen = (HPEN)SelectObject(hDC,hPen);
 				MoveToEx(hDC,sz.cx + sz1.cx/4,sz1.cy*11/10,NULL);
 				LineTo(hDC,sz.cx + sz1.cx*2/3,sz1.cy*11/10);
 				SelectObject(hDC,hOldPen);

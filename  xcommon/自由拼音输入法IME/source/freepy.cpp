@@ -34,14 +34,10 @@ BOOL WINAPI DllMain (
 
 	switch(dwFunction)
 	{
-	case DLL_PROCESS_ATTACH:
-		/* for debug ********************************/
+	case DLL_PROCESS_ATTACH:		
 		TRACE(TEXT("Entry in\n"));	
-
 		hInst = hInstDLL;
-
 		InitDictionary();
-
 		hUIFont = CreateFont(16, 0, 0, 0, FW_NORMAL,
 			FALSE, FALSE, FALSE, ANSI_CHARSET,
 			OUT_TT_PRECIS, CLIP_TT_ALWAYS, ANTIALIASED_QUALITY,
@@ -85,7 +81,7 @@ BOOL IMERegisterClass( HANDLE hInstance )
 	wc.lpfnWndProc    = UIWndProc;
 	wc.cbClsExtra     = 0;
 	wc.cbWndExtra     = 2 * sizeof(LONG);
-	wc.hInstance      = hInstance;
+	wc.hInstance      = (HINSTANCE)hInstance;
 	wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
 	wc.hIcon          = NULL;
 	wc.lpszMenuName   = (LPTSTR)NULL;
@@ -104,7 +100,7 @@ BOOL IMERegisterClass( HANDLE hInstance )
 	wc.lpfnWndProc    = CompWndProc;
 	wc.cbClsExtra     = 0;
 	wc.cbWndExtra     = UICHILDEXTRASIZE;
-	wc.hInstance      = hInstance;
+	wc.hInstance      = (HINSTANCE)hInstance;
 	wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
 	wc.hIcon          = NULL;
 	wc.lpszMenuName   = (LPSTR)NULL;
@@ -123,7 +119,7 @@ BOOL IMERegisterClass( HANDLE hInstance )
 	wc.lpfnWndProc    = CandWndProc;
 	wc.cbClsExtra     = 0;
 	wc.cbWndExtra     = UICHILDEXTRASIZE;
-	wc.hInstance      = hInstance;
+	wc.hInstance      = (HINSTANCE)hInstance;
 	wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
 	wc.hIcon          = NULL;
 	wc.lpszMenuName   = (LPSTR)NULL;
@@ -142,7 +138,7 @@ BOOL IMERegisterClass( HANDLE hInstance )
 	wc.lpfnWndProc    = StatusWndProc;
 	wc.cbClsExtra     = 0;
 	wc.cbWndExtra     = UICHILDEXTRASIZE;
-	wc.hInstance      = hInstance;
+	wc.hInstance      = (HINSTANCE)hInstance;
 	wc.hCursor        = LoadCursor( NULL, IDC_ARROW );
 	wc.hIcon          = NULL;
 	wc.lpszMenuName   = (LPSTR)NULL;
@@ -432,7 +428,7 @@ LONG NotifyHandle(HIMC hUICurIMC, HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			ptSrc = lpIMC->cfCompForm.ptCurrentPos;
 			ClientToScreen(lpIMC->hWnd, &ptSrc);
 			hDC = GetDC(lpIMC->hWnd);
-			oldFont = SelectObject(hDC, hUIFont);
+			oldFont = (HFONT)SelectObject(hDC, hUIFont);
 			GetTextExtentPoint(hDC,"A",1,&szOffset);
 			SelectObject(hDC, oldFont);
 			ReleaseDC(lpIMC->hWnd,hDC);

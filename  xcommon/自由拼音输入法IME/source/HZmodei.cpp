@@ -31,15 +31,19 @@ static TCHAR CWeek[][8] = { _T("星期日"),_T("星期一"),_T("星期二"),_T("星期三"),
 
 void ChineseNumber(int i , LPTSTR lpStr)
 {
-	if( i<11 && i>= 0 ) {
+	if( i<11 && i>= 0 ) 
+	{
 		_tcscpy(lpStr,CNum[i]);
 	}
-	else if( i<20 ) {
+	else if( i<20 ) 
+	{
 		_tcscpy(lpStr,CNum[10]);
 		_tcscat(lpStr,CNum[i-10]);
 	}
-	else if( i<100 ) {
-		if( i%10 ) {
+	else if( i<100 ) 
+	{
+		if( i%10 ) 
+		{
 			_tcscpy(lpStr,CNum[i/10]);
 			_tcscat(lpStr,CDigit[1]);
 			_tcscat(lpStr,CNum[i%10]);
@@ -49,7 +53,8 @@ void ChineseNumber(int i , LPTSTR lpStr)
 			_tcscat(lpStr,CDigit[1]);
 		}
 	}
-	else if( i<100000 ) {
+	else if( i<100000 ) 
+	{
 		int nRest,nDevide;
 		BOOL fStart = FALSE;
 
@@ -57,11 +62,13 @@ void ChineseNumber(int i , LPTSTR lpStr)
 		nRest = i;
 
 		*lpStr = _T('\0');
-		while( nDevide ){
+		while( nDevide )
+		{
 			i = nRest/nDevide;
 			nRest %= nDevide;
 			if( !i && fStart) _tcscat(lpStr,CNum[i]);
-			else if ( i ) {
+			else if ( i ) 
+			{
 				fStart = TRUE;
 				_tcscat(lpStr,CNum[i]);
 			}
@@ -84,8 +91,10 @@ BOOL CharHandleI( HIMC hIMC,WORD wParam,LONG lParam)
 	lpCandList = (LPCANDIDATELIST)((LPSTR)lpCandInfo  + lpCandInfo->dwOffset[0]);
 	lpCompStr = (LPCOMPOSITIONSTRING)ImmLockIMCC(lpIMC->hCompStr);
 
-	if( !lpCandList->dwCount ){
-		if( wParam == _T('d') || wParam == _T('t')){
+	if( !lpCandList->dwCount )
+	{
+		if( wParam == _T('d') || wParam == _T('t'))
+		{
 			time_t ltime;
 			struct tm *today;
 			int nYear,nMon,nDay,nHour,nMin,nSec,nWeek;
@@ -103,7 +112,8 @@ BOOL CharHandleI( HIMC hIMC,WORD wParam,LONG lParam)
 			nYear =	today->tm_year + 1900;
 			nWeek =	today->tm_wday;
 
-			if( wParam == _T('d') ){
+			if( wParam == _T('d') )
+			{
 				lpStr = GETLPCANDSTR(lpCandList,2);
 				_stprintf(lpStr,_T("%d"),nYear);
 				_tcscat(lpStr,CData[0]);
@@ -136,7 +146,8 @@ BOOL CharHandleI( HIMC hIMC,WORD wParam,LONG lParam)
 				lpCandList->dwPageStart = 2;
 				lpCandList->dwPageSize = 0;
 			}
-			if(wParam == _T('t') ) {
+			if(wParam == _T('t') ) 
+			{
 				lpStr = GETLPCANDSTR(lpCandList,2);
 				ChineseNumber(nHour,lpStr);
 				_tcscat(lpStr,CData[3]);
@@ -165,7 +176,7 @@ BOOL CharHandleI( HIMC hIMC,WORD wParam,LONG lParam)
 				_stprintf(lpStr,_T("%d"),nHour);
 				_tcscat(lpStr,CData[3]);
 				_stprintf(lpStr+_tcslen(lpStr),_T("%d"),nMin);
-				_tcscat(lpStr,CData[4]);
+				_tcscat(lpStr, CData[4]);
 
 				lpStr = GETLPCANDSTR(lpCandList,6);
 				_stprintf(lpStr,_T("%d:%d:%d"),nHour,nMin,nSec);
@@ -191,7 +202,10 @@ BOOL CharHandleI( HIMC hIMC,WORD wParam,LONG lParam)
 
 			SelectForwardFromCand(hIMC,lpCandList);
 		}
-		else MessageBeep(0xFFFFFFFF );
+		else
+		{
+			MessageBeep(0xFFFFFFFF );
+			}
 	}
 	else 
 	{
@@ -204,7 +218,8 @@ BOOL CharHandleI( HIMC hIMC,WORD wParam,LONG lParam)
 			SelectBackwardFromCand(hIMC,lpCandList);
 		}
 
-		if( wParam >= _T('0') && wParam <= _T('9') ){
+		if( wParam >= _T('0') && wParam <= _T('9') )
+		{
 			SelectCandFromCandlist(hIMC, wParam);
 		}
 	}

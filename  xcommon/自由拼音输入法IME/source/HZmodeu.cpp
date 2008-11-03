@@ -46,7 +46,10 @@ BOOL CharHandleU( HIMC hIMC,WORD wParam,LONG lParam)
 			_tcscpy(GETLPCANDSTR(lpCandList,i+2),aPunct[wHead][i]);
 		}
 
-		if( i == 0)  MessageBeep(0xFFFFFFFF );
+		if( i == 0) 
+		{
+			MessageBeep(0xFFFFFFFF );
+		}
 		else if( i == 1 )
 		{
 			LPTSTR lpConvStr;

@@ -20,6 +20,10 @@
  */
 #include "stdafx.h"
 #include "freepy.h"
+#include <cstdlib>
+#include <memory>
+#include <errno.h>
+
 
 void LoadHZDictionary( LPTSTR);
 void LoadPunct( LPTSTR );
@@ -37,14 +41,15 @@ void LoadHZDictionary( LPTSTR lpStr)
 	WORD wPYHead=1;
 	LPPINYIN lpPYTab = (LPPINYIN)aPYTab;
 
-	_stscanf(lpStr,"%s %s",szPY,szHZ);
-	
+	_stscanf_s(lpStr,"%s %s",szPY,szHZ);
+
 	alpHZTab[i] = _tcsdup(szHZ);
-	
+
 	wPYHead=(WORD)szPY[0] - (WORD)_T('a');
-	if(wPYHead != nPre) j=0;
-	_tcscpy( (lpPYTab+wPYHead*MAX_EACH_PY_NUM+j)->szPY,szPY);
-	(lpPYTab+wPYHead*MAX_EACH_PY_NUM+j)->wKey=i+1;
+	if(wPYHead != nPre) 
+		j	=	0;
+	_tcscpy_s( (lpPYTab + wPYHead * MAX_EACH_PY_NUM + j)->szPY, 20, szPY);
+	(lpPYTab+wPYHead*MAX_EACH_PY_NUM+j)->wKey = i + 1;
 
 	nPre=wPYHead;
 	i++,j++;
@@ -58,17 +63,21 @@ WORD String2Array(LPTSTR lpBuf,LPTSTR lpStrArr,WORD wMaxArrSize)
 	
 	wBufLen = strlen(lpBuf);
 	
-	for (i=0;i<wBufLen;i++){
-		if(*(lpBuf+i) == _T(' ') || *(lpBuf+i) == _T('\t')) {
-			if(i!=0 && *(lpBuf+i-1)!=_T(' ') && *(lpBuf+i-1)!=_T('\t') ){
-				_tcsncpy(lpStrArr+count*wMaxArrSize,lpBuf+cursor,i-cursor);
-				*(lpStrArr+count*wMaxArrSize+i-cursor)=_T('\0');
+	for (i = 0;i < wBufLen; i ++)
+	{
+		if(*(lpBuf+i) == _T(' ') || *(lpBuf+i) == _T('\t')) 
+		{
+			if(i!=0 && *(lpBuf+i-1)!=_T(' ') && *(lpBuf+i-1)!=_T('\t') )
+			{
+				_tcsncpy_s(lpStrArr + count * wMaxArrSize, wMaxArrSize, lpBuf+cursor, i - cursor);
+				*(lpStrArr + count * wMaxArrSize + i - cursor) = _T('\0');
 				count++;
 			}
 			cursor=i+1;
 		}
-		if(i == wBufLen-1 && *(lpBuf+i)!=_T(' ') && *(lpBuf+i)!=_T('	') ){
-			_tcsncpy(lpStrArr+count*wMaxArrSize,lpBuf+cursor,i-cursor+1);
+		if(i == wBufLen-1 && *(lpBuf+i)!=_T(' ') && *(lpBuf+i)!=_T('	') )
+		{
+			_tcsncpy_s(lpStrArr+count*wMaxArrSize, wMaxArrSize, lpBuf+cursor,i-cursor+1);
 			*(lpStrArr+count*wMaxArrSize+i-cursor+1)=_T('\0');
 			count++;
 		}
@@ -82,32 +91,52 @@ void LoadPunct( LPTSTR lpStr)
 	WORD wCount,wHead;
 	int i;
 	
-	wCount = String2Array(lpStr,(LPTSTR)szStrArr,70);
+	wCount = String2Array(lpStr, (LPTSTR)szStrArr, 70);
 
 	if( szStrArr[0][0] > _T('~') || szStrArr[0][0] < _T('!')) return;
 
 	wHead = szStrArr[0][0] - _T('!');
 
-	for(i=1;i<wCount;i++){
-		_tcscpy(aPunct[wHead][i-1],szStrArr[i]);
+	for(i = 1; i < wCount; i ++)
+	{
+		_tcscpy_s(aPunct[wHead][i - 1], 70, szStrArr[i]);
 	}
 	aPunct[wHead][wCount][0] = _T('\0');
 }
 
 WORD GetSegment(LPTSTR buf)
 {
-	if(*buf == _T('\0')) return 1; //END_SEGMENT
-	else if(*buf == _T('#')) return 2; //COMMENT
-	else if( _tcsstr(buf,_T("[PUNCTUATION]")) != NULL ) return 3; 
-	else if( _tcsstr(buf,_T("[DICTIONARY]")) != NULL) return 4;
-	else return 0;
+	if(*buf == _T('\0'))
+	{
+		return 1; //END_SEGMENT
+	}
+	else if(*buf == _T('#'))
+	{
+		return 2; //COMMENT
+	}
+	else if( _tcsstr(buf,_T("[PUNCTUATION]")) != NULL )
+	{
+		return 3; 
+	}
+	else if( _tcsstr(buf,_T("[DICTIONARY]")) != NULL)
+	{
+		return 4;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void GetStr(FILE *pf,LPTSTR pbuf)
 {
-	while( !feof(pf) ) {
+	while( !feof(pf) )
+	{
 		*pbuf = _fgettc(pf);
-		if(*pbuf == _T('\n')) break;
+		if(*pbuf == _T('\n')) 
+		{
+			break;
+		}
 		pbuf++;
 	}
 	*pbuf = _T('\0');
@@ -116,26 +145,31 @@ void GetStr(FILE *pf,LPTSTR pbuf)
 void LoadTable()
 {
 	FILE *stream;
-	TCHAR szStr[1200];
-	TCHAR szTabFileName[200];
+	TCHAR szStr[1200] = {0};
+	TCHAR szTabFileName[MAX_PATH << 1]={ 0};
 	LPTSTR lpTabFileName = szTabFileName;
 
 
-	lpTabFileName += GetSystemDirectory(szTabFileName,200);
-	if (*(lpTabFileName-1) != _T('\\'))
+	lpTabFileName += GetSystemDirectory(szTabFileName, MAX_PATH);
+	if (*(lpTabFileName - 1) != _T('\\'))
+	{
 		*lpTabFileName++ = _T('\\');
-	_tcscpy(lpTabFileName,TABFILENAME);
+	}
+	*lpTabFileName = 0;
+	_tcscpy_s(lpTabFileName, MAX_PATH, TABFILENAME);
 
-	if( (stream = _tfopen( szTabFileName, "r" )) == NULL ){
-		_stprintf(szStr,"%s can not found",szTabFileName);
-		MessageBox(NULL,szStr,"init",MB_OK);
+	if(EINVAL == _tfopen_s(&stream, szTabFileName, TEXT("r"))  || !stream)
+	{		
+		TRACE(TEXT("%s can not found"), szTabFileName);		
 		exit(1);
 	}
 	
-	while( !feof( stream )) {
+	while( !feof( stream )) 
+	{
 		GetStr(stream,szStr);
 
-		switch( GetSegment(szStr)) {
+		switch( GetSegment(szStr)) 
+		{
 		case 1: //END_SEGMENT
 			break;
 
@@ -143,25 +177,41 @@ void LoadTable()
 			break;
 
 		case 3: //PUNCTUATION
-			if( feof( stream ) ) goto my_exit;
+			if( feof( stream ) ) 
+			{
+				goto my_exit;
+			}
 			GetStr(stream,szStr);
-			while(GetSegment(szStr) != 1) {
-				if( GetSegment(szStr) != 2){
+			while(GetSegment(szStr) != 1) 
+			{
+				if( GetSegment(szStr) != 2)
+				{
 					LoadPunct( szStr );
 				}
-				if( feof( stream ) ) goto my_exit;
+				if( feof( stream ) ) 
+				{
+					goto my_exit;
+				}
 				GetStr(stream,szStr);
 			}
 			break;
 
 		case 4: //DICTIONARY
-			if( feof( stream ) ) goto my_exit;
+			if( feof( stream ) ) 
+			{
+				goto my_exit;
+			}
 			GetStr(stream,szStr);
-			while(GetSegment(szStr) != 1) {
-				if( GetSegment(szStr) != 2){
+			while(GetSegment(szStr) != 1) 
+			{
+				if( GetSegment(szStr) != 2)
+				{
 					LoadHZDictionary( szStr );
 				}
-				if( feof( stream ) ) goto my_exit;
+				if( feof( stream ) ) 
+				{
+					goto my_exit;
+				}
 				GetStr(stream,szStr);
 			}
 			break;
@@ -181,47 +231,59 @@ void LoadPhrase()
 	BYTE bLen;
 	WORD wLen;
 
-	TCHAR szStr[2*(MAX_PHRASE_LEN+1)];
-	BYTE abKey[MAX_PHRASE_LEN+1];
+	TCHAR szStr[2 * (MAX_PHRASE_LEN + 1)] = {0};
+	BYTE abKey[MAX_PHRASE_LEN + 1];
 	WORD wAttrib;
 
 	WORD i;
-	TCHAR szPhraseFileName[200],szTemp[200];
+	TCHAR szPhraseFileName[MAX_PATH << 1] = {0};
 	LPTSTR lpPhraseFileName;
 
-	for(i=0;i<2;i++){
-		if(!i){
+	for(i = 0; i < 2; i ++)
+	{
+		if( !i )
+		{
 			lpPhraseFileName = szPhraseFileName;
-			lpPhraseFileName += GetSystemDirectory(szPhraseFileName,200);
+			lpPhraseFileName += GetSystemDirectory(szPhraseFileName, MAX_PATH);
 			if (*(lpPhraseFileName-1) != _T('\\'))
+			{
 				*lpPhraseFileName++ = _T('\\');
-			_tcscpy(lpPhraseFileName,SYSPHRASEFILENAME);
+			}
+			*lpPhraseFileName = 0;
+			_tcscpy_s(lpPhraseFileName, MAX_NAME, SYSPHRASEFILENAME);
 
-			if( (stream = _tfopen( szPhraseFileName, _T("rb") )) == NULL ){
-				_stprintf(szTemp,"%s can not found",szPhraseFileName);
-				MessageBox(NULL,szTemp,"DicInit",MB_OK);
+			if( (EINVAL == _tfopen_s(&stream, szPhraseFileName, _T("rb") )) || !stream)
+			{
+				TRACE(TEXT("%s can not found\n"),szPhraseFileName);				
 				exit(1);
 			}
 		}
-		else{
+		else
+		{
 			lpPhraseFileName = szPhraseFileName;
-			lpPhraseFileName += GetSystemDirectory(szPhraseFileName,200);
+			lpPhraseFileName += GetSystemDirectory(szPhraseFileName, MAX_PATH);
 			if (*(lpPhraseFileName-1) != _T('\\'))
+			{
 				*lpPhraseFileName++ = _T('\\');
-			_tcscpy(lpPhraseFileName,USRPHRASEFILENAME);
+			}
+			*lpPhraseFileName = 0;
+			_tcscpy_s(lpPhraseFileName, MAX_PATH, USRPHRASEFILENAME);
 
-			if( (stream = _tfopen( szPhraseFileName, _T("rb") )) == NULL ){
-				_stprintf(szTemp,"%s can not found",szPhraseFileName);
-//				MessageBox(NULL,szTemp,"DicInit",MB_OK);
+			if( (EINVAL == _tfopen_s(&stream, szPhraseFileName, _T("rb") )) || !stream)
+			{
+				TRACE(TEXT("%s can not found\n"), szPhraseFileName);
 				goto my_exit;
 			}
 		}
 		
-		while( !feof( stream )) {
-			if(fread(&bLen,1,1,stream)){
+		while( !feof( stream )) 
+		{
+			if(fread(&bLen,1,1,stream))
+			{
 				wLen=(WORD)bLen;
 				if( wLen > 0 && fread(abKey,1,wLen+1,stream) &&
-					fread(szStr,1,wLen*2,stream) && fread(&wAttrib,2,1,stream)) {
+					fread(szStr,1,wLen*2,stream) && fread(&wAttrib,2,1,stream)) 
+				{
 					szStr[wLen*2] = _T('\0');
 					SavePhToMapFile(szStr,abKey,wLen,wAttrib,i);
 				}
@@ -243,7 +305,10 @@ void SavePhToMapFile(LPTSTR lpStr,LPBYTE lpbKey,WORD wLen,DWORD dwAttrib,WORD wS
 	WORD wHead;
 	DWORD dwBaseOffset;
 
-	if(wLen<1) return;
+	if(wLen<1) 
+	{
+		return;
+	}
 
 	dwBaseOffset = 2*MAX_PY_NUM*sizeof(KEYPH);
 
@@ -252,66 +317,79 @@ void SavePhToMapFile(LPTSTR lpStr,LPBYTE lpbKey,WORD wLen,DWORD dwAttrib,WORD wS
 	wHead--;
 	if(wHead >= MAX_PY_NUM) return;
 
-	if( !(lpKeyPH=(LPKEYPH)((LPBYTE)lpMapFileBase+wStatus*MAX_PY_NUM*sizeof(KEYPH))+wHead)->wLen ) {
+	if( !(lpKeyPH=(LPKEYPH)((LPBYTE)lpMapFileBase+wStatus*MAX_PY_NUM*sizeof(KEYPH))+wHead)->wLen )
+	{
 		lpKeyPH->wLen=wLen;
 		memcpy(lpKeyPH->abKey,lpbKey,wLen+1);
 		lpKeyPH->lpNext=NULL;
-		if((dwBaseOffset + dwMapFileOffset + sizeof(HZPH)) > MAPFILESIZE){
+		if((dwBaseOffset + dwMapFileOffset + sizeof(HZPH)) > MAPFILESIZE)
+		{
 			return;
 		}
-		lpKeyPH->lpHZPH = (LPHZPH)((LPBYTE)lpMapFileBase + 
-			dwBaseOffset + dwMapFileOffset);
+		lpKeyPH->lpHZPH = (HZPH __based(lpMapFileBase) *)(dwBaseOffset + dwMapFileOffset);
 		dwMapFileOffset += sizeof(HZPH);
 		lpKeyPH->lpHZPH->dwAttrib=dwAttrib;
 		lpKeyPH->lpHZPH->lpNext=NULL;
-		_tcscpy(lpKeyPH->lpHZPH->szHZ,lpStr);
+		_tcscpy_s(lpKeyPH->lpHZPH->szHZ, 2 * (MAX_PHRASE_LEN + 1), lpStr);
 	}
 	
-	else{
+	else
+	{
 		fFirst=TRUE;
-		do {
-			if(fFirst)	fFirst=FALSE;
-			else lpKeyPH=lpKeyPH->lpNext;
+		do 
+		{
+			if(fFirst)	
+			{
+				fFirst=FALSE;
+			}
+			else 
+			{
+				lpKeyPH=lpKeyPH->lpNext;
+			}
 			
-			if(lpKeyPH->wLen==wLen && !memcmp(lpKeyPH->abKey,lpbKey,wLen+1)){
+			if(lpKeyPH->wLen==wLen && !memcmp(lpKeyPH->abKey,lpbKey,wLen+1))
+			{
 				lpHZPH=lpKeyPH->lpHZPH;
 				while(lpHZPH->lpNext != NULL)
+				{
 					lpHZPH=lpHZPH->lpNext;
+				}
 
-				if((dwBaseOffset + dwMapFileOffset + sizeof(HZPH)) > MAPFILESIZE){
+				if((dwBaseOffset + dwMapFileOffset + sizeof(HZPH)) > MAPFILESIZE)
+				{
 					return;
 				}
-				lpHZPH->lpNext = (LPHZPH)((LPBYTE)lpMapFileBase + 
-					dwBaseOffset + dwMapFileOffset);
+				lpHZPH->lpNext = (HZPH __based(lpMapFileBase)*)(dwBaseOffset + dwMapFileOffset);
 				dwMapFileOffset += sizeof(HZPH);
 				lpHZPH->lpNext->dwAttrib=dwAttrib;
 				lpHZPH->lpNext->lpNext=NULL;
-				_tcscpy(lpHZPH->lpNext->szHZ,lpStr);
+				_tcscpy_s(lpHZPH->lpNext->szHZ, 2 * (MAX_PHRASE_LEN + 1), lpStr);
 				goto my_exit;
 			}
-		}while(lpKeyPH->lpNext != NULL);
+		}
+		while(lpKeyPH->lpNext != NULL);
 
-		if((dwBaseOffset + dwMapFileOffset + sizeof(KEYPH)) > MAPFILESIZE){
+		if((dwBaseOffset + dwMapFileOffset + sizeof(KEYPH)) > MAPFILESIZE)
+		{
 			return;
 		}
-		lpKeyPH->lpNext = (LPKEYPH)((LPBYTE)lpMapFileBase + 
-			dwBaseOffset + dwMapFileOffset);
+		lpKeyPH->lpNext = (KEYPH __based(lpMapFileBase)*)(dwBaseOffset + dwMapFileOffset);
 		dwMapFileOffset += sizeof(KEYPH);
 		
 		lpKeyPH->lpNext->wLen=wLen;
 		memcpy(lpKeyPH->lpNext->abKey,lpbKey,wLen+1);
 		lpKeyPH->lpNext->lpNext=NULL;
 
-		if((dwBaseOffset + dwMapFileOffset + sizeof(HZPH)) > MAPFILESIZE){
+		if((dwBaseOffset + dwMapFileOffset + sizeof(HZPH)) > MAPFILESIZE)
+		{
 			return;
 		}
-		lpKeyPH->lpNext->lpHZPH = (LPHZPH)((LPBYTE)lpMapFileBase + 
-			dwBaseOffset + dwMapFileOffset);
+		lpKeyPH->lpNext->lpHZPH = (HZPH __based(lpMapFileBase)*)(dwBaseOffset + dwMapFileOffset);
 		dwMapFileOffset += sizeof(HZPH);
 		
 		lpKeyPH->lpNext->lpHZPH->dwAttrib=dwAttrib;
 		lpKeyPH->lpNext->lpHZPH->lpNext=NULL;
-		_tcscpy(lpKeyPH->lpNext->lpHZPH->szHZ,lpStr);
+		_tcscpy_s(lpKeyPH->lpNext->lpHZPH->szHZ, 2 * (MAX_PHRASE_LEN + 1), lpStr);
 	}
 my_exit:
 	return;
@@ -364,6 +442,7 @@ WORD QueryPhrase(LPBYTE lpbKey,WORD wLen,LPKEYPH *lplpKeyPh)
 
 void InitDictionary()
 {
+	TRACE(TEXT("InitDictionary\n"));	
 	int i;
 	BOOL fExist = FALSE;
 
@@ -372,119 +451,154 @@ void InitDictionary()
 						PAGE_READWRITE ,
 						0,
 						MAPFILESIZE,
-						MAPFILENAME)) == NULL) {
-		MessageBox(NULL,"can not create filemapping","Init",MB_OK);
+						MAPFILENAME)) == NULL) 
+	{
+		TRACE(TEXT("can not create filemapping"));
 		exit(1);
 	}
 
-	if (GetLastError() == ERROR_ALREADY_EXISTS) {
+	if (GetLastError() == ERROR_ALREADY_EXISTS) 
+	{
 		fExist = TRUE;
 	}
 
-	if ( (lpMapFileBase = (LPVOID) MapViewOfFile( hMapFile,
-							FILE_MAP_ALL_ACCESS ,
-							0,
-							0,
-							0)) == NULL) {
-		MessageBox(NULL,"can not create filemapping","Init",MB_OK);
+	if ( (lpMapFileBase = (LPVOID) MapViewOfFile( hMapFile,	FILE_MAP_ALL_ACCESS ,
+							0,	0, 0)) == NULL)
+	{
+		TRACE(TEXT("can not create filemapping\n"));
 		exit(1);
 	}
-
-	if( !fExist || !dwMapFileOffset || !wMapCount){	
-		for(i=0;i<2*MAX_PY_NUM*sizeof(KEYPH);i++){
+	if( !fExist || !dwMapFileOffset || !wMapCount)
+	{	
+		for(i=0;i< 2 * MAX_PY_NUM * sizeof(KEYPH); i++)
+		{
 			*((LPBYTE)lpMapFileBase+i)=0;
 		}
 		LoadPhrase();
 	}
 
 	LoadTable();
-
 	wMapCount++;
+	TRACE(TEXT("Out InitDictionary\n"));	
 }
 
 void DestroyDictionary()
 {
 	int i,j;
-	BYTE abKey[MAX_PHRASE_LEN+1];
+	BYTE abKey[MAX_PHRASE_LEN+1] = {0};
 	WORD wLen;
 	BYTE bLen;
 	LPKEYPH lpKPh;
 	LPHZPH lpHZPh;
 	FILE *stream;
-	TCHAR szPhraseFileName[200],szTemp[200];
+	TCHAR szPhraseFileName[MAX_PATH << 1] = {0};
 	LPTSTR lpPhraseFileName;
 	BOOL fFirst1,fFirst2;
 	WORD wPhLen;
 	WORD wAttrib;
 	DWORD dwAttrib;
 
-	for(i=0;i<MAX_PY_NUM;i++){
-		if(alpHZTab[i] != NULL) free(alpHZTab[i]);
+	for(i=0;i<MAX_PY_NUM;i++)
+	{
+		if(alpHZTab[i] != NULL) 
+		{
+			free(alpHZTab[i]);
+		}
 	}
 
 	wMapCount--;
 //	if( wMapCount > 0 ) goto my_exit;
 
-	for(i=0;i<2;i++){
-		if(!i){
+	for(i=0;i<2;i++)
+	{
+		if(!i)
+		{
 			lpPhraseFileName = szPhraseFileName;
-			lpPhraseFileName += GetSystemDirectory(szPhraseFileName,200);
+			lpPhraseFileName += GetSystemDirectory(szPhraseFileName, MAX_PATH);
 			if (*(lpPhraseFileName-1) != _T('\\'))
+			{
 				*lpPhraseFileName++ = _T('\\');
-			_tcscpy(lpPhraseFileName,SYSPHRASEFILENAME);
+			}
+			*lpPhraseFileName = 0;
+			_tcscpy_s(lpPhraseFileName, MAX_NAME, SYSPHRASEFILENAME);
 
-			if( (stream = _tfopen( szPhraseFileName, _T("wb") )) == NULL ){
-				_stprintf(szTemp,"%s can not found",szPhraseFileName);
-				MessageBox(NULL,szTemp,"DicInit",MB_OK);
+			if( (EINVAL == _tfopen_s(&stream,  szPhraseFileName, _T("wb") )) || !stream )
+			{
+				TRACE(TEXT("%s can not found\n"),szPhraseFileName);				
 				continue;
 			}
 		}
-		else{
+		else
+		{
 			lpPhraseFileName = szPhraseFileName;
-			lpPhraseFileName += GetSystemDirectory(szPhraseFileName,200);
+			lpPhraseFileName += GetSystemDirectory(szPhraseFileName, MAX_PATH);
 			if (*(lpPhraseFileName-1) != _T('\\'))
+			{
 				*lpPhraseFileName++ = _T('\\');
-			_tcscpy(lpPhraseFileName,USRPHRASEFILENAME);
+			}
+			*lpPhraseFileName = 0;
+			_tcscpy_s(lpPhraseFileName,MAX_NAME, USRPHRASEFILENAME);
 
-			if( (stream = _tfopen( szPhraseFileName, _T("wb") )) == NULL ){
-				_stprintf(szTemp,"%s can not found",szPhraseFileName);
-				MessageBox(NULL,szTemp,"DicInit",MB_OK);
+			if( (EINVAL == _tfopen_s(&stream, szPhraseFileName, _T("wb") )) || !stream )
+			{
+				TRACE(TEXT("%s can not found"), szPhraseFileName);				
 				continue;
 			}
 		}
-		for(j=0;j<MAX_PY_NUM;j++){
-			if( !(lpKPh=(LPKEYPH)((LPBYTE)lpMapFileBase+i*MAX_PY_NUM*sizeof(KEYPH))+j)->wLen ) {
+		for(j=0;j<MAX_PY_NUM;j++)
+		{
+			if( !(lpKPh=(LPKEYPH)((LPBYTE)lpMapFileBase+i * MAX_PY_NUM * sizeof(KEYPH)) + j)->wLen ) 
+			{
 				continue;
 			}
 			fFirst1 = TRUE;
-			do {
-				if( fFirst1 ) fFirst1 = FALSE;
-				else lpKPh = lpKPh->lpNext;
+			do 
+			{
+				if( fFirst1 ) 
+				{
+					fFirst1 = FALSE;
+				}
+				else 
+				{
+					lpKPh = lpKPh->lpNext;
+				}
 
-				if( lpKPh->wLen < 0 ) continue;
+				if( lpKPh->wLen < 0 )
+				{
+					continue;
+				}
 				wLen = lpKPh->wLen;
 				bLen = (BYTE)wLen;
 				lpHZPh = lpKPh->lpHZPH;
 				memcpy(abKey,lpKPh->abKey,wLen+1);
 				fFirst2 = TRUE;
 				wPhLen = 0;
-				do {
-					if( fFirst2 ) fFirst2 = FALSE;
-					else lpHZPh = lpHZPh->lpNext;
+				do 
+				{
+					if( fFirst2 ) 
+					{
+						fFirst2 = FALSE;
+					}
+					else 
+					{
+						lpHZPh = lpHZPh->lpNext;
+					}
 
 					dwAttrib=lpHZPh->dwAttrib;
 
-					if(dwMaxPhraseAttrib > MAX_PHRASE_ATTRIB) {
-						dwAttrib=dwAttrib*MAX_SAVE_PHRASE_ATTRIB/dwMaxPhraseAttrib;
+					if(dwMaxPhraseAttrib > MAX_PHRASE_ATTRIB) 
+					{
+						dwAttrib = dwAttrib * MAX_SAVE_PHRASE_ATTRIB / dwMaxPhraseAttrib;
 					}
 					wAttrib=(WORD)dwAttrib;
 					fwrite(&bLen,1,1,stream);
 					fwrite(abKey,1,wLen+1,stream);
 					fwrite(lpHZPh->szHZ,1,wLen*2,stream);
 					fwrite(&wAttrib,2,1,stream);
-				}while(lpHZPh->lpNext != NULL);
-
-			} while(lpKPh->lpNext != NULL);
+				}
+				while(lpHZPh->lpNext != NULL);
+			} 
+			while(lpKPh->lpNext != NULL);
 		}
 		fclose(stream);
 	}

@@ -47,18 +47,48 @@
 #define VK_OEM_SCROLL   0x91            // ScrollLock
 #define VK_OEM_SHIFT    0x92            // ShiftLock
 #define VK_OEM_0        0x0B9           //
+#ifndef VK_OEM_1
 #define VK_OEM_1        0x0BA           // ';:' for US
+#endif
+#ifndef VK_OEM_PLUS
 #define VK_OEM_PLUS     0x0BB           // '+' any country
+#endif
+#ifndef VK_OEM_COMMA
 #define VK_OEM_COMMA    0x0BC           // ',' any country
+#endif
+#ifndef VK_OEM_MINUS
 #define VK_OEM_MINUS    0x00BD          // '-' any country
+#endif
+#ifndef VK_OEM_PERIOD
 #define VK_OEM_PERIOD   0x0BE           // '.' any country
+#endif
+#ifndef VK_OEM_2
 #define VK_OEM_2        0x0BF           // '/?' for US
+#endif
+#ifndef VK_OEM_3
 #define VK_OEM_3        0x0C0           // '`~' for US
+#endif
+#ifndef VK_OEM_4
 #define VK_OEM_4        0x0DB           // '[{' for US
+#endif
+#ifndef VK_OEM_5
 #define VK_OEM_5        0x0DC           // '\|' for US
+#endif
+#ifndef VK_OEM_6
 #define VK_OEM_6        0x0DD           // ']}' for US
+#endif
+#ifndef VK_OEM_7
 #define VK_OEM_7        0x0DE           // ''"' for US
+#endif
+#ifndef VK_OEM_8
 #define VK_OEM_8        0x0DF           // none for US
+#endif
+#ifndef VK_OEM_9
 #define VK_OEM_9        0x0E0           // next available
+#endif
+#ifndef VK_OEM_AX
 #define VK_OEM_AX       0x0E1           // AX key
+#endif
+#ifndef VK_OEM_BSLASH
 #define VK_OEM_BSLASH   0x0E2           // additional Back Slash key for AX.
+#endif

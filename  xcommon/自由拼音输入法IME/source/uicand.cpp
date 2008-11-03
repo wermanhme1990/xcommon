@@ -76,7 +76,7 @@ void CreateCandWindow( HWND hUIWnd,LPUIEXTRA lpUIExtra)
 		SetWindowLong(lpUIExtra->uiCand.hWnd,FIGWL_SVRWND,(DWORD)hUIWnd);
 
 		hDC = GetDC(lpUIExtra->uiCand.hWnd);
-		oldFont = SelectObject(hDC, hUIFont);
+		oldFont = (HFONT)SelectObject(hDC, hUIFont);
 
 		_stprintf(szStr,_T("AAAAAAAAAAAAA"));
 		GetTextExtentPoint(hDC,szStr,_tcslen(szStr),sizeCand);
@@ -173,7 +173,7 @@ void MoveCandWindow(HWND hUIWnd,LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 			}
 			lpStr = GETLPCANDSTR(lpCandList,1);
 			hDC = GetDC(lpUIExtra->uiCand.hWnd);
-			oldFont = SelectObject(hDC, hUIFont);
+			oldFont = (HFONT)SelectObject(hDC, hUIFont);
 			GetTextExtentPoint(hDC,lpStr,_tcslen(lpStr),&sz);
 			SelectObject(hDC, oldFont);
 			ReleaseDC(lpUIExtra->uiCand.hWnd,hDC);
@@ -227,22 +227,17 @@ void PaintCandWindow( HWND hCandWnd)
 	HPEN hOldPen = (HPEN)NULL;
 
 	hDC = BeginPaint(hCandWnd,&ps);
-	oldFont = SelectObject(hDC, hUIFont);
+	oldFont = (HFONT)SelectObject(hDC, hUIFont);
 
 	GetClientRect(hCandWnd,&rc);
-	hBrush = GetStockObject(LTGRAY_BRUSH);
-	hOldBrush=SelectObject(hDC,hBrush);
-	PatBlt(hDC,
-		rc.left,
-		rc.top ,
-		rc.right,
-		rc.bottom,
-		PATCOPY);
+	hBrush = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
+	hOldBrush = (HBRUSH)SelectObject(hDC,hBrush);
+	PatBlt(hDC,	rc.left, rc.top ,	rc.right, rc.bottom, PATCOPY);
 	if(hBrush && hOldBrush)
 		SelectObject(hDC,hOldBrush);
 
-	hPen = GetStockObject(WHITE_PEN);
-	hOldPen = SelectObject(hDC,hPen);
+	hPen = (HPEN)GetStockObject(WHITE_PEN);
+	hOldPen = (HPEN)SelectObject(hDC,hPen);
 	MoveToEx(hDC,0,rc.bottom - GetSystemMetrics(SM_CXEDGE)/2,NULL);
 	LineTo(hDC,rc.right-GetSystemMetrics(SM_CXEDGE)/2,rc.bottom - GetSystemMetrics(SM_CXEDGE)/2);
 	LineTo(hDC,rc.right-GetSystemMetrics(SM_CXEDGE)/2,0);
