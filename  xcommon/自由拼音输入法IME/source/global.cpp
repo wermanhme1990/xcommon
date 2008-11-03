@@ -18,7 +18,7 @@
  * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
  * 
  */
-
+#include "stdafx.h"
 #include <windows.h>
 #include <tchar.h>
 #include <stdio.h>

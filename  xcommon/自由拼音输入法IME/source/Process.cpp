@@ -25,6 +25,7 @@
 /* refer this table and deside the VKey is needed for FAKEIME or not. */
 /*                                                                    */
 /**********************************************************************/
+#include "stdafx.h"
 #include "windows.h"
 
 BYTE bNoComp[] = {      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,        // 00-0F

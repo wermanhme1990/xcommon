@@ -33,10 +33,10 @@
 #endif //_MY_DEBUG
 /***********************************/
 
-#define TABFILENAME _T("sirius.tab")
-#define SYSPHRASEFILENAME _T("siriussys.dic")
-#define USRPHRASEFILENAME _T("siriususr.dic")
-#define MAPFILENAME _T("SiriusShareMemory")
+#define TABFILENAME _T("freepy.tab")
+#define SYSPHRASEFILENAME _T("freepysys.dic")
+#define USRPHRASEFILENAME _T("freepyusr.dic")
+#define MAPFILENAME _T("freepyShareMemory")
 
 #define MAPFILESIZE  (4096*1500) //6M
 

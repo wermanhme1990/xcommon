@@ -18,7 +18,7 @@
  * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
  * 
  */
-
+#include "stdafx.h"
 #include "freepy.h"
 
 static BYTE bPunctChar[9][192] = {

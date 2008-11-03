@@ -18,7 +18,7 @@
  * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
  * 
  */
-
+#include "stdafx.h"
 #include "freepy.h"
 
 BOOL WINAPI ImeInquire(LPIMEINFO lpIMEInfo,LPTSTR lpszUIClass,LPCTSTR lpszOption)
@@ -241,7 +241,7 @@ BOOL WINAPI ImeSelect(HIMC hIMC, BOOL fSelect)
             }
 
 			if ( RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-				_T("Software\\sirius"),
+				_T("Software\\freepy"),
 				0,
 				KEY_READ,
 				&hKey) == ERROR_SUCCESS ){
