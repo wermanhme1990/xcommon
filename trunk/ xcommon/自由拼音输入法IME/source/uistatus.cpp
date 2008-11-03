@@ -18,10 +18,10 @@
  * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
  * 
  */
-
+#include "stdafx.h"
 #include "freepy.h"
 
-#define HELPFILENAME      _T("sirius.hlp")
+#define HELPFILENAME      _T("freepy.hlp")
 
 #define TIMEID            1
 #define TIMEOUT           600
@@ -258,7 +258,7 @@ LRESULT WINAPI StatusWndProc(
 				&hKey) == ERROR_SUCCESS ){
 				
 				if( RegCreateKeyEx( hKey,
-					_T("sirius"),
+					_T("freepy"),
 					0,
 					NULL,
 					REG_OPTION_NON_VOLATILE ,
@@ -303,7 +303,7 @@ void CreateStatusWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra)
 		lpUIExtra->uiStatus.sz.cy = 26;
 
 		if ( RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-			_T("Software\\sirius"),
+			_T("Software\\freepy"),
 			0,
 			KEY_READ,
 			&hKey) == ERROR_SUCCESS ){

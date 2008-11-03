@@ -47,7 +47,7 @@
 #define VMODEL           _T("v模式：")
 #define ATOMTIP          _T("自由拼音")
 
-#define FREEPYFILENAME   _T("sirius.ime")
+#define FREEPYFILENAME   _T("freepy.ime")
 #define UICLASSNAME      _T("SIRIUSUI")
 #define COMPCLASSNAME    _T("SIRIUSCOMP")
 #define CANDCLASSNAME    _T("SIRIUSCAND")

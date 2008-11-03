@@ -18,7 +18,7 @@
 * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
 * 
 */
-
+#include "stdafx.h"
 #include "freepy.h"
 
 #define CS_FREEPY (CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS)
@@ -36,15 +36,7 @@ BOOL WINAPI DllMain (
 	{
 	case DLL_PROCESS_ATTACH:
 		/* for debug ********************************/
-#ifdef _MY_DEBUG
-		if(nDebugLevel)
-		{
-			if( (DebugLogFile=_tfopen( DEBUGLOGFILE, "w"))==NULL)
-				MessageBox(NULL,"can not open Debuglogfile","debug",MB_OK);
-			DebugLog(1,(DebugLogFile,"Entry in\n"));
-		}
-#endif
-		/********************************************/
+		TRACE(TEXT("Entry in\n"));	
 
 		hInst = hInstDLL;
 
@@ -68,13 +60,7 @@ BOOL WINAPI DllMain (
 		DestroyDictionary();
 
 		/* for debug ********************************/
-#ifdef _MY_DEBUG
-		if(nDebugLevel){
-			DebugLog(1,(DebugLogFile,"Entry out\n"));
-			if(DebugLogFile!=NULL)
-				fclose(DebugLogFile);
-		}
-#endif
+		TRACE(TEXT("Entry out\n"));
 		/********************************************/
 		break;
 

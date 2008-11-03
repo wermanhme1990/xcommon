@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="freepy"
 	ProjectGUID="{90843A74-BB97-4980-83C6-D8166F4D98F4}"
+	RootNamespace="freepy"
 	>
 	<Platforms>
 		<Platform
@@ -48,11 +49,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="./"
+				AdditionalIncludeDirectories="./;&quot;$(ProjectDir)\..\..\Public\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;FREEPY_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Release/freepy.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
@@ -73,10 +75,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="imm32.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="imm32.lib odbc32.lib odbccp32.lib JTX.lib"
 				OutputFile=".\Release/freepy.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(SolutionDir)\..\..\Lib\"
 				ModuleDefinitionFile=".\freepy.def"
 				ProgramDatabaseFile=".\Release/freepy.pdb"
 				ImportLibrary=".\Release/freepy.lib"
@@ -143,11 +146,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./"
+				AdditionalIncludeDirectories="./;&quot;$(ProjectDir)\..\..\Public\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;FREEPY_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Debug/freepy.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
@@ -169,10 +173,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="imm32.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\Debug/freepy.dll"
+				AdditionalDependencies="imm32.lib odbc32.lib odbccp32.lib JTX.lib"
+				OutputFile="c:\windows\system32\freepy.ime"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(SolutionDir)\..\..\Lib\"
 				ModuleDefinitionFile=".\freepy.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/freepy.pdb"
@@ -547,6 +552,26 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\stdafx.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="subs.c"
 				>
 				<FileConfiguration
@@ -640,6 +665,10 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath="..\..\Public\Ext_Type.h"
+				>
+			</File>
+			<File
 				RelativePath="freepy.h"
 				>
 			</File>
@@ -660,7 +689,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
 				RelativePath="Vksub.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Public\XDebug.h"
 				>
 			</File>
 		</Filter>

@@ -18,7 +18,7 @@
  * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
  * 
  */
-
+#include "stdafx.h"
 #include "freepy.h"
 
 BOOL IsIMEOpen(HIMC hIMC)
@@ -797,7 +797,7 @@ BOOL WINAPI ConfigDialogProc(
 	switch(message) {
 	case WM_INITDIALOG:
 		if ( RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-			_T("Software\\sirius"),
+			_T("Software\\freepy"),
 			0,
 			KEY_READ,
 			&hKey) == ERROR_SUCCESS ){
@@ -864,7 +864,7 @@ BOOL WINAPI ConfigDialogProc(
 				&hKey) == ERROR_SUCCESS ){
 				
 				if( RegCreateKeyEx( hKey,
-					_T("sirius"),
+					_T("freepy"),
 					0,
 					NULL,
 					REG_OPTION_NON_VOLATILE ,
