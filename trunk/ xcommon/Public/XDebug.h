@@ -7,7 +7,8 @@ Copyright (c) 2002-2003 汉王科技有限公司. 版权所有.
 *********************************************************************/
 #ifndef HWX_DEBUG_H
 #define HWX_DEBUG_H
-#include "Ext_Type.h"
+#include <Ext_Type.h>
+
 
 
 #ifndef TRACE
@@ -25,7 +26,8 @@ Copyright (c) 2002-2003 汉王科技有限公司. 版权所有.
 #endif
 
 #ifdef __cplusplus
-extern "C"{
+extern "C"
+{
 #endif
 	//释放内存
 	DLLXEXPORT void WINAPI    XTraceW(LPCWSTR, ...);	
