@@ -52,11 +52,7 @@ DWORD CheckButtonPos( HWND , LPPOINT);
 BOOL WINAPI SetDialogProc(HWND,UINT,WPARAM,LPARAM);
 BOOL WINAPI AboutDialogProc(HWND,UINT,WPARAM,LPARAM);
 
-LRESULT WINAPI StatusWndProc(
-														 HWND hWnd ,
-														 UINT message ,
-														 WPARAM wParam ,
-														 LPARAM lParam )
+LRESULT WINAPI StatusWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static BOOL  fCanMove = FALSE;
 	static POINT ptdif;
@@ -76,8 +72,10 @@ LRESULT WINAPI StatusWndProc(
 	switch (message)
 	{
 	case WM_CREATE:
-		hBmpStatus = LoadBitmap(hInst,MAKEINTRESOURCE(STATUSBITMAP));
-		break;
+		{
+			hBmpStatus = LoadBitmap(hInst,MAKEINTRESOURCE(STATUSBITMAP));
+			break;
+		}
 
 	case WM_PAINT:
 		{
@@ -91,217 +89,213 @@ LRESULT WINAPI StatusWndProc(
 		}
 
 	case WM_TIMER:
-		KillTimer(hWnd,TIMEID);
-		SetCursor(LoadCursor(NULL,IDC_SIZEALL));
-		fCanMove = TRUE;
-		dwButton &= ~BUTTONPUSH;
-		PaintStatus(hWnd,hDC,dwButton);
-		break;
-
-	case WM_SETCURSOR:
-		if ( HIWORD(lParam) == WM_LBUTTONDOWN ) 
 		{
-			SetCapture(hWnd);
-
-			GetCursorPos( &pt );
-			GetWindowRect(hWnd,&drc);
-			ptdif.x = pt.x - drc.left;
-			ptdif.y = pt.y - drc.top;
-			sz.cx = drc.right - drc.left;
-			sz.cy = drc.bottom - drc.top;
-			SetWindowLong(hWnd,FIGWL_MOUSE,FIM_CAPUTURED);
-
-			dwButton = CheckButtonPos( hWnd, &pt);
-			dwButton |= BUTTONPUSH;
-			PaintStatus(hWnd,hDC,dwButton);
-
-			if( dwButton & BUTTONPY)
-				SetTimer(hWnd,TIMEID,1,NULL);
-			else
-				SetTimer(hWnd,TIMEID,TIMEOUT,NULL);
-		}
-		else 
-			return DefWindowProc(hWnd,message,wParam,lParam);
-		break;
-
-	case WM_LBUTTONUP:
-		KillTimer(hWnd,TIMEID);
-		ReleaseCapture();
-		if( fCanMove ) 
-		{
-			dwT = GetWindowLong(hWnd,FIGWL_MOUSE);
-			if (dwT & FIM_MOVED) 
-			{
-				DrawUIBorder(&drc);
-				GetCursorPos( &pt );
-				MoveWindow(hWnd,pt.x - ptdif.x,
-					pt.y - ptdif.y,
-					sz.cx,
-					sz.cy,TRUE);
-			}
-			SetCursor(LoadCursor(NULL,IDC_ARROW));
-		}
-		else
-		{
-			if( dwButton & BUTTONCHINESE )
-			{
-				HWND hSvrWnd;
-				HIMC hIMC;
-				LPINPUTCONTEXT lpIMC;
-
-				hSvrWnd = (HWND)GetWindowLong(hWnd,FIGWL_SVRWND);
-				hIMC = (HIMC)GetWindowLong(hSvrWnd,IMMGWL_IMC);
-				lpIMC = ImmLockIMC(hIMC);
-				if(lpIMC->fOpen) 
-				{
-					lpIMC->fOpen=FALSE;
-					MakeResultString(hIMC,FALSE);
-				}
-				else 
-					lpIMC->fOpen=TRUE;
-			}
-
-			if( dwButton & BUTTONFULL)
-			{
-				if(wConversionSet & CONVERSION_SET_FULLSHAPE)
-					wConversionSet &= ~CONVERSION_SET_FULLSHAPE;
-				else
-					wConversionSet |= CONVERSION_SET_FULLSHAPE;
-			}
-
-			if( dwButton & BUTTONPUNCT )
-			{
-				if(wConversionSet & CONVERSION_SET_PUNCT)
-					wConversionSet &= ~CONVERSION_SET_PUNCT;
-				else
-					wConversionSet |= CONVERSION_SET_PUNCT;
-			}
-
-			if( dwButton & BUTTONMENU )
-			{
-				HMENU hMenu,hSubMenu;
-				POINT pt;
-				int cmd;
-
-				hMenu = LoadMenu(hInst, MAKEINTRESOURCE(FREEPYMENU));
-				hSubMenu = GetSubMenu(hMenu,0);
-
-				pt.x = 0;
-				pt.y = 0;
-				ClientToScreen(hWnd, &pt);
-
-				cmd = TrackPopupMenu(hSubMenu, 
-					TPM_LEFTALIGN | TPM_BOTTOMALIGN | TPM_RETURNCMD, 
-					pt.x,
-					pt.y,
-					0, 
-					hWnd, 
-					NULL);
-				switch (cmd)
-				{
-				case IDM_SET:
-					DialogBox( hInst,MAKEINTRESOURCE(DIALOGSET),NULL,SetDialogProc);
-					InvalidateRect(hWnd,NULL,FALSE);
-					break;
-				case IDM_HELP:
-					{
-						TCHAR szHelpFileName[MAX_PATH << 1];
-						LPTSTR lpHelpFileName;
-
-						lpHelpFileName = szHelpFileName;
-						lpHelpFileName += GetSystemDirectory(szHelpFileName, MAX_PATH);
-						if (*(lpHelpFileName-1) != _T('\\'))
-						{
-							*lpHelpFileName++ = _T('\\');
-						}
-						*lpHelpFileName = 0;
-						_tcscpy_s(lpHelpFileName, MAX_NAME, HELPFILENAME);
-						WinHelp(NULL,szHelpFileName,HELP_CONTENTS,0);
-						InvalidateRect(hWnd,NULL,FALSE);
-					}
-					break;
-				case IDM_ABOUT:
-					DialogBox( hInst,MAKEINTRESOURCE(DIALOGABOUT),NULL,AboutDialogProc);
-					InvalidateRect(hWnd,NULL,FALSE);
-					break;
-				default:
-					break;
-				}
-
-				if (hMenu) 
-					DestroyMenu(hMenu);
-			}
-
+			KillTimer(hWnd,TIMEID);
+			SetCursor(LoadCursor(NULL,IDC_SIZEALL));
+			fCanMove = TRUE;
 			dwButton &= ~BUTTONPUSH;
 			PaintStatus(hWnd,hDC,dwButton);
+			break;
 		}
 
-		SetWindowLong(hWnd,FIGWL_MOUSE,0);
-		fCanMove = FALSE;
-		break;
-
-	case WM_MOUSEMOVE:
-		if( fCanMove ) 
+	case WM_SETCURSOR:
 		{
-			dwT = GetWindowLong(hWnd,FIGWL_MOUSE);
-			if (dwT & FIM_MOVED)
+			if ( HIWORD(lParam) == WM_LBUTTONDOWN ) 
 			{
-				DrawUIBorder(&drc);
+				SetCapture(hWnd);
+
 				GetCursorPos( &pt );
-				drc.left   = pt.x - ptdif.x;
-				drc.top    = pt.y - ptdif.y;
-				drc.right  = drc.left + sz.cx;
-				drc.bottom = drc.top + sz.cy;
-				DrawUIBorder(&drc);
+				GetWindowRect(hWnd,&drc);
+				ptdif.x = pt.x - drc.left;
+				ptdif.y = pt.y - drc.top;
+				sz.cx = drc.right - drc.left;
+				sz.cy = drc.bottom - drc.top;
+				SetWindowLong(hWnd,FIGWL_MOUSE,FIM_CAPUTURED);
+
+				dwButton = CheckButtonPos( hWnd, &pt);
+				dwButton |= BUTTONPUSH;
+				PaintStatus(hWnd,hDC,dwButton);
+
+				if( dwButton & BUTTONPY)
+					SetTimer(hWnd,TIMEID,1,NULL);
+				else
+					SetTimer(hWnd,TIMEID,TIMEOUT,NULL);
 			}
-			else if (dwT & FIM_CAPUTURED)
+			else 
 			{
-				DrawUIBorder(&drc);
-				SetWindowLong(hWnd,FIGWL_MOUSE,dwT | FIM_MOVED);
+				return DefWindowProc(hWnd,message,wParam,lParam);
 			}
+			break;
 		}
-		//			else KillTimer(hWnd,TIMEID);
-		break;
-
-	case WM_DESTROY:
-		DeleteObject(hBmpStatus);
-		break;
-
-	case WM_MOVE:
-		if ( RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-			_T("Software"),
-			0,
-			KEY_READ,
-			&hKey) == ERROR_SUCCESS )
+	case WM_LBUTTONUP:
 		{
-
-			if( RegCreateKeyEx( hKey,
-				_T("freepy"),
-				0,
-				NULL,
-				REG_OPTION_NON_VOLATILE ,
-				KEY_ALL_ACCESS ,
-				NULL,
-				&hChildKey,
-				&dwDisposition ) == ERROR_SUCCESS) 
+			KillTimer(hWnd,TIMEID);
+			ReleaseCapture();
+			if( fCanMove ) 
 			{
-				RegSetValueEx(hChildKey,
-					_T("Position"),
-					0,
-					REG_DWORD,
-					(LPBYTE)&lParam,
-					sizeof(DWORD));
-				RegCloseKey(hChildKey);
+				dwT = GetWindowLong(hWnd,FIGWL_MOUSE);
+				if (dwT & FIM_MOVED) 
+				{
+					DrawUIBorder(&drc);
+					GetCursorPos( &pt );
+					MoveWindow(hWnd,pt.x - ptdif.x,
+						pt.y - ptdif.y,
+						sz.cx,
+						sz.cy,TRUE);
+				}
+				SetCursor(LoadCursor(NULL,IDC_ARROW));
+			}
+			else
+			{
+				if( dwButton & BUTTONCHINESE )
+				{
+					HWND hSvrWnd;
+					HIMC hIMC;
+					LPINPUTCONTEXT lpIMC;
+
+					hSvrWnd = (HWND)GetWindowLong(hWnd,FIGWL_SVRWND);
+					hIMC = (HIMC)GetWindowLong(hSvrWnd,IMMGWL_IMC);
+					lpIMC = ImmLockIMC(hIMC);
+					if(lpIMC->fOpen) 
+					{
+						lpIMC->fOpen=FALSE;
+						MakeResultString(hIMC,FALSE);
+					}
+					else 
+						lpIMC->fOpen=TRUE;
+				}
+
+				if( dwButton & BUTTONFULL)
+				{
+					if(wConversionSet & CONVERSION_SET_FULLSHAPE)
+						wConversionSet &= ~CONVERSION_SET_FULLSHAPE;
+					else
+						wConversionSet |= CONVERSION_SET_FULLSHAPE;
+				}
+
+				if( dwButton & BUTTONPUNCT )
+				{
+					if(wConversionSet & CONVERSION_SET_PUNCT)
+						wConversionSet &= ~CONVERSION_SET_PUNCT;
+					else
+						wConversionSet |= CONVERSION_SET_PUNCT;
+				}
+
+				if( dwButton & BUTTONMENU )
+				{
+					HMENU hMenu,hSubMenu;
+					POINT pt;
+					int cmd;
+
+					hMenu = LoadMenu(hInst, MAKEINTRESOURCE(FREEPYMENU));
+					hSubMenu = GetSubMenu(hMenu,0);
+
+					pt.x = 0;
+					pt.y = 0;
+					ClientToScreen(hWnd, &pt);
+
+					cmd = TrackPopupMenu(hSubMenu, 
+						TPM_LEFTALIGN | TPM_BOTTOMALIGN | TPM_RETURNCMD, 
+						pt.x,
+						pt.y,
+						0, 
+						hWnd, 
+						NULL);
+					switch (cmd)
+					{
+					case IDM_SET:
+						DialogBox( hInst,MAKEINTRESOURCE(DIALOGSET),NULL,SetDialogProc);
+						InvalidateRect(hWnd,NULL,FALSE);
+						break;
+					case IDM_HELP:
+						{
+							TCHAR szHelpFileName[MAX_PATH << 1];
+							LPTSTR lpHelpFileName;
+
+							lpHelpFileName = szHelpFileName;
+							lpHelpFileName += GetSystemDirectory(szHelpFileName, MAX_PATH);
+							if (*(lpHelpFileName-1) != _T('\\'))
+							{
+								*lpHelpFileName++ = _T('\\');
+							}
+							*lpHelpFileName = 0;
+							_tcscpy_s(lpHelpFileName, MAX_NAME, HELPFILENAME);
+							WinHelp(NULL,szHelpFileName,HELP_CONTENTS,0);
+							InvalidateRect(hWnd,NULL,FALSE);
+						}
+						break;
+					case IDM_ABOUT:
+						DialogBox( hInst,MAKEINTRESOURCE(DIALOGABOUT),NULL,AboutDialogProc);
+						InvalidateRect(hWnd,NULL,FALSE);
+						break;
+					default:
+						break;
+					}
+
+					if (hMenu) 
+						DestroyMenu(hMenu);
+				}
+
+				dwButton &= ~BUTTONPUSH;
+				PaintStatus(hWnd,hDC,dwButton);
 			}
 
-			RegCloseKey(hKey);
+			SetWindowLong(hWnd,FIGWL_MOUSE,0);
+			fCanMove = FALSE;
+			break;
 		}
-		break;
+	case WM_MOUSEMOVE:
+		{
+			if( fCanMove ) 
+			{
+				dwT = GetWindowLong(hWnd,FIGWL_MOUSE);
+				if (dwT & FIM_MOVED)
+				{
+					DrawUIBorder(&drc);
+					GetCursorPos( &pt );
+					drc.left   = pt.x - ptdif.x;
+					drc.top    = pt.y - ptdif.y;
+					drc.right  = drc.left + sz.cx;
+					drc.bottom = drc.top + sz.cy;
+					DrawUIBorder(&drc);
+				}
+				else if (dwT & FIM_CAPUTURED)
+				{
+					DrawUIBorder(&drc);
+					SetWindowLong(hWnd,FIGWL_MOUSE,dwT | FIM_MOVED);
+				}
+			}
+			//			else KillTimer(hWnd,TIMEID);
+			break;
+		}
+	case WM_DESTROY:
+		{
+			DeleteObject(hBmpStatus);
+			break;
+		}
+	case WM_MOVE:
+		{
+			if ( RegOpenKeyEx(HKEY_LOCAL_MACHINE,	_T("Software"), 0, KEY_READ,&hKey) == ERROR_SUCCESS )
+			{
 
+				if( RegCreateKeyEx( hKey,	_T("freepy"),	0, NULL, REG_OPTION_NON_VOLATILE,	KEY_ALL_ACCESS,
+					NULL,	&hChildKey,	&dwDisposition ) == ERROR_SUCCESS) 
+				{
+					RegSetValueEx(hChildKey, _T("Position"), 0,	REG_DWORD, (LPBYTE)&lParam, sizeof(DWORD));
+					RegCloseKey(hChildKey);
+				}
+				RegCloseKey(hKey);
+			}
+			break;
+		}
 	default:
-		if (!MyIsIMEMessage(message))
-			return DefWindowProc(hWnd,message,wParam,lParam);
-		break;
+		{
+			if (!MyIsIMEMessage(message))
+			{
+				return DefWindowProc(hWnd,message,wParam,lParam);
+			}
+			break;
+		}
 	}
 
 	SelectObject(hDC, oldFont);
@@ -321,18 +315,9 @@ void CreateStatusWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra)
 		lpUIExtra->uiStatus.sz.cx = 163;
 		lpUIExtra->uiStatus.sz.cy = 26;
 
-		if ( RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-			_T("Software\\freepy"),
-			0,
-			KEY_READ,
-			&hKey) == ERROR_SUCCESS )
+		if ( RegOpenKeyEx(HKEY_LOCAL_MACHINE,	_T("Software\\freepy"),	0, KEY_READ, &hKey) == ERROR_SUCCESS )
 		{
-			if( RegQueryValueEx( hKey,
-				_T("Position"),
-				NULL,
-				NULL,
-				(LPBYTE)&dwPosition,
-				&dwData) == ERROR_SUCCESS )
+			if( RegQueryValueEx(hKey,	_T("Position"),	NULL, NULL,	(LPBYTE)&dwPosition, &dwData) == ERROR_SUCCESS )
 			{
 				lpUIExtra->uiStatus.pt.x = (int)(short) LOWORD(dwPosition);
 				lpUIExtra->uiStatus.pt.y = (int)(short) HIWORD(dwPosition);
@@ -343,28 +328,20 @@ void CreateStatusWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra)
 
 		if(fFlag)
 		{
-			SystemParametersInfo(SPI_GETWORKAREA,
-				0,
-				&screenrc,
-				0);
+			SystemParametersInfo(SPI_GETWORKAREA,	0, &screenrc,	0);
 
 			lpUIExtra->uiStatus.pt.x = screenrc.left + 10;
 			lpUIExtra->uiStatus.pt.y = screenrc.bottom - lpUIExtra->uiStatus.sz.cy - 5;
 		}
 
-		lpUIExtra->uiStatus.hWnd = 
-			CreateWindowEx( 0,
-			STATUSCLASSNAME,NULL,
-			WS_DISABLED | WS_POPUP,
-			lpUIExtra->uiStatus.pt.x,
-			lpUIExtra->uiStatus.pt.y,
-			lpUIExtra->uiStatus.sz.cx,
-			lpUIExtra->uiStatus.sz.cy,
-			hUIWnd,NULL,hInst,NULL);
+		lpUIExtra->uiStatus.hWnd = 	CreateWindowEx(0,	STATUSCLASSNAME, NULL, WS_DISABLED | WS_POPUP,
+			lpUIExtra->uiStatus.pt.x,	lpUIExtra->uiStatus.pt.y,
+			lpUIExtra->uiStatus.sz.cx, lpUIExtra->uiStatus.sz.cy,
+			hUIWnd, NULL, hInst, NULL);
 		SetWindowLong(lpUIExtra->uiStatus.hWnd,FIGWL_SVRWND,(DWORD)hUIWnd);
 	}
 
-	ShowWindow(lpUIExtra->uiStatus.hWnd,SW_SHOWNOACTIVATE);
+	ShowWindow(lpUIExtra->uiStatus.hWnd, SW_SHOWNOACTIVATE);
 	return;
 }
 
@@ -380,7 +357,9 @@ DWORD CheckButtonPos( HWND hStatusWnd, LPPOINT lppt)
 		ScreenToClient(hStatusWnd,&pt);
 		GetClientRect(hStatusWnd,&rc);
 		if (!PtInRect(&rc,pt))
+		{
 			return 0;
+		}
 
 		if(pt.x < BITMAPX) 
 		{
@@ -408,7 +387,6 @@ DWORD CheckButtonPos( HWND hStatusWnd, LPPOINT lppt)
 
 void PaintStatus( HWND hStatusWnd,HDC hDC,DWORD dwButton )
 {
-
 	HIMC hIMC;
 	LPINPUTCONTEXT lpIMC;
 	HDC hMemDC;
@@ -450,11 +428,11 @@ void PaintStatus( HWND hStatusWnd,HDC hDC,DWORD dwButton )
 		{
 			if(wConversionSet & CONVERSION_SET_FULLSHAPE)
 			{
-				BitBlt(hDC,BITMAPFULLDES,0,BITMAPX,intHeight,hMemDC,BITMAPFULLSRC,0,SRCCOPY);
+				BitBlt(hDC,BITMAPFULLDES,0,BITMAPX,intHeight,hMemDC,BITMAPFULLSRC,0, SRCCOPY);
 			}
 			else
 			{
-				BitBlt(hDC,BITMAPFULLDES,0,BITMAPX,intHeight,hMemDC,BITMAPFULLSRC + 20,0,SRCCOPY);
+				BitBlt(hDC,BITMAPFULLDES,0,BITMAPX,intHeight,hMemDC,BITMAPFULLSRC + 20,0, SRCCOPY);
 			}
 		}
 
@@ -462,11 +440,11 @@ void PaintStatus( HWND hStatusWnd,HDC hDC,DWORD dwButton )
 		{
 			if(wConversionSet & CONVERSION_SET_PUNCT)
 			{
-				BitBlt(hDC,BITMAPPUNCTDES,0,BITMAPX,intHeight,hMemDC,BITMAPPUNCTSRC,0,SRCCOPY);
+				BitBlt(hDC,BITMAPPUNCTDES,0,BITMAPX,intHeight,hMemDC,BITMAPPUNCTSRC,0, SRCCOPY);
 			}
 			else
 			{
-				BitBlt(hDC,BITMAPPUNCTDES,0,BITMAPX,intHeight,hMemDC,BITMAPPUNCTSRC + 23,0,SRCCOPY);
+				BitBlt(hDC,BITMAPPUNCTDES,0,BITMAPX,intHeight,hMemDC,BITMAPPUNCTSRC + 23,0, SRCCOPY);
 			}
 		}
 
@@ -484,109 +462,29 @@ void UpdateStatusWindow(LPUIEXTRA lpUIExtra)
 	}
 }
 
-BOOL WINAPI SetDialogProc(
-													HWND hWnd ,
-													UINT message ,
-													WPARAM wParam ,
-													LPARAM lParam )
+BOOL WINAPI AboutDialogProc(HWND hWnd, UINT message, WPARAM wParam,	LPARAM lParam)
 {
 	switch(message) 
 	{
 	case WM_INITDIALOG:
-		CheckDlgButton(hWnd,IDC_CHECKSORT,
-			(wConversionSet & CONVERSION_SET_SORT)? BST_CHECKED :BST_UNCHECKED );
-		CheckDlgButton(hWnd,IDC_CHECKFOLLOW,
-			(wConversionSet & CONVERSION_SET_FOLLOW)? BST_CHECKED :BST_UNCHECKED );
-		CheckDlgButton(hWnd,IDC_CHECKGBK,
-			(wConversionSet & CONVERSION_SET_GBK)? BST_CHECKED :BST_UNCHECKED );
-		CheckDlgButton(hWnd,IDC_CHECKFUZZYC,
-			(wConversionSet & CONVERSION_SET_FUZZYC)? BST_CHECKED :BST_UNCHECKED );
-		CheckDlgButton(hWnd,IDC_CHECKFUZZYN,
-			(wConversionSet & CONVERSION_SET_FUZZYN)? BST_CHECKED :BST_UNCHECKED );
-		CheckDlgButton(hWnd,IDC_CHECKFUZZYH,
-			(wConversionSet & CONVERSION_SET_FUZZYH)? BST_CHECKED :BST_UNCHECKED );
-		CheckDlgButton(hWnd,IDC_CHECKFUZZYB,
-			(wConversionSet & CONVERSION_SET_FUZZYB)? BST_CHECKED :BST_UNCHECKED );
-		CheckDlgButton(hWnd,IDC_CHECKSHAPE,
-			(wConversionSet & CONVERSION_SET_SHAPE)? BST_CHECKED :BST_UNCHECKED );
-		CheckDlgButton(hWnd,IDC_CHECKBIG5,
-			(wConversionSet & CONVERSION_SET_BIG5)? BST_CHECKED :BST_UNCHECKED );
 		break;
 
 	case WM_COMMAND:
-		switch(wParam) 
 		{
-		case IDC_CHECKFUZZYC:
-			break;
-
-		case IDC_CHECKFUZZYN:
-			break;
-
-		case IDC_CHECKFUZZYH:
-			break;
-
-		case IDC_CHECKSORT:
-			break;
-
-		case IDOK:
-			if(IsDlgButtonChecked(hWnd,IDC_CHECKSORT) == BST_CHECKED)
-				wConversionSet |= CONVERSION_SET_SORT;
-			else
-				wConversionSet &= ~CONVERSION_SET_SORT;
-
-			if(IsDlgButtonChecked(hWnd,IDC_CHECKFOLLOW) == BST_CHECKED)
-				wConversionSet |= CONVERSION_SET_FOLLOW;
-			else
-				wConversionSet &= ~CONVERSION_SET_FOLLOW;
-
-			if(IsDlgButtonChecked(hWnd,IDC_CHECKGBK) == BST_CHECKED)
-				wConversionSet |= CONVERSION_SET_GBK;
-			else
-				wConversionSet &= ~CONVERSION_SET_GBK;
-
-			if(IsDlgButtonChecked(hWnd,IDC_CHECKFUZZYC) == BST_CHECKED)
-				wConversionSet |= CONVERSION_SET_FUZZYC;
-			else
-				wConversionSet &= ~CONVERSION_SET_FUZZYC;
-
-			if(IsDlgButtonChecked(hWnd,IDC_CHECKFUZZYN) == BST_CHECKED)
-				wConversionSet |= CONVERSION_SET_FUZZYN;
-			else
-				wConversionSet &= ~CONVERSION_SET_FUZZYN;
-
-			if(IsDlgButtonChecked(hWnd,IDC_CHECKFUZZYH) == BST_CHECKED)
-				wConversionSet |= CONVERSION_SET_FUZZYH;
-			else
-				wConversionSet &= ~CONVERSION_SET_FUZZYH;
-
-			if(IsDlgButtonChecked(hWnd,IDC_CHECKFUZZYB) == BST_CHECKED)
-				wConversionSet |= CONVERSION_SET_FUZZYB;
-			else
-				wConversionSet &= ~CONVERSION_SET_FUZZYB;
-
-			if(IsDlgButtonChecked(hWnd,IDC_CHECKSHAPE) == BST_CHECKED)
-				wConversionSet |= CONVERSION_SET_SHAPE;
-			else
-				wConversionSet &= ~CONVERSION_SET_SHAPE;
-
-			if(IsDlgButtonChecked(hWnd,IDC_CHECKBIG5) == BST_CHECKED)
-				wConversionSet |= CONVERSION_SET_BIG5;
-			else
-				wConversionSet &= ~CONVERSION_SET_BIG5;
-
-			EndDialog(hWnd,TRUE);
-			break;
-
-		case IDCANCEL:
-			EndDialog(hWnd,TRUE);
-			break;
-
-		default:
-			return FALSE;
+			switch(wParam) 
+			{
+			case IDOK:
+			case IDCANCEL:
+				{
+					EndDialog(hWnd,TRUE);
+					break;
+				}
+			default:
+				return FALSE;
+				break;
+			}
 			break;
 		}
-		break;
-
 	default:
 		return FALSE;
 		break;
@@ -594,30 +492,147 @@ BOOL WINAPI SetDialogProc(
 	return TRUE;
 }
 
-BOOL WINAPI AboutDialogProc(
-														HWND hWnd ,
-														UINT message ,
-														WPARAM wParam ,
-														LPARAM lParam )
+BOOL WINAPI SetDialogProc(
+													HWND hWnd ,
+													UINT message ,
+													WPARAM wParam ,
+													LPARAM lParam )
 {
-
-	switch(message) 
+	switch(message)
 	{
 	case WM_INITDIALOG:
-		break;
-
-	case WM_COMMAND:
-		switch(wParam) 
 		{
-		case IDOK:
-		case IDCANCEL:
-			EndDialog(hWnd,TRUE);
-			break;
-		default:
-			return FALSE;
+			CheckDlgButton(hWnd,IDC_CHECKSORT,
+				(wConversionSet & CONVERSION_SET_SORT)? BST_CHECKED :BST_UNCHECKED );
+			CheckDlgButton(hWnd,IDC_CHECKFOLLOW,
+				(wConversionSet & CONVERSION_SET_FOLLOW)? BST_CHECKED :BST_UNCHECKED );
+			CheckDlgButton(hWnd,IDC_CHECKGBK,
+				(wConversionSet & CONVERSION_SET_GBK)? BST_CHECKED :BST_UNCHECKED );
+			CheckDlgButton(hWnd,IDC_CHECKFUZZYC,
+				(wConversionSet & CONVERSION_SET_FUZZYC)? BST_CHECKED :BST_UNCHECKED );
+			CheckDlgButton(hWnd,IDC_CHECKFUZZYN,
+				(wConversionSet & CONVERSION_SET_FUZZYN)? BST_CHECKED :BST_UNCHECKED );
+			CheckDlgButton(hWnd,IDC_CHECKFUZZYH,
+				(wConversionSet & CONVERSION_SET_FUZZYH)? BST_CHECKED :BST_UNCHECKED );
+			CheckDlgButton(hWnd,IDC_CHECKFUZZYB,
+				(wConversionSet & CONVERSION_SET_FUZZYB)? BST_CHECKED :BST_UNCHECKED );
+			CheckDlgButton(hWnd,IDC_CHECKSHAPE,
+				(wConversionSet & CONVERSION_SET_SHAPE)? BST_CHECKED :BST_UNCHECKED );
+			CheckDlgButton(hWnd,IDC_CHECKBIG5,
+				(wConversionSet & CONVERSION_SET_BIG5)? BST_CHECKED :BST_UNCHECKED );
 			break;
 		}
-		break;
+	case WM_COMMAND:
+		{
+			switch(wParam) 
+			{
+			case IDC_CHECKFUZZYC:
+				break;
+
+			case IDC_CHECKFUZZYN:
+				break;
+
+			case IDC_CHECKFUZZYH:
+				break;
+
+			case IDC_CHECKSORT:
+				break;
+
+			case IDOK:
+				if(IsDlgButtonChecked(hWnd,IDC_CHECKSORT) == BST_CHECKED)
+				{
+					wConversionSet |= CONVERSION_SET_SORT;
+				}
+				else
+				{
+					wConversionSet &= ~CONVERSION_SET_SORT;
+				}
+
+				if(IsDlgButtonChecked(hWnd,IDC_CHECKFOLLOW) == BST_CHECKED)
+				{
+					wConversionSet |= CONVERSION_SET_FOLLOW;
+				}
+				else
+				{
+					wConversionSet &= ~CONVERSION_SET_FOLLOW;
+				}
+
+				if(IsDlgButtonChecked(hWnd,IDC_CHECKGBK) == BST_CHECKED)
+				{
+					wConversionSet |= CONVERSION_SET_GBK;
+				}
+				else
+				{
+					wConversionSet &= ~CONVERSION_SET_GBK;
+				}
+
+				if(IsDlgButtonChecked(hWnd,IDC_CHECKFUZZYC) == BST_CHECKED)
+				{
+					wConversionSet |= CONVERSION_SET_FUZZYC;
+				}
+				else
+				{
+					wConversionSet &= ~CONVERSION_SET_FUZZYC;
+				}
+
+				if(IsDlgButtonChecked(hWnd,IDC_CHECKFUZZYN) == BST_CHECKED)
+				{
+					wConversionSet |= CONVERSION_SET_FUZZYN;
+				}
+				else
+				{
+					wConversionSet &= ~CONVERSION_SET_FUZZYN;
+				}
+
+				if(IsDlgButtonChecked(hWnd,IDC_CHECKFUZZYH) == BST_CHECKED)
+				{
+					wConversionSet |= CONVERSION_SET_FUZZYH;
+				}
+				else
+				{
+					wConversionSet &= ~CONVERSION_SET_FUZZYH;
+				}
+
+				if(IsDlgButtonChecked(hWnd,IDC_CHECKFUZZYB) == BST_CHECKED)
+				{
+					wConversionSet |= CONVERSION_SET_FUZZYB;
+				}
+				else
+				{
+					wConversionSet &= ~CONVERSION_SET_FUZZYB;
+				}
+
+				if(IsDlgButtonChecked(hWnd,IDC_CHECKSHAPE) == BST_CHECKED)
+				{
+					wConversionSet |= CONVERSION_SET_SHAPE;
+				}
+				else
+				{
+					wConversionSet &= ~CONVERSION_SET_SHAPE;
+				}
+
+				if(IsDlgButtonChecked(hWnd,IDC_CHECKBIG5) == BST_CHECKED)
+				{
+					wConversionSet |= CONVERSION_SET_BIG5;
+				}
+				else
+				{
+					wConversionSet &= ~CONVERSION_SET_BIG5;
+				}
+
+				EndDialog(hWnd,TRUE);
+				break;
+
+			case IDCANCEL:
+				EndDialog(hWnd,TRUE);
+				break;
+
+			default:
+				return FALSE;
+				break;
+			}
+			break;
+		}
 	default:
 		return FALSE;
 		break;

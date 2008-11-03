@@ -160,22 +160,16 @@ BOOL IMERegisterClass( HANDLE hInstance )
 /* IME UI window procedure                                            */
 /*                                                                    */
 /**********************************************************************/
-LRESULT WINAPI UIWndProc(
-												 HWND hWnd,
-												 UINT message,
-												 WPARAM wParam,
-												 LPARAM lParam)
+LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-
 	HIMC           hUICurIMC;
 	LPINPUTCONTEXT lpIMC;
 	LPUIEXTRA      lpUIExtra;
 	HGLOBAL        hUIExtra;
 	LONG           lRet = 0L;
 
-	DebugLog(1,(DebugLogFile,"UIWnd\n"));
-
-	hUICurIMC = (HIMC)GetWindowLong(hWnd,IMMGWL_IMC);
+	TRACE(TEXT("UIWnd\n"));
+	hUICurIMC = (HIMC)GetWindowLong(hWnd, IMMGWL_IMC);
 
 	//
 	// Even if there is no current UI. these messages should not be pass to 
@@ -202,44 +196,32 @@ LRESULT WINAPI UIWndProc(
 	switch (message)
 	{
 	case WM_CREATE:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_CREATE\n"));
-
-		//
-		// Allocate UI's extra memory block.
-		//
-		hUIExtra = GlobalAlloc(GHND,sizeof(UIEXTRA));
+		TRACE(TEXT("UIWnd:WM_CREATE\n"));
+		// Allocate UI's extra memory block.		
+		hUIExtra = GlobalAlloc(GHND, sizeof(UIEXTRA));
 		lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
-
 		lpUIExtra->uiComp.pt.x = -1;
 		lpUIExtra->uiComp.pt.y = -1;
-
-		CreateCompWindow(hWnd,lpUIExtra);
-		CreateCandWindow(hWnd,lpUIExtra);
+		CreateCompWindow(hWnd, lpUIExtra);
+		CreateCandWindow(hWnd, lpUIExtra);
 
 		GlobalUnlock(hUIExtra);
 		SetWindowLong(hWnd,IMMGWL_PRIVATE,(DWORD)hUIExtra);
 		break;
 
 	case WM_IME_SETCONTEXT:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_SETCONTEXT\n"));
+		TRACE(TEXT("UIWnd:WM_IME_SETCONTEXT\n"));
 		if (wParam)
 		{
-
-			hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
+			hUIExtra = (HGLOBAL)GetWindowLong(hWnd, IMMGWL_PRIVATE);
 			lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
-
 			if (hUICurIMC)
-			{
-				//
-				// input context was chenged.
-				// if there are the child windows, the diplay have to be
-				// updated.
-				//
+			{				
 				lpIMC = ImmLockIMC(hUICurIMC);
 				if (lpIMC)
 				{
-					MoveCandWindow(hWnd,lpUIExtra,lpIMC);
-					MoveCompWindow(hWnd,lpUIExtra,lpIMC);
+					MoveCandWindow(hWnd, lpUIExtra, lpIMC);
+					MoveCompWindow(hWnd, lpUIExtra, lpIMC);
 				}
 				else
 				{
@@ -248,7 +230,7 @@ LRESULT WINAPI UIWndProc(
 				}
 				ImmUnlockIMC(hUICurIMC);
 			}
-			else   // it is NULL input context.
+			else   
 			{
 				HideCandWindow(lpUIExtra);
 				HideCompWindow(lpUIExtra);
@@ -259,33 +241,24 @@ LRESULT WINAPI UIWndProc(
 		break;
 
 	case WM_IME_STARTCOMPOSITION:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_STARTCOMPOSITION\n"));
-		//
-		// Start composition! Ready to display the composition string.
-		//
+		TRACE(TEXT("UIWnd:WM_IME_STARTCOMPOSITION\n"));
+		
 		break;
 
 	case WM_IME_COMPOSITION:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_COMPOSITION\n"));
+		TRACE(TEXT("UIWnd:WM_IME_COMPOSITION\n"));
 
-		//
-		// Update to display the composition string.
-		//
 		lpIMC = ImmLockIMC(hUICurIMC);
 		hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
 		lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
-		MoveCompWindow(hWnd,lpUIExtra,lpIMC);
-		MoveCandWindow(hWnd,lpUIExtra,lpIMC);
+		MoveCompWindow(hWnd, lpUIExtra, lpIMC);
+		MoveCandWindow(hWnd, lpUIExtra, lpIMC);
 		GlobalUnlock(hUIExtra);
 		ImmUnlockIMC(hUICurIMC);
 		break;
 
 	case WM_IME_ENDCOMPOSITION:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_ENDCOMPOSITION\n"));
-
-		//
-		// Finish to display the composition string.
-		//
+		TRACE(TEXT("UIWnd:WM_IME_ENDCOMPOSITION\n"));
 		hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
 		lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
 		HideCompWindow(lpUIExtra);
@@ -294,38 +267,44 @@ LRESULT WINAPI UIWndProc(
 		break;
 
 	case WM_IME_COMPOSITIONFULL:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_COMPOSITIONFULL\n"));
+		TRACE(TEXT("UIWnd:WM_IME_COMPOSITIONFULL\n"));
 		break;
 
 	case WM_IME_SELECT:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_SELECT\n"));
+		TRACE(TEXT("UIWnd:WM_IME_SELECT\n"));
 		break;
 
 	case WM_IME_CONTROL:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_CONTROL\n"));
+		TRACE(TEXT("UIWnd:WM_IME_CONTROL\n"));
 		lRet = ControlHandle(hUICurIMC, hWnd,message,wParam,lParam);
 		break;
 
 
 	case WM_IME_NOTIFY:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY\n"));
 		lRet = NotifyHandle(hUICurIMC, hWnd,message,wParam,lParam);
 		break;
 
 	case WM_DESTROY:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_DESTROY\n"));
+		TRACE(TEXT("UIWnd:WM_DESTROY\n"));
 
 		hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
 		lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
 
 		if (IsWindow(lpUIExtra->uiStatus.hWnd))
+		{
 			DestroyWindow(lpUIExtra->uiStatus.hWnd);
+		}
 
 		if (IsWindow(lpUIExtra->uiCand.hWnd))
+		{
 			DestroyWindow(lpUIExtra->uiCand.hWnd);
+		}
 
 		if (IsWindow(lpUIExtra->uiComp.hWnd))
+		{
 			DestroyWindow(lpUIExtra->uiComp.hWnd);
+		}
 
 		GlobalUnlock(hUIExtra);
 		GlobalFree(hUIExtra);
@@ -361,7 +340,9 @@ LONG NotifyHandle(HIMC hUICurIMC, HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	LPUIEXTRA lpUIExtra;
 
 	if (!(lpIMC = ImmLockIMC(hUICurIMC)))
+	{
 		return 0L;
+	}
 
 	hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
 	lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
@@ -369,57 +350,60 @@ LONG NotifyHandle(HIMC hUICurIMC, HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	switch (wParam)
 	{
 	case IMN_CLOSESTATUSWINDOW:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_CLOSESTATUSWINDOW\n"));
-		if (IsWindow(lpUIExtra->uiStatus.hWnd)) {
-			ShowWindow(lpUIExtra->uiStatus.hWnd,SW_HIDE);
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_CLOSESTATUSWINDOW\n"));
+		if (IsWindow(lpUIExtra->uiStatus.hWnd)) 
+		{
+			ShowWindow(lpUIExtra->uiStatus.hWnd, SW_HIDE);
 		}
 		break;
 
 	case IMN_OPENSTATUSWINDOW:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_OPENSTATUSWINDOW\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_OPENSTATUSWINDOW\n"));
 		CreateStatusWindow( hWnd, lpUIExtra);
 		break;
 
 	case IMN_OPENCANDIDATE:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_OPENCANDIDATE\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_OPENCANDIDATE\n"));
 		break;
 
 	case IMN_CHANGECANDIDATE:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_CHANGECANDIDATE\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_CHANGECANDIDATE\n"));
 		break;
 
 	case IMN_CLOSECANDIDATE:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_CLOSECANDIDATE\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_CLOSECANDIDATE\n"));
 		break;
 
 	case IMN_SETCONVERSIONMODE:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETCONVERSIONMODE\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_SETCONVERSIONMODE\n"));
 		UpdateStatusWindow(lpUIExtra);
 		break;
 
 	case IMN_SETSENTENCEMODE:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETSENTENCEMODE\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_SETSENTENCEMODE\n"));
 		break;
 
 	case IMN_SETOPENSTATUS:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETOPENSTATUS\n"));
-		if(!IsIMEOpen(hUICurIMC)) {
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_SETOPENSTATUS\n"));
+		if(!IsIMEOpen(hUICurIMC))
+		{
 			MakeResultString(hUICurIMC,FALSE);
 		}
 		UpdateStatusWindow(lpUIExtra);
 		break;
 
 	case IMN_SETCANDIDATEPOS:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETCANDIDATEPOS\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_SETCANDIDATEPOS\n"));
 		break;
 
 	case IMN_SETCOMPOSITIONFONT:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETCOMPOSITIONFONT\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_SETCOMPOSITIONFONT\n"));
 		break;
 
 	case IMN_SETCOMPOSITIONWINDOW:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETCOMPOSITIONWINDOW\n"));
-		if(wConversionSet & CONVERSION_SET_FOLLOW) {
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_SETCOMPOSITIONWINDOW\n"));
+		if(wConversionSet & CONVERSION_SET_FOLLOW)
+		{
 			POINT ptSrc;
 			SIZE szOffset;
 			HDC hDC;
@@ -437,20 +421,22 @@ LONG NotifyHandle(HIMC hUICurIMC, HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			lpUIExtra->uiComp.pt.y = ptSrc.y + szOffset.cy;
 		}
 		if (IsWindow(lpUIExtra->uiComp.hWnd))
+		{
 			InvalidateRect(lpUIExtra->uiComp.hWnd,NULL,FALSE);
+		}
 
 		break;
 
 	case IMN_GUIDELINE:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_GUIDELINE\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_GUIDELINE\n"));
 		break;
 
 	case IMN_SETSTATUSWINDOWPOS:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_SETSTATUSWINDOWPOS\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_SETSTATUSWINDOWPOS\n"));
 		break;
 
 	case IMN_PRIVATE:
-		DebugLog(1,(DebugLogFile,"UIWnd:WM_IME_NOTIFY:IMN_PRIVATE\n"));
+		TRACE(TEXT("UIWnd:WM_IME_NOTIFY:IMN_PRIVATE\n"));
 		break;
 
 	default:

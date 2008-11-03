@@ -21,11 +21,7 @@
 #include "stdafx.h"
 #include "freepy.h"
 
-LRESULT WINAPI CompWndProc(
-													 HWND   hWnd,
-													 UINT   message,
-													 WPARAM wParam,
-													 LPARAM lParam)
+LRESULT WINAPI CompWndProc(HWND   hWnd, UINT   message, WPARAM wParam, LPARAM lParam)
 {
 	HWND  hUIWnd;
 	HGLOBAL hUIExtra;
@@ -46,12 +42,14 @@ LRESULT WINAPI CompWndProc(
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 		DragUI(hWnd,lpUIExtra->uiCand.hWnd,message,wParam,lParam,TRUE);
-		if ((message == WM_SETCURSOR) &&
-			(HIWORD(lParam) != WM_LBUTTONDOWN) &&
-			(HIWORD(lParam) != WM_RBUTTONDOWN)) 
+		if ((message == WM_SETCURSOR) && (HIWORD(lParam) != WM_LBUTTONDOWN) && (HIWORD(lParam) != WM_RBUTTONDOWN)) 
+		{
 			return DefWindowProc(hWnd,message,wParam,lParam);
+		}
 		if ((message == WM_LBUTTONUP) || (message == WM_RBUTTONUP))
+		{
 			SetWindowLong(hWnd,FIGWL_MOUSE,0L);
+		}
 		break;
 
 	default:
@@ -70,40 +68,39 @@ void CreateCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra)
 {
 	if (!IsWindow(lpUIExtra->uiComp.hWnd))
 	{
+		const LONG nLen = 100;
 		HDC hDC;
 		HFONT oldFont;
 		SIZE sz;
-		TCHAR szStr[100];
+		TCHAR szStr[nLen] = {0};
 
-		lpUIExtra->uiComp.hWnd = 
-			CreateWindowEx( WS_EX_WINDOWEDGE,
-			COMPCLASSNAME,NULL,
-			WS_DISABLED | WS_POPUP | WS_DLGFRAME,
-			0,
-			0,
-			1,
-			1,
-			hUIWnd,NULL,hInst,NULL);
-		SetWindowLong(lpUIExtra->uiComp.hWnd,FIGWL_SVRWND,(DWORD)hUIWnd);
+		lpUIExtra->uiComp.hWnd = CreateWindowEx( WS_EX_WINDOWEDGE,
+			COMPCLASSNAME, NULL,	WS_DISABLED | WS_POPUP | WS_DLGFRAME,
+			0, 0,	1, 1,	hUIWnd, NULL, hInst, NULL);
+		SetWindowLong(lpUIExtra->uiComp.hWnd, FIGWL_SVRWND, (DWORD)hUIWnd);
 
-		_stprintf(szStr,_T("AAAAAAAAAAAAA"));
+		_stprintf_s(szStr, nLen, _T("AAAAAAAAAAAAA"));
 		hDC = GetDC(lpUIExtra->uiComp.hWnd);
 		oldFont = (HFONT)SelectObject(hDC, hUIFont);
 		GetTextExtentPoint(hDC,szStr,_tcslen(szStr),&sz);
 		SelectObject(hDC, oldFont);
+
+
 		ReleaseDC(lpUIExtra->uiComp.hWnd,hDC);
 
 		lpUIExtra->uiComp.sz.cx = sz.cx;
-		lpUIExtra->uiComp.sz.cy = sz.cy+4;
+		lpUIExtra->uiComp.sz.cy = sz.cy + 4;
 	}
-	ShowWindow(lpUIExtra->uiComp.hWnd,SW_HIDE);
+	ShowWindow(lpUIExtra->uiComp.hWnd, SW_HIDE);
 	return;
 }
 
 void MoveCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 {
 	if (!IsWindow(lpUIExtra->uiComp.hWnd))
+	{
 		CreateCompWindow( hUIWnd, lpUIExtra);
+	}
 
 	if (IsWindow(lpUIExtra->uiComp.hWnd))
 	{
@@ -143,39 +140,38 @@ void MoveCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 		}
 
 		if(sz.cx < lpUIExtra->uiComp.sz.cx)
+		{
 			sz.cx = lpUIExtra->uiComp.sz.cx;
+		}
 
 		sz.cy = lpUIExtra->uiComp.sz.cy;
 		sz.cx += 4 * GetSystemMetrics(SM_CXEDGE);
 		sz.cy += 4 * GetSystemMetrics(SM_CYEDGE);
 
-		if(lpUIExtra->uiComp.pt.x < 0) {
+		if(lpUIExtra->uiComp.pt.x < 0) 
+		{
 			pt.x = 15;
 			pt.y = 15;
 			ClientToScreen(lpIMC->hWnd, &pt);
 		}
-		else{
+		else
+		{
 			pt.x = lpUIExtra->uiComp.pt.x;
 			pt.y = lpUIExtra->uiComp.pt.y;
 		}
 
-		SystemParametersInfo(SPI_GETWORKAREA,
-			0,
-			&screenrc,
-			0);
+		SystemParametersInfo(SPI_GETWORKAREA, 0, &screenrc,	0);
 
 		if( (pt.x + sz.cx) > screenrc.right )
+		{
 			pt.x = screenrc.right - sz.cx;
+		}
 		if( (pt.y + sz.cy) > screenrc.bottom )
+		{
 			pt.y = screenrc.bottom - sz.cy;
+		}
 
-		MoveWindow(lpUIExtra->uiComp.hWnd,
-			pt.x,
-			pt.y,
-			sz.cx,
-			sz.cy,
-			TRUE);
-
+		MoveWindow(lpUIExtra->uiComp.hWnd, pt.x, pt.y, sz.cx, sz.cy, TRUE);
 		ShowWindow(lpUIExtra->uiComp.hWnd, SW_SHOWNOACTIVATE);
 		InvalidateRect(lpUIExtra->uiComp.hWnd,NULL,FALSE);
 	}
@@ -214,11 +210,11 @@ void PaintCompWindow( HWND hCompWnd)
 	LineTo(hDC,rc.right-GetSystemMetrics(SM_CXEDGE)/2,rc.bottom - GetSystemMetrics(SM_CXEDGE)/2);
 	LineTo(hDC,rc.right-GetSystemMetrics(SM_CXEDGE)/2,0);
 
-	hPen = CreatePen(PS_SOLID ,0,RGB(128,128,128));
-	SelectObject(hDC,hPen);
-	MoveToEx(hDC,rc.right-GetSystemMetrics(SM_CXEDGE)/2,0,NULL);
-	LineTo(hDC,0,0);
-	LineTo(hDC,0,rc.bottom-GetSystemMetrics(SM_CYEDGE)/2);
+	hPen = CreatePen(PS_SOLID, 0, RGB(128,128,128));
+	SelectObject(hDC, hPen);
+	MoveToEx(hDC, rc.right-GetSystemMetrics(SM_CXEDGE)/2, 0, NULL);
+	LineTo(hDC, 0, 0);
+	LineTo(hDC, 0, rc.bottom-GetSystemMetrics(SM_CYEDGE)/2);
 
 	SelectObject(hDC,hOldPen);
 	DeleteObject(hPen);
@@ -227,7 +223,8 @@ void PaintCompWindow( HWND hCompWnd)
 
 	if (hIMC = (HIMC)GetWindowLong(hSvrWnd,IMMGWL_IMC))
 	{
-		if( (lpIMC = ImmLockIMC(hIMC)) == NULL ){
+		if( (lpIMC = ImmLockIMC(hIMC)) == NULL )
+		{
 			SelectObject(hDC, oldFont);
 			EndPaint(hCompWnd,&ps);
 			return;
@@ -245,21 +242,21 @@ void PaintCompWindow( HWND hCompWnd)
 
 				wEditCaret = ((LPMYCOMPSTR)lpCompStr)->FreePYComp.wEditCaret;
 				lpStr = GETLPCOMPSTR(lpCompStr);
-				lpPaintStr = 
-					((LPMYCOMPSTR)lpCompStr)->FreePYComp.szPaintCompStr;
+				lpPaintStr = ((LPMYCOMPSTR)lpCompStr)->FreePYComp.szPaintCompStr;
 				SetBkMode(hDC,TRANSPARENT);
 				SetPaintColor(hDC, wConversionMode);
 				TextOut(hDC,2,2,lpPaintStr,_tcslen(lpPaintStr));
 
 				wCharNum = _tcslen(lpStr) - wEditCaret;
 				wCount = 0;
-				for(i = _tcslen(lpPaintStr);i;i--) {
+				for(i = _tcslen(lpPaintStr);i;i--)
+				{
 					if(wCount == wCharNum) break;
 					if( *(lpPaintStr + i -1 ) != _T(' ')) wCount++;
 				}
 
-				GetTextExtentPoint(hDC,lpPaintStr,i,&sz);
-				GetTextExtentPoint(hDC,"A",1,&sz1);
+				GetTextExtentPoint(hDC, lpPaintStr, i, &sz);
+				GetTextExtentPoint(hDC, TEXT("A"), 1, &sz1);
 
 				hPen = CreatePen(PS_SOLID,3,RGB(0,0,0));
 				hOldPen = (HPEN)SelectObject(hDC,hPen);

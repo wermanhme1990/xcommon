@@ -21,11 +21,7 @@
 #include "stdafx.h"
 #include "freepy.h"
 
-LRESULT WINAPI CandWndProc( 
-													 HWND hWnd,
-													 UINT message,
-													 WPARAM wParam,
-													 LPARAM lParam)
+LRESULT WINAPI CandWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
@@ -38,12 +34,14 @@ LRESULT WINAPI CandWndProc(
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 		DragUI(hWnd,NULL,message,wParam,lParam,FALSE);
-		if ((message == WM_SETCURSOR) &&
-			(HIWORD(lParam) != WM_LBUTTONDOWN) &&
-			(HIWORD(lParam) != WM_RBUTTONDOWN)) 
+		if ((message == WM_SETCURSOR) && (HIWORD(lParam) != WM_LBUTTONDOWN) && (HIWORD(lParam) != WM_RBUTTONDOWN)) 
+		{
 			return DefWindowProc(hWnd,message,wParam,lParam);
+		}
 		if ((message == WM_LBUTTONUP) || (message == WM_RBUTTONUP))
+		{
 			SetWindowLong(hWnd,FIGWL_MOUSE,0L);
+		}
 		break;
 
 	default:
@@ -60,28 +58,23 @@ void CreateCandWindow( HWND hUIWnd,LPUIEXTRA lpUIExtra)
 {
 	if (!IsWindow(lpUIExtra->uiCand.hWnd))
 	{
+		const LONG nLen = 100;
 		HDC hDC;
 		HFONT oldFont;
-		TCHAR szStr[100];
+		TCHAR szStr[nLen] = {0};
 
-		lpUIExtra->uiCand.hWnd = 
-			CreateWindowEx(WS_EX_WINDOWEDGE,
-			CANDCLASSNAME,NULL,
-			WS_DISABLED | WS_POPUP | WS_DLGFRAME,
-			0,
-			0,
-			1,
-			1,
-			hUIWnd,NULL,hInst,NULL);
-		SetWindowLong(lpUIExtra->uiCand.hWnd,FIGWL_SVRWND,(DWORD)hUIWnd);
+		lpUIExtra->uiCand.hWnd = CreateWindowEx(WS_EX_WINDOWEDGE,	CANDCLASSNAME, NULL,
+			WS_DISABLED | WS_POPUP | WS_DLGFRAME,	0, 0,	1, 1,	hUIWnd, NULL, hInst, NULL);
+
+		SetWindowLong(lpUIExtra->uiCand.hWnd,FIGWL_SVRWND, (DWORD)hUIWnd);
 
 		hDC = GetDC(lpUIExtra->uiCand.hWnd);
 		oldFont = (HFONT)SelectObject(hDC, hUIFont);
 
 		_stprintf(szStr,_T("AAAAAAAAAAAAA"));
 		GetTextExtentPoint(hDC,szStr,_tcslen(szStr),sizeCand);
-		_stprintf(szStr,_T("<< 1가 2가 3가 4가 5가 6가 7가 8가 9가 0가 >>"));
-		GetTextExtentPoint(hDC,szStr,_tcslen(szStr),sizeCand+1);
+		_stprintf_s(szStr,nLen, _T("<< 1가 2가 3가 4가 5가 6가 7가 8가 9가 0가 >>"));
+		GetTextExtentPoint(hDC, szStr, _tcslen(szStr), sizeCand + 1);
 
 		SelectObject(hDC, oldFont);
 		ReleaseDC(lpUIExtra->uiCand.hWnd,hDC);
@@ -125,16 +118,24 @@ BOOL GetCandPosFromCompWnd(LPUIEXTRA lpUIExtra,LPSIZE lpsz)
 		if(wConversionSet & CONVERSION_SET_SHAPE) 
 		{	
 			if( (pt.x + sizeCand[1].cx) > screenrc.right)
+			{
 				pt.x = screenrc.right - sizeCand[1].cx;
+			}
 			if( (pt.y + sizeCand[1].cy) > screenrc.bottom)
+			{
 				pt.y = rc.top - sizeCand[1].cy;
+			}
 		}
 		else
 		{
 			if( (pt.x + lpsz->cx) > screenrc.right)
+			{
 				pt.x = rc.left - lpsz->cx - 5;
+			}
 			if( (pt.y + lpsz->cy) > screenrc.bottom)
+			{
 				pt.y = screenrc.bottom - lpsz->cy;
+			}
 		}
 
 		lpUIExtra->uiCand.pt.x = pt.x;

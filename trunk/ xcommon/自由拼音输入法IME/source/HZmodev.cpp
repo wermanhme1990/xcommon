@@ -218,17 +218,21 @@ BOOL CharHandleV( HIMC hIMC,WORD wParam,LONG lParam)
 			GnMsg.lParam = GCS_COMPSTR;
 			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
 		}
-		else MessageBeep(0xFFFFFFFF );
+		else 
+		{
+			MessageBeep(0xFFFFFFFF );
+		}
 	}
 	else
 	{
-		if( wParam == _T('=') || wParam == _T('.') || wParam == _T('>')) {
+		if( wParam == _T('=') || wParam == _T('.') || wParam == _T('>'))
+		{
 			if( bDirect & BACKWARD ) 
 			{
 				bDirect = FORWARD;
 				wPos = wPrePos+1;
 			}
-			DebugLog(4,(DebugLogFile,"---forward: %lx %lx\n",wPrePos,wPos));
+			TRACE(TEXT("---forward: %lx %lx\n",wPrePos,wPos));
 			if (wPos >= 0xFF ) 
 			{
 				MessageBeep(0xFFFFFFFF );
@@ -251,7 +255,7 @@ BOOL CharHandleV( HIMC hIMC,WORD wParam,LONG lParam)
 				if(wCount == lpCandList->dwPageSize) break;
 			}
 			lpCandList->dwCount = wCount;
-			DebugLog(4,(DebugLogFile,"forward: %lx %lx\n",wPrePos,wPos));
+			TRACE(TEXT("forward: %lx %lx\n"), wPrePos, wPos);
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
@@ -261,13 +265,13 @@ BOOL CharHandleV( HIMC hIMC,WORD wParam,LONG lParam)
 		{
 			TCHAR szStrArr[30][4];
 
-			DebugLog(4,(DebugLogFile,"+++backward: %lx %lx\n",wPrePos,wPos));
+			TRACE(TEXT("+++backward: %lx %lx\n"),wPrePos,wPos);
 			if( bDirect & FORWARD ) 
 			{
 				bDirect = BACKWARD;
 				wPos = wPrePos-1;
 			}
-			DebugLog(4,(DebugLogFile,"---backward: %lx %lx\n",wPrePos,wPos));
+			TRACE(TEXT("---backward: %lx %lx\n"),wPrePos,wPos);
 			if (wPos < 0x40 ) 
 			{
 				MessageBeep(0xFFFFFFFF );
@@ -287,9 +291,12 @@ BOOL CharHandleV( HIMC hIMC,WORD wParam,LONG lParam)
 					wCount++;
 				}
 				wPos--;
-				if(wCount == lpCandList->dwPageSize) break;
+				if(wCount == lpCandList->dwPageSize) 
+				{
+					break;
+				}
 			}
-			DebugLog(4,(DebugLogFile,"backward: %lx %lx\n",wPrePos,wPos));
+			TRACE(TEXT("backward: %lx %lx\n"),wPrePos,wPos);
 			if( wCount == 0)
 			{
 				MessageBeep(0xFFFFFFFF );
@@ -305,7 +312,7 @@ BOOL CharHandleV( HIMC hIMC,WORD wParam,LONG lParam)
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, lpdwCurTransKey, (LPGENEMSG)&GnMsg);
 		}
 		else if( wParam >= _T('0') && wParam <= _T('9') )
 		{

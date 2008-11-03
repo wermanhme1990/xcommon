@@ -1,23 +1,23 @@
 /*
- * Copyright (C) 1999.4  Li ZhenChun
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License; or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that is will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
- *
- * Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
- * 
- */
+* Copyright (C) 1999.4  Li ZhenChun
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License; or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that is will be useful, but
+* WITHOUT ANY WARRANTY; without even the implied warranty of 
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+* General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 675 Mass Ave, Cambridge, M A 02139, USA.
+*
+* Author: Li ZhenChun  email: zhchli@163.net or zhchli@126.com
+* 
+*/
 
 #ifndef _FREEPY_H_
 #define _FREEPY_H_
@@ -125,41 +125,46 @@ extern BYTE bNoComp[];
 /*      Structures                                                    */
 /*                                                                    */
 /**********************************************************************/
-typedef struct _tagMYCOMPSTR{
-    COMPOSITIONSTRING cs;
-    TCHAR             szCompStr[MAXCOMPSIZE];
-    TCHAR             szResultStr[MAXCOMPSIZE];
+typedef struct _tagMYCOMPSTR
+{
+	COMPOSITIONSTRING cs;
+	TCHAR             szCompStr[MAXCOMPSIZE];
+	TCHAR             szResultStr[MAXCOMPSIZE];
 
 	FREEPYCOMP        FreePYComp;
 
 } MYCOMPSTR, NEAR *PMYCOMPSTR, FAR *LPMYCOMPSTR;
 
-typedef struct _tagMYCAND{
-    CANDIDATEINFO  ci;
-    CANDIDATELIST  cl;
-    DWORD          offset[MAXCANDSTRNUM];
-    TCHAR          szCandStr[MAXCANDSTRNUM][MAXCANDSTRSIZE];
+typedef struct _tagMYCAND
+{
+	CANDIDATEINFO  ci;
+	CANDIDATELIST  cl;
+	DWORD          offset[MAXCANDSTRNUM];
+	TCHAR          szCandStr[MAXCANDSTRNUM][MAXCANDSTRSIZE];
 
 	FREEPYCAND     FreePYCand;
 
 } MYCAND, NEAR *PMYCAND, FAR *LPMYCAND;
 
-typedef struct _tagUICHILD{
-    HWND    hWnd;
+typedef struct _tagUICHILD
+{
+	HWND    hWnd;
 	POINT   pt;
 	SIZE    sz;
 } UICHILD, NEAR *PUICHILD, FAR *LPUICHILD;
 
-typedef struct _tagUIEXTRA{
-    UICHILD  uiStatus;
-    UICHILD  uiCand;
+typedef struct _tagUIEXTRA
+{
+	UICHILD  uiStatus;
+	UICHILD  uiCand;
 	UICHILD  uiComp;
 } UIEXTRA, NEAR *PUIEXTRA, FAR *LPUIEXTRA;
 
-typedef struct _tagGENEMSG{
-    UINT msg;
-    WPARAM wParam;
-    LPARAM lParam;
+typedef struct _tagGENEMSG
+{
+	UINT msg;
+	WPARAM wParam;
+	LPARAM lParam;
 } GENEMSG, NEAR *PGENEMSG, FAR *LPGENEMSG;
 
 

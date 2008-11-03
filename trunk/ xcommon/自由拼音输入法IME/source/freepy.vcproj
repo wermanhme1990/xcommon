@@ -391,6 +391,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Public\XDebug.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Public\XDebug.h"
 				>
 			</File>
