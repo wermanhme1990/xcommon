@@ -603,15 +603,16 @@ void ConvertPY(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,LPFREEPYCAND lpP
 
 	wHZLen = 0;
 	wTotal = 0;
-	for(k=0;awPYArrayKey[0][k];k++){
-		wHZLen += _tcslen(*(alpHZTab+(awPYArrayKey[0][k]-1)));
-		lpHanZi->lpHZ = *(alpHZTab+(awPYArrayKey[0][k]-1));
+	for(k = 0; awPYArrayKey[0][k]; k ++)
+	{
+		wHZLen += _tcslen(*(alpHZTab + (awPYArrayKey[0][k]-1)));
+		lpHanZi->lpHZ = *(alpHZTab + (awPYArrayKey[0][k]-1));
 		lpHanZi->wKey = awPYArrayKey[0][k];
 
 #ifdef _UNICODE
 		(lpHanZi++)->wLen = wHZLen;
 #else
-		(lpHanZi++)->wLen = wHZLen/2;
+		(lpHanZi++)->wLen = wHZLen / 2;
 #endif	
 
 		abKey[1] = (BYTE)( awPYArrayKey[0][k] & 0xff);
@@ -619,10 +620,18 @@ void ConvertPY(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,LPFREEPYCAND lpP
 		abKey[0] |= (BYTE)(( awPYArrayKey[0][k] & 0x0100) >> 8);
 
 		wResult=QueryPhrase(abKey,1,alpTempKeyPh);
-		if( alpTempKeyPh[0] != NULL) *(alpKeyPh + (wTotal++)) = alpTempKeyPh[0];
-		if( alpTempKeyPh[1] != NULL) *(alpKeyPh + (wTotal++)) = alpTempKeyPh[1];
+		if( alpTempKeyPh[0] != NULL) 
+		{
+			*(alpKeyPh + (wTotal++)) = alpTempKeyPh[0];
+		}
+		if( alpTempKeyPh[1] != NULL) 
+		{
+			*(alpKeyPh + (wTotal++)) = alpTempKeyPh[1];
+		}
 		if(wResult > 0)
+		{
 			memcpy(abKeyArray[0][awKeyArrayLen[0]++],abKey,2);
+		}
 	}
 
 	lpPYCand->wHZNum = lpHanZi - lpPYCand->aHanZi;
@@ -639,10 +648,18 @@ void ConvertPY(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,LPFREEPYCAND lpP
 				abKey[0] |= (BYTE)(( awPYArrayKey[i][k] & 0x0100) >> (8-i));
 
 				wResult=QueryPhrase(abKey,(WORD)(i+1),alpTempKeyPh);
-				if( alpTempKeyPh[0] != NULL) *(alpKeyPh + (wTotal++)) = alpTempKeyPh[0];
-				if( alpTempKeyPh[1] != NULL) *(alpKeyPh + (wTotal++)) = alpTempKeyPh[1];	
+				if( alpTempKeyPh[0] != NULL) 
+				{
+					*(alpKeyPh + (wTotal++)) = alpTempKeyPh[0];
+				}
+				if( alpTempKeyPh[1] != NULL) 
+				{
+					*(alpKeyPh + (wTotal++)) = alpTempKeyPh[1];	
+				}
 				if(wResult > 0)
+				{
 					memcpy(abKeyArray[i%2][awKeyArrayLen[i%2]++],abKey,i+2);
+				}
 			}
 		}
 		awKeyArrayLen[TOGGLE(i)] = 0;
@@ -674,7 +691,9 @@ void ConvertPY(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,LPFREEPYCAND lpP
 				if( i==0 )
 				{
 					if( wConversionSet & CONVERSION_SET_SORT)
+					{
 						SortPhrase(aTempPh,wPhLen);
+					}
 					memcpy(lpPhrase + wTotalPh,aTempPh,wPhLen*sizeof(PHRASE));
 					wTotalPh += wPhLen;
 				}
@@ -682,7 +701,9 @@ void ConvertPY(LPTSTR lpPYArray,WORD wMaxPYLen,WORD wPYArrayLen,LPFREEPYCAND lpP
 			else
 			{
 				if( wConversionSet & CONVERSION_SET_SORT)
+				{
 					SortPhrase(aTempPh,wPhLen);
+				}
 				memcpy(lpPhrase + wTotalPh,aTempPh,wPhLen*sizeof(PHRASE));
 				wTotalPh += wPhLen;
 				wPhLen=0;

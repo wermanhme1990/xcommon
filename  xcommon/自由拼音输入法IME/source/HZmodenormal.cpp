@@ -114,10 +114,11 @@ BOOL AddChar( HIMC hIMC, WORD wCode, WORD wEditMode)
 		}
 		else
 		{
-			_tcscpy(szTemp,lpStr + *lpwEditCaret);
+			_tcscpy(szTemp, lpStr + *lpwEditCaret);
 			_tcscpy(lpStr + *lpwEditCaret -1,szTemp);
 			*lpwEditCaret -= 1;
-			if( !_tcslen(lpStr)){
+			if( !_tcslen(lpStr))
+			{
 				MakeResultString(hIMC,FALSE);
 				fRet = TRUE;
 				goto my_exit;
@@ -126,7 +127,8 @@ BOOL AddChar( HIMC hIMC, WORD wCode, WORD wEditMode)
 	}
 	else if( wEditMode == EDIT_DELETE )
 	{
-		if(!_tcslen(lpStr) || (*lpwEditCaret) == (SHORT)_tcslen(lpStr) ){
+		if(!_tcslen(lpStr) || (*lpwEditCaret) == (SHORT)_tcslen(lpStr) )
+		{
 			MessageBeep(0xFFFFFFFF );
 			fRet = TRUE;
 			goto my_exit;
@@ -135,7 +137,8 @@ BOOL AddChar( HIMC hIMC, WORD wCode, WORD wEditMode)
 		{
 			_tcscpy(szTemp,lpStr + *lpwEditCaret + 1);
 			_tcscpy(lpStr + *lpwEditCaret,szTemp);
-			if( !_tcslen(lpStr)){
+			if( !_tcslen(lpStr))
+			{
 				MakeResultString(hIMC,FALSE);
 				fRet = TRUE;
 				goto my_exit;

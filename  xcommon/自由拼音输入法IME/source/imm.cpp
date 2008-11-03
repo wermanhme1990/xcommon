@@ -284,9 +284,9 @@ UINT WINAPI ImeToAsciiEx (UINT uVKey,UINT uScanCode,CONST LPBYTE lpbKeyState,LPD
 {
     LPARAM lParam;
     LPINPUTCONTEXT lpIMC;
-    BOOL fOpen;
+    BOOL fOpen = FALSE;
 
-	DebugLog(1,(DebugLogFile,"ImeToAsciiEx\n"));
+	TRACE(TEXT("ImeToAsciiEx\n"));
 
     lpdwCurTransKey = lpdwTransKey;
     lParam = ((DWORD)uScanCode << 16) + 1L;
