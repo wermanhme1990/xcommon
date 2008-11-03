@@ -40,15 +40,17 @@ void LoadHZDictionary( LPTSTR lpStr)
 	static int i=0,j=0,nPre=0;
 	WORD wPYHead=1;
 	LPPINYIN lpPYTab = (LPPINYIN)aPYTab;
-
-	_stscanf_s(lpStr,"%s %s",szPY,szHZ);
+	TRACE(TEXT("%s\n"), lpStr);
+	_stscanf(lpStr, TEXT("%s %s"), szPY, szHZ);
 
 	alpHZTab[i] = _tcsdup(szHZ);
 
 	wPYHead=(WORD)szPY[0] - (WORD)_T('a');
 	if(wPYHead != nPre) 
+	{
 		j	=	0;
-	_tcscpy_s( (lpPYTab + wPYHead * MAX_EACH_PY_NUM + j)->szPY, 20, szPY);
+	}
+	_tcscpy( (lpPYTab + wPYHead * MAX_EACH_PY_NUM + j)->szPY, szPY);
 	(lpPYTab+wPYHead*MAX_EACH_PY_NUM+j)->wKey = i + 1;
 
 	nPre=wPYHead;

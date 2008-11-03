@@ -57,7 +57,8 @@ BOOL IMEKeydownHandler
 
 	if( wVKey = ( wParam & 0x00FF ) )
 	{
-		if( !KeydownHandler( hIMC, wVKey, lParam, lpbKeyState ) ) {
+		if( !KeydownHandler( hIMC, wVKey, lParam, lpbKeyState ) )
+		{
 			// This WM_IMEKEYDOWN has actual character code in itself.
 #ifdef _UNICODE
 			CharHandler( hIMC,  HIWORD(wParam), lParam );
@@ -335,23 +336,28 @@ BOOL CharHandler(
 
 	if(wConversionMode & CONVERSION_MODE_PHRASETOCHAR)
 	{
-		if( CharHandlePhToCh(hIMC,wParam,lParam) ) goto my_exit;
+		if( CharHandlePhToCh(hIMC,wParam,lParam) ) 
+			goto my_exit;
 	}
 	else if(wConversionMode & CONVERSION_MODE_I) 
 	{
-		if( CharHandleI(hIMC,wParam,lParam) ) goto my_exit;
+		if( CharHandleI(hIMC,wParam,lParam) ) 
+			goto my_exit;
 	}
 	else if(wConversionMode & CONVERSION_MODE_U) 
 	{
-		if( CharHandleU(hIMC,wParam,lParam) ) goto my_exit;
+		if( CharHandleU(hIMC,wParam,lParam) ) 
+			goto my_exit;
 	}
 	else if(wConversionMode & CONVERSION_MODE_V)
 	{
-		if( CharHandleV(hIMC,wParam,lParam) ) goto my_exit;
+		if( CharHandleV(hIMC,wParam,lParam) )
+			goto my_exit;
 	}
 	else
 	{
-		if( CharHandleNormal(hIMC,wParam,lParam) ) goto my_exit;
+		if( CharHandleNormal(hIMC,wParam,lParam) )
+			goto my_exit;
 	}
 
 	if( wParam >= _T('!') && wParam <= _T('~') && lpCompStr->dwCompStrLen == 0)

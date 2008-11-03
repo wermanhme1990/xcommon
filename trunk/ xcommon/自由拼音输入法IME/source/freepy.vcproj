@@ -156,7 +156,7 @@
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
-				WarningLevel="3"
+				WarningLevel="0"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
 			/>
@@ -334,10 +334,6 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="..\..\Public\Ext_Type.h"
-				>
-			</File>
-			<File
 				RelativePath="freepy.h"
 				>
 			</File>
@@ -365,10 +361,6 @@
 				RelativePath="Vksub.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\Public\XDebug.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -388,6 +380,18 @@
 			</File>
 			<File
 				RelativePath="status.bmp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Public"
+			>
+			<File
+				RelativePath="..\..\Public\Ext_Type.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Public\XDebug.h"
 				>
 			</File>
 		</Filter>
