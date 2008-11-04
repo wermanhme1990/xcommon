@@ -46,7 +46,7 @@ extern "C" {
 #endif
 
 #else
-#define INDICATOR_CLASS          "Indicator"
+#define INDICATOR_CLASS          TEXT("Indicator")
 #endif
 
 #ifdef __cplusplus

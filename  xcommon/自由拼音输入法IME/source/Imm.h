@@ -883,10 +883,9 @@ BOOL    WINAPI ImeRegisterWord(LPCTSTR, DWORD, LPCTSTR);
 BOOL    WINAPI ImeUnregisterWord(LPCTSTR, DWORD, LPCTSTR);      
 UINT    WINAPI ImeGetRegisterWordStyle(UINT nItem, LPSTYLEBUF); 
 UINT    WINAPI ImeEnumRegisterWord(REGISTERWORDENUMPROC, LPCTSTR, DWORD, LPCTSTR, LPVOID);      
-BOOL    WINAPI ImeSetCompositionString(HIMC, DWORD dwIndex, LPCVOID lpComp, DWORD, LPCVOID lpRead, DWORD);              
-#if(WINVER >= 0x040A)                   
+BOOL    WINAPI ImeSetCompositionString(HIMC, DWORD dwIndex, LPCVOID lpComp, DWORD, LPCVOID lpRead, DWORD);                
 DWORD   WINAPI ImeGetImeMenuItems(HIMC, DWORD, DWORD, LPIMEMENUITEMINFO, LPIMEMENUITEMINFO, DWORD);    
-#endif                                  
+                                  
                                                                 
                                                                 
 #ifdef __cplusplus

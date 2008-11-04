@@ -45,12 +45,12 @@ BOOL WINAPI ImeInquire(LPIMEINFO lpIMEInfo,LPTSTR lpszUIClass,LPCTSTR lpszOption
 BOOL WINAPI ImeConfigure(HKL hKL,HWND hWnd, DWORD dwMode, LPVOID lpData)
 {
 	TRACE(TEXT("ImeConfigure\n"));
-	DialogBox( hInst,MAKEINTRESOURCE(DIALOGCONFIG), hWnd, ConfigDialogProc);
-	InvalidateRect(hWnd,NULL,FALSE);
+	DialogBox( hInst, MAKEINTRESOURCE(DIALOGCONFIG), hWnd, ConfigDialogProc);
+	InvalidateRect(hWnd, NULL, FALSE);
 	return TRUE;
 }
 
-DWORD WINAPI ImeConversionList(HIMC hIMC,LPCTSTR lpSource,LPCANDIDATELIST lpCandList,DWORD dwBufLen,UINT uFlag)
+DWORD WINAPI ImeConversionList(HIMC hIMC,LPCTSTR lpSource, LPCANDIDATELIST lpCandList,DWORD dwBufLen,UINT uFlag)
 {
 	TRACE(TEXT("ImeConversionList\n"));
 	return 0;
@@ -69,10 +69,7 @@ LRESULT WINAPI ImeEscape(HIMC hIMC,UINT uSubFunc,LPVOID lpData)
 }
 
 BOOL WINAPI ImeProcessKey(HIMC hIMC,UINT vKey,LPARAM lKeyData,CONST LPBYTE lpbKeyState)
-{
-
-	//int intRtn = MessageBox (0, "已经超过试用期限！", "提示", MB_OK + MB_ICONEXCLAMATION);
-
+{	
 	BOOL fRet = FALSE;
 	BOOL fOpen;
 	BOOL fCompStr = FALSE;
@@ -80,67 +77,53 @@ BOOL WINAPI ImeProcessKey(HIMC hIMC,UINT vKey,LPARAM lKeyData,CONST LPBYTE lpbKe
 	LPCOMPOSITIONSTRING lpCompStr;
 	static BOOL fPressOther = FALSE;
 	static BOOL fFirst = TRUE;
-
 	TRACE(TEXT("ImeProcessKey\n"));
-
 	if ((lKeyData & 0x80000000) && vKey != VK_CONTROL)
 	{
 		return FALSE;
 	}
-
 	if (!(lKeyData & 0x80000000) && vKey == VK_CONTROL)
 	{
 		return FALSE;
 	}
-
 	if (lpbKeyState[VK_MENU] & 0x80 ) 
 	{
 		return FALSE;
 	}
-
 	if(vKey != VK_CONTROL && lpbKeyState[VK_CONTROL] & 0x80 ) 
 	{
 		fPressOther = TRUE;
 		return FALSE;
 	}
-
 	if (!(lpIMC = ImmLockIMC(hIMC)))
 	{
 		return FALSE;
 	}
-
 	fOpen = lpIMC->fOpen;
-
 	if(vKey == VK_CONTROL && (lKeyData & 0x80000000) && !fPressOther && !fFirst)
 	{
 		GENEMSG GnMsg;
-
 		fPressOther = FALSE;
-
 		if(fOpen) 
 		{
-			lpIMC->fOpen=FALSE;
-			MakeResultString(hIMC,FALSE);
+			lpIMC->fOpen = FALSE;
+			MakeResultString(hIMC, FALSE);
 		}
 		else 
 		{
-			lpIMC->fOpen=TRUE;
+			lpIMC->fOpen = TRUE;
 		}
-
 		GnMsg.msg = WM_IME_NOTIFY;
 		GnMsg.wParam = IMN_SETOPENSTATUS;
 		GnMsg.lParam = 0;
 		GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
 		return FALSE;
 	}
-
 	fPressOther = FALSE;
-
 	if(fFirst)
 	{
 		fFirst = FALSE;
 	}
-
 	/*
 	//if CapsLock is pressed ,then return false;
 	if (lpbKeyState[VK_CAPITAL] & 0x01) {
@@ -191,12 +174,11 @@ BOOL WINAPI ImeProcessKey(HIMC hIMC,UINT vKey,LPARAM lKeyData,CONST LPBYTE lpbKe
 	}
 	}
 	*/
-
 	if (fOpen)
 	{
 		if (lpCompStr = (LPCOMPOSITIONSTRING)ImmLockIMCC(lpIMC->hCompStr))
 		{
-			if ((lpCompStr->dwSize > sizeof(COMPOSITIONSTRING)) && 	(lpCompStr->dwCompStrLen))
+			if ((lpCompStr->dwSize > sizeof(COMPOSITIONSTRING)) && (lpCompStr->dwCompStrLen))
 			{
 				fCompStr = TRUE;
 			}
@@ -211,7 +193,6 @@ BOOL WINAPI ImeProcessKey(HIMC hIMC,UINT vKey,LPARAM lKeyData,CONST LPBYTE lpbKe
 			fRet = (BOOL)bNoComp[vKey];
 		}
 	}
-
 	ImmUnlockIMC(hIMC);
 	return fRet;
 }
@@ -220,15 +201,11 @@ BOOL WINAPI ImeProcessKey(HIMC hIMC,UINT vKey,LPARAM lKeyData,CONST LPBYTE lpbKe
 BOOL WINAPI ImeSelect(HIMC hIMC, BOOL fSelect)
 {
 	LPINPUTCONTEXT lpIMC;
-
-	TRACE(TEXT("ImeSelect\n"));
-
+	TRACE(TEXT("ImeSelect: %d\n"), fSelect);
 	if (fSelect)
 	{
 		UpdateIndicIcon(hIMC);
 	}
-
-	// it's NULL context.
 	if (!hIMC)
 	{
 		return TRUE;
@@ -245,7 +222,6 @@ BOOL WINAPI ImeSelect(HIMC hIMC, BOOL fSelect)
 			DWORD dwData = sizeof(DWORD);
 			BOOL fFlag = TRUE;
 
-			// Init the general member of IMC.
 			lpIMC->fOpen=TRUE;
 
 			lpIMC->hCompStr = ImmReSizeIMCC(lpIMC->hCompStr,sizeof(MYCOMPSTR));
@@ -260,17 +236,14 @@ BOOL WINAPI ImeSelect(HIMC hIMC, BOOL fSelect)
 				InitCandInfo(lpCandInfo);
 				ImmUnlockIMCC(lpIMC->hCandInfo);
 			}
-
-			if ( RegOpenKeyEx(HKEY_LOCAL_MACHINE,	_T("Software\\freepy"),
-				0, KEY_READ, &hKey) == ERROR_SUCCESS )
+			if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Software\\freepy"), 0, KEY_READ, &hKey) == ERROR_SUCCESS )
 			{
-					if( RegQueryValueEx( hKey, _T("ConversionSet"),	NULL,	NULL,
-						(LPBYTE)&dwConvSet,	&dwData) == ERROR_SUCCESS )
-					{
-							wConversionSet = (WORD) dwConvSet;
-							fFlag = FALSE;
-					}
-					RegCloseKey(hKey);
+				if( RegQueryValueEx( hKey, _T("ConversionSet"),	NULL,	NULL,	(LPBYTE)&dwConvSet,	&dwData) == ERROR_SUCCESS )
+				{
+					wConversionSet = (WORD) dwConvSet;
+					fFlag = FALSE;
+				}
+				RegCloseKey(hKey);
 			}
 			if( fFlag) 
 			{
@@ -279,39 +252,28 @@ BOOL WINAPI ImeSelect(HIMC hIMC, BOOL fSelect)
 				wConversionSet |= CONVERSION_SET_FOLLOW;
 				wConversionSet |= CONVERSION_SET_GBK;
 			}
-
 		}
 	}
-
 	ImmUnlockIMC(hIMC);
-
 	return TRUE;
 }
 
-BOOL WINAPI ImeSetActiveContext(HIMC hIMC,BOOL fFlag)
+BOOL WINAPI ImeSetActiveContext(HIMC hIMC, BOOL fFlag)
 {
-	TRACE(TEXT("ImeSetActiveContext\n"));
-
+	TRACE(TEXT("ImeSetActiveContext %d\n"), fFlag);
 	UpdateIndicIcon(hIMC);
-
 	return TRUE;
 }
 
-UINT WINAPI ImeToAsciiEx (UINT uVKey,UINT uScanCode,CONST LPBYTE lpbKeyState,LPDWORD lpdwTransKey,UINT fuState,HIMC hIMC)
+UINT WINAPI ImeToAsciiEx (UINT uVKey,UINT uScanCode,CONST LPBYTE lpbKeyState, LPDWORD lpdwTransKey,UINT fuState, HIMC hIMC)
 {
 	LPARAM lParam;
 	LPINPUTCONTEXT lpIMC;
 	BOOL fOpen = FALSE;
-
 	TRACE(TEXT("ImeToAsciiEx\n"));
-
 	lpdwCurTransKey = lpdwTransKey;
 	lParam = ((DWORD)uScanCode << 16) + 1L;
-
-	// Init uNumTransKey here.
-	uNumTransKey = 0;
-
-	// if hIMC is NULL, this means DISABLE IME.
+	uNumTransKey = 0;	
 	if (!hIMC)
 	{
 		return 0;
@@ -321,9 +283,7 @@ UINT WINAPI ImeToAsciiEx (UINT uVKey,UINT uScanCode,CONST LPBYTE lpbKeyState,LPD
 		return 0;
 	}
 	fOpen = lpIMC->fOpen;
-	ImmUnlockIMC(hIMC);
-
-	// The current status of IME is "closed".
+	ImmUnlockIMC(hIMC);	
 	if (!fOpen)
 	{
 		goto my_exit;
@@ -337,24 +297,17 @@ UINT WINAPI ImeToAsciiEx (UINT uVKey,UINT uScanCode,CONST LPBYTE lpbKeyState,LPD
 	{
 		IMEKeydownHandler( hIMC, uVKey, lParam, lpbKeyState);
 	}
-
-
-	// Clear static value, no more generated message!
+	
 	lpdwCurTransKey = NULL;
-
 my_exit:
-
-	// If trans key buffer that is allocated by USER.EXE full up,
-	// the return value is the negative number.
 	if (fOverTransKey)
 	{
 		return (int)uNumTransKey;
 	}
-
 	return (int)uNumTransKey;
 }
 
-BOOL WINAPI NotifyIME(HIMC hIMC,DWORD dwAction,DWORD dwIndex,DWORD dwValue)
+BOOL WINAPI NotifyIME(HIMC hIMC, DWORD dwAction,DWORD dwIndex,DWORD dwValue)
 {
 	BOOL bRet = FALSE;
 	LPINPUTCONTEXT lpIMC;
@@ -370,16 +323,16 @@ BOOL WINAPI NotifyIME(HIMC hIMC,DWORD dwAction,DWORD dwIndex,DWORD dwValue)
 		TRACE(TEXT("NotifyIME:NI_CLOSECANDIDATE\n"));
 		break;
 	case NI_SELECTCANDIDATESTR:
-		TRACE(TEXT("NotifyIME:NI_SELECTCANDIDATESTR\n"));
+		TRACE(TEXT("NotifyIME:NI_SELECTCANDIDATESTR %d\n"), dwIndex);
 		break;
 	case NI_CHANGECANDIDATELIST:
-		TRACE(TEXT("NotifyIME:NI_CHANGECANDIDATELIST\n"));
+		TRACE(TEXT("NotifyIME:NI_CHANGECANDIDATELIST %d\n"), dwIndex);
 		break;
 	case NI_SETCANDIDATE_PAGESTART:
-		TRACE(TEXT("NotifyIME:NI_SETCANDIDATE_PAGESTART\n"));
+		TRACE(TEXT("NotifyIME:NI_SETCANDIDATE_PAGESTART %d\n"), dwIndex);
 		break;
 	case NI_SETCANDIDATE_PAGESIZE:
-		TRACE(TEXT("NotifyIME:NI_SETCANDIDATE_PAGESIZE\n"));
+		TRACE(TEXT("NotifyIME:NI_SETCANDIDATE_PAGESIZE %d\n"),dwIndex);
 		break;
 	case NI_CONTEXTUPDATED:
 		TRACE(TEXT("NotifyIME:NI_CONTEXTUPDATED\n"));
@@ -477,4 +430,12 @@ BOOL WINAPI ImeSetCompositionString(HIMC hIMC, DWORD dwIndex, LPCVOID lpComp, DW
 {
 	TRACE(TEXT("ImeSetCompositionString\n"));
 	return FALSE;
+}
+DWORD WINAPI ImeGetImeMenuItems(HIMC hIMC, DWORD dwFlags,	DWORD dwType,
+																LPIMEMENUITEMINFO lpImeParentMenu,	LPIMEMENUITEMINFO lpImeMenu,
+																DWORD dwSize
+																)
+{
+	TRACE(TEXT("ImeGetImeMenuItems\n"));
+	return 0;
 }

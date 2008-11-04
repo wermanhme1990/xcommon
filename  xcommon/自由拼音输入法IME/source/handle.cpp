@@ -45,16 +45,9 @@ BOOL IMEKeyupHandler
 /* A function which handles WM_IMEKEYDOWN                             */
 /*                                                                    */
 /**********************************************************************/
-BOOL IMEKeydownHandler
-(
- HIMC hIMC,
- WPARAM wParam,
- LPARAM lParam,
- LPBYTE lpbKeyState)
+BOOL IMEKeydownHandler(HIMC hIMC, WPARAM wParam, LPARAM lParam, LPBYTE lpbKeyState)
 {
 	WORD wVKey;
-
-
 	if( wVKey = ( wParam & 0x00FF ) )
 	{
 		if( !KeydownHandler( hIMC, wVKey, lParam, lpbKeyState ) )
@@ -84,11 +77,7 @@ BOOL IMEKeydownHandler
 /* differ depending on wParam                                         */
 /*                                                                    */
 /**********************************************************************/
-BOOL KeydownHandler(
-										HIMC hIMC,
-										WORD wParam,
-										LONG lParam,
-										LPBYTE lpbKeyState)
+BOOL KeydownHandler(HIMC hIMC, WORD wParam,	LONG lParam, LPBYTE lpbKeyState)
 {
 	LPINPUTCONTEXT lpIMC;
 	LPCOMPOSITIONSTRING lpCompStr;
@@ -227,10 +216,7 @@ BOOL KeydownHandler(
 		return( TRUE );
 }
 
-BOOL CharHandler(
-								 HIMC hIMC,
-								 WORD wParam,
-								 LONG lParam)
+BOOL CharHandler( HIMC hIMC, WORD wParam, LONG lParam)
 {
 	LPINPUTCONTEXT lpIMC;
 	LPCOMPOSITIONSTRING lpCompStr;
@@ -244,7 +230,6 @@ BOOL CharHandler(
 
 	lpCompStr = (LPCOMPOSITIONSTRING)ImmLockIMCC(lpIMC->hCompStr);
 	dwStrLen = lpCompStr->dwCompStrLen;
-
 	if (!dwStrLen)
 	{
 		lpCandInfo = (LPCANDIDATEINFO)ImmLockIMCC(lpIMC->hCandInfo);
@@ -264,28 +249,23 @@ BOOL CharHandler(
 			return RepeatPreResult(hIMC);
 		}
 
-		if( (wParam < _T('a') || wParam > _T('z')) &&
-			(wParam < _T('A') || wParam > _T('Z')) &&
-			(wParam < _T('0') || wParam > _T('9')) ){
+		if( (wParam < _T('a') || wParam > _T('z')) && (wParam < _T('A') || wParam > _T('Z')) &&
+			(wParam < _T('0') || wParam > _T('9')) )
+		{
 				ImmUnlockIMCC(lpIMC->hCompStr);
 				ImmUnlockIMC(hIMC);
 				return GeneratePunct(hIMC,wParam);
 		}
-
 		if( wParam == _T('i') ) 
 		{
 			LPTSTR lpStr;
-
 			wConversionMode |= CONVERSION_MODE_I;
-
 			lpStr = GETLPCOMPSTR(lpCompStr);
 			*lpStr = (TCHAR)wParam;
 			*(lpStr+1) = _T('\0');
 			lpCompStr->dwCompStrLen = _tcslen(lpStr);
-
 			lpStr = ((LPMYCOMPSTR)lpCompStr)->FreePYComp.szPaintCompStr;
 			_tcscpy(lpStr,IMODEL);
-
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
@@ -295,17 +275,13 @@ BOOL CharHandler(
 		if( wParam == _T('u') ) 
 		{
 			LPTSTR lpStr;
-
 			wConversionMode |= CONVERSION_MODE_U;
-
 			lpStr = GETLPCOMPSTR(lpCompStr);
 			*lpStr = (TCHAR)wParam;
-			*(lpStr+1) = _T('\0');
+			*(lpStr + 1) = _T('\0');
 			lpCompStr->dwCompStrLen = _tcslen(lpStr);
-
 			lpStr = ((LPMYCOMPSTR)lpCompStr)->FreePYComp.szPaintCompStr;
 			_tcscpy(lpStr,UMODEL);
-
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
@@ -315,17 +291,13 @@ BOOL CharHandler(
 		if( wParam == _T('v') ) 
 		{
 			LPTSTR lpStr;
-
 			wConversionMode |= CONVERSION_MODE_V;
-
 			lpStr = GETLPCOMPSTR(lpCompStr);
 			*lpStr = (TCHAR)wParam;
 			*(lpStr+1) = _T('\0');
 			lpCompStr->dwCompStrLen = _tcslen(lpStr);
-
 			lpStr = ((LPMYCOMPSTR)lpCompStr)->FreePYComp.szPaintCompStr;
 			_tcscpy(lpStr,VMODEL);
-
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
@@ -337,27 +309,37 @@ BOOL CharHandler(
 	if(wConversionMode & CONVERSION_MODE_PHRASETOCHAR)
 	{
 		if( CharHandlePhToCh(hIMC,wParam,lParam) ) 
+		{
 			goto my_exit;
+		}
 	}
 	else if(wConversionMode & CONVERSION_MODE_I) 
 	{
 		if( CharHandleI(hIMC,wParam,lParam) ) 
+		{
 			goto my_exit;
+		}
 	}
 	else if(wConversionMode & CONVERSION_MODE_U) 
 	{
 		if( CharHandleU(hIMC,wParam,lParam) ) 
+		{
 			goto my_exit;
+		}
 	}
 	else if(wConversionMode & CONVERSION_MODE_V)
 	{
 		if( CharHandleV(hIMC,wParam,lParam) )
+		{
 			goto my_exit;
+		}
 	}
 	else
 	{
 		if( CharHandleNormal(hIMC,wParam,lParam) )
+		{
 			goto my_exit;
+		}
 	}
 
 	if( wParam >= _T('!') && wParam <= _T('~') && lpCompStr->dwCompStrLen == 0)
