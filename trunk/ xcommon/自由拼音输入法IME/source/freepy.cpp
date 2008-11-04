@@ -55,9 +55,7 @@ BOOL WINAPI DllMain (
 
 		DestroyDictionary();
 
-		/* for debug ********************************/
-		TRACE(TEXT("Entry out\n"));
-		/********************************************/
+		TRACE(TEXT("Entry out\n"));		
 		break;
 
 	case DLL_THREAD_ATTACH:
@@ -197,7 +195,7 @@ LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 		TRACE(TEXT("UIWnd:WM_CREATE\n"));
-		// Allocate UI's extra memory block.		
+				
 		hUIExtra = GlobalAlloc(GHND, sizeof(UIEXTRA));
 		lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
 		lpUIExtra->uiComp.pt.x = -1;
@@ -206,7 +204,7 @@ LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		CreateCandWindow(hWnd, lpUIExtra);
 
 		GlobalUnlock(hUIExtra);
-		SetWindowLong(hWnd,IMMGWL_PRIVATE,(DWORD)hUIExtra);
+		SetWindowLong(hWnd,IMMGWL_PRIVATE, (DWORD)hUIExtra);
 		break;
 
 	case WM_IME_SETCONTEXT:
@@ -234,7 +232,6 @@ LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				HideCandWindow(lpUIExtra);
 				HideCompWindow(lpUIExtra);
-
 			}
 			GlobalUnlock(hUIExtra);
 		}
@@ -249,7 +246,7 @@ LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		TRACE(TEXT("UIWnd:WM_IME_COMPOSITION\n"));
 
 		lpIMC = ImmLockIMC(hUICurIMC);
-		hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
+		hUIExtra = (HGLOBAL)GetWindowLong(hWnd, IMMGWL_PRIVATE);
 		lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
 		MoveCompWindow(hWnd, lpUIExtra, lpIMC);
 		MoveCandWindow(hWnd, lpUIExtra, lpIMC);
@@ -259,7 +256,7 @@ LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_IME_ENDCOMPOSITION:
 		TRACE(TEXT("UIWnd:WM_IME_ENDCOMPOSITION\n"));
-		hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
+		hUIExtra = (HGLOBAL)GetWindowLong(hWnd, IMMGWL_PRIVATE);
 		lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
 		HideCompWindow(lpUIExtra);
 		HideCandWindow(lpUIExtra);
@@ -282,13 +279,13 @@ LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_IME_NOTIFY:
 		TRACE(TEXT("UIWnd:WM_IME_NOTIFY\n"));
-		lRet = NotifyHandle(hUICurIMC, hWnd,message,wParam,lParam);
+		lRet = NotifyHandle(hUICurIMC, hWnd, message, wParam, lParam);
 		break;
 
 	case WM_DESTROY:
 		TRACE(TEXT("UIWnd:WM_DESTROY\n"));
 
-		hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
+		hUIExtra = (HGLOBAL)GetWindowLong(hWnd, IMMGWL_PRIVATE);
 		lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
 
 		if (IsWindow(lpUIExtra->uiStatus.hWnd))

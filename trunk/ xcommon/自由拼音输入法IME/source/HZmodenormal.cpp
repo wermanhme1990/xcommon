@@ -25,7 +25,7 @@ BOOL CharHandleNormal( HIMC hIMC,WORD wParam,LONG lParam)
 {
 	if( (wParam >= _T('a') && wParam <= _T('z')) || wParam == _T('\'') ) 
 	{
-		return AddChar(hIMC,wParam,EDIT_ADD);
+		return AddChar(hIMC,wParam, EDIT_ADD);
 	}
 	else if( wParam == _T('=') || wParam == _T('.') || wParam == _T('>'))
 	{
@@ -36,10 +36,12 @@ BOOL CharHandleNormal( HIMC hIMC,WORD wParam,LONG lParam)
 	{
 		return BackwardPage(hIMC);
 	}
-	else if( wParam >= _T('0') && wParam <= _T('9') ){
+	else if( wParam >= _T('0') && wParam <= _T('9') )
+	{
 		return SelectCand(hIMC,wParam);
 	}
-	switch ( wParam ){
+	switch ( wParam )
+	{
 	case _T('!'):
 	case _T('@'):
 	case _T('#'):
@@ -64,7 +66,6 @@ BOOL AddChar( HIMC hIMC, WORD wCode, WORD wEditMode)
 	LPCANDIDATEINFO lpCandInfo;
 	LPCANDIDATELIST lpCandList;
 	LPFREEPYCAND lpPYCand;
-
 	LPTSTR lpStr;
 	LPTSTR lpConvStr;
 	LPTSTR lpPaintStr;
@@ -119,7 +120,7 @@ BOOL AddChar( HIMC hIMC, WORD wCode, WORD wEditMode)
 			*lpwEditCaret -= 1;
 			if( !_tcslen(lpStr))
 			{
-				MakeResultString(hIMC,FALSE);
+				MakeResultString(hIMC, FALSE);
 				fRet = TRUE;
 				goto my_exit;
 			}
@@ -139,7 +140,7 @@ BOOL AddChar( HIMC hIMC, WORD wCode, WORD wEditMode)
 			_tcscpy(lpStr + *lpwEditCaret,szTemp);
 			if( !_tcslen(lpStr))
 			{
-				MakeResultString(hIMC,FALSE);
+				MakeResultString(hIMC, FALSE);
 				fRet = TRUE;
 				goto my_exit;
 			}
@@ -173,19 +174,20 @@ BOOL AddChar( HIMC hIMC, WORD wCode, WORD wEditMode)
 	i = *lpwPYArrayLen;
 	while(i--)
 	{
-		if((cTempChar = *(lpPYArray + i*MAX_PY_LEN)) == _T('i') || 
-			cTempChar == _T('u') || cTempChar == _T('v') ){
-				_tcscpy(lpStr,szPreStr);
-				*lpwEditCaret = wPreEditCaret;
-				*lpwUnConvPos = wPreUnConvPos;
-				*lpwPYArrayLen = *lpwPYArrayLen - 1;
-				MessageBeep(0xFFFFFFFF );
-				fRet = TRUE;
-				goto my_exit;
+		if((cTempChar = *(lpPYArray + i*MAX_PY_LEN)) == _T('i') || cTempChar == _T('u') || cTempChar == _T('v') )
+		{
+			_tcscpy(lpStr,szPreStr);
+			*lpwEditCaret = wPreEditCaret;
+			*lpwUnConvPos = wPreUnConvPos;
+			*lpwPYArrayLen = *lpwPYArrayLen - 1;
+			MessageBeep(0xFFFFFFFF );
+			fRet = TRUE;
+			goto my_exit;
 		}
 	}
 
-	if(EffectPYArrayLen(lpPYArray,MAX_PY_LEN,*lpwPYArrayLen) > MAX_PHRASE_LEN) {
+	if(EffectPYArrayLen(lpPYArray,MAX_PY_LEN,*lpwPYArrayLen) > MAX_PHRASE_LEN) 
+	{
 		_tcscpy(lpStr,szPreStr);
 		*lpwEditCaret = wPreEditCaret;
 		*lpwUnConvPos = wPreUnConvPos;
@@ -198,8 +200,7 @@ BOOL AddChar( HIMC hIMC, WORD wCode, WORD wEditMode)
 	lpCandList = (LPCANDIDATELIST)((LPBYTE)lpCandInfo  + lpCandInfo->dwOffset[0]);
 	lpPYCand = (LPFREEPYCAND)(&((LPMYCAND)lpCandInfo)->FreePYCand);
 
-	ConvertPY( lpPYArray + (*lpwPYArrayCurPos)*MAX_PY_LEN,
-		MAX_PY_LEN,wPYCount,lpPYCand);
+	ConvertPY( lpPYArray + (*lpwPYArrayCurPos)*MAX_PY_LEN, MAX_PY_LEN, wPYCount, lpPYCand);
 
 	lpPYCand->awBeforePos[1] = 0;
 	lpPYCand->awBeforePos[0] = 0;
@@ -212,7 +213,7 @@ BOOL AddChar( HIMC hIMC, WORD wCode, WORD wEditMode)
 	lpCandList->dwPageStart = 2;
 	lpCandList->dwPageSize = 10;
 
-	CreatePaintStr( lpPYArray + (*lpwPYArrayCurPos)*MAX_PY_LEN,
+	CreatePaintStr( lpPYArray + (*lpwPYArrayCurPos) * MAX_PY_LEN,
 		MAX_PY_LEN,(WORD)((*lpwPYArrayLen)-(*lpwPYArrayCurPos)),lpConvStr,lpPaintStr);
 
 	GnMsg.msg = WM_IME_COMPOSITION;
@@ -244,8 +245,11 @@ BOOL ForwardPage(HIMC hIMC)
 	lpCandList = (LPCANDIDATELIST)((LPBYTE)lpCandInfo  + lpCandInfo->dwOffset[0]);
 	lpPYCand = (LPFREEPYCAND)(&((LPMYCAND)lpCandInfo)->FreePYCand);
 
-	dwCount = CreateCandStr(lpPYCand, SELECT_FORWARD, (LPTSTR)(((LPMYCAND)lpCandInfo)->szCandStr),MAXCANDSTRSIZE);
-	if (dwCount > 0) lpCandList->dwCount = dwCount;
+	dwCount = CreateCandStr(lpPYCand, SELECT_FORWARD, (LPTSTR)(((LPMYCAND)lpCandInfo)->szCandStr), MAXCANDSTRSIZE);
+	if (dwCount > 0) 
+	{
+		lpCandList->dwCount = dwCount;
+	}
 	lpCandList->dwPageStart = 2;
 	lpCandList->dwPageSize = 10;
 
@@ -271,7 +275,9 @@ BOOL BackwardPage(HIMC hIMC)
 	DWORD dwCount;
 
 	if( !IsCompStr(hIMC) )
+	{
 		return FALSE;
+	}
 
 	lpIMC = ImmLockIMC(hIMC);
 	lpCandInfo = (LPCANDIDATEINFO)ImmLockIMCC(lpIMC->hCandInfo);
@@ -279,7 +285,10 @@ BOOL BackwardPage(HIMC hIMC)
 	lpPYCand = (LPFREEPYCAND)(&((LPMYCAND)lpCandInfo)->FreePYCand);
 
 	dwCount = CreateCandStr(lpPYCand, SELECT_BACKWARD, (LPTSTR)(((LPMYCAND)lpCandInfo)->szCandStr),MAXCANDSTRSIZE);
-	if (dwCount > 0) lpCandList->dwCount = dwCount;
+	if (dwCount > 0) 
+	{
+		lpCandList->dwCount = dwCount;
+	}
 	lpCandList->dwPageStart = 2;
 	lpCandList->dwPageSize = 10;
 
@@ -315,7 +324,7 @@ BOOL SelectCand(HIMC hIMC,WORD wParam)
 	WORD *lpwPYArrayCurPos;
 	GENEMSG GnMsg;
 	WORD wIdx,awLen[2],wPosSpan,wTotal,wCount;
-	TCHAR szTempStr[(MAX_PHRASE_LEN+1)*2];
+	TCHAR szTempStr[(MAX_PHRASE_LEN + 1)*2];
 	int i;
 	DWORD dwAttrib;
 
@@ -446,8 +455,7 @@ BOOL SelectCand(HIMC hIMC,WORD wParam)
 		{
 			_tcscpy(szTempStr,(lpPYCand->aPhrase+wIdx)->lpHZPH->szHZ);
 			_tcscat(lpConvStr,szTempStr);
-			lpPYCand ->abKey[0] |= 
-				(lpPYCand->aPhrase+wIdx)->lpKeyPH->abKey[0] << lpPYCand->wKeyLen;
+			lpPYCand ->abKey[0] |= (lpPYCand->aPhrase+wIdx)->lpKeyPH->abKey[0] << lpPYCand->wKeyLen;
 
 			for(i=1;i<=(lpPYCand->aPhrase+wIdx)->lpKeyPH->wLen;i++)
 			{
@@ -456,14 +464,19 @@ BOOL SelectCand(HIMC hIMC,WORD wParam)
 			}
 
 		}
-		else{
-			for(i=0;i < lpPYCand->wHZNum;i++){
-				if((lpPYCand->aHanZi+i)->wLen > wIdx ) break;
+		else
+		{
+			for(i=0;i < lpPYCand->wHZNum;i++)
+			{
+				if((lpPYCand->aHanZi+i)->wLen > wIdx ) 
+				{
+					break;
+				}
 			}
 #ifdef _UNICODE
 			if(i)
 			{
-				_tcsncpy(szTempStr,(lpPYCand->aHanZi+i)->lpHZ + (wIdx - (lpPYCand->aHanZi+i-1)->wLen),1);
+				_tcsncpy(szTempStr,(lpPYCand->aHanZi+i)->lpHZ + (wIdx - (lpPYCand->aHanZi+i-1)->wLen), 1);
 			}
 			else
 			{
@@ -497,8 +510,14 @@ BOOL SelectCand(HIMC hIMC,WORD wParam)
 			else if(_tcslen(lpConvStr) > 1) 
 			{
 				dwAttrib=dwCurPhraseAttrib;
-				if(dwAttrib <= 1) dwAttrib=1;
-				else dwAttrib--;
+				if(dwAttrib <= 1) 
+				{
+					dwAttrib = 1;
+				}
+				else 
+				{
+					dwAttrib --;
+				}
 				SavePhToMapFile(lpConvStr,lpPYCand->abKey,(WORD)(_tcslen(lpConvStr)),dwAttrib,1);
 			}
 #else
@@ -511,15 +530,22 @@ BOOL SelectCand(HIMC hIMC,WORD wParam)
 			else if(_tcslen(lpConvStr) > 2) 
 			{
 				dwAttrib=dwCurPhraseAttrib;
-				if(dwAttrib <= 1) dwAttrib=1;
-				else dwAttrib--;
+				if(dwAttrib <= 1) 
+				{
+					dwAttrib=1;
+				}
+				else 
+				{
+					dwAttrib--;
+				}
 				SavePhToMapFile(lpConvStr,lpPYCand->abKey,(WORD)(_tcslen(lpConvStr)/2),dwAttrib,1);
 			}
 #endif
 			MakeResultString(hIMC,TRUE);
 			goto my_exit;
 		}
-		else{
+		else
+		{
 #ifdef _UNICODE
 			wPosSpan = CalculatePosSpan(lpPYArray+(*lpwPYArrayCurPos)*MAX_PY_LEN,
 				MAX_PY_LEN,(WORD)((*lpwPYArrayLen)-(*lpwPYArrayCurPos)),(WORD)_tcslen(szTempStr));
@@ -576,7 +602,10 @@ BOOL DeletePhrase(HIMC hIMC,WORD wParam)
 	WORD wLen,wIdx;
 	WORD wRet = 0;
 
-	if( !IsCompStr(hIMC) ) return FALSE;
+	if( !IsCompStr(hIMC) ) 
+	{
+		return FALSE;
+	}
 
 	lpIMC = ImmLockIMC(hIMC);
 
@@ -591,7 +620,8 @@ BOOL DeletePhrase(HIMC hIMC,WORD wParam)
 		return FALSE;
 	}
 
-	switch( wParam ) {
+	switch( wParam ) 
+	{
 	case _T('!'):
 		wIdx = 0;
 		break;
@@ -657,7 +687,10 @@ BOOL DeletePhrase(HIMC hIMC,WORD wParam)
 			lpCurHZPh = lpKPh->lpHZPH;
 			if( lpCurHZPh == lpHZPh)
 			{
-				if(lpHZPh->lpNext == NULL) lpKPh->wLen = -1;
+				if(lpHZPh->lpNext == NULL) 
+				{
+					lpKPh->wLen = -1;
+				}
 				lpKPh->lpHZPH = lpHZPh->lpNext;
 				wRet = 1;
 			}
@@ -674,12 +707,15 @@ BOOL DeletePhrase(HIMC hIMC,WORD wParam)
 						break;
 					}
 					lpPreHZPh = lpCurHZPh;
-				}while(lpCurHZPh->lpNext != NULL);
+				}
+				while(lpCurHZPh->lpNext != NULL);
 			}
 		}
 	}
 	if( wRet )	
+	{
 		MakeResultString(hIMC,FALSE);
+	}
 	ImmUnlockIMCC(lpIMC->hCandInfo);
 	ImmUnlockIMC(hIMC);
 	return TRUE;
