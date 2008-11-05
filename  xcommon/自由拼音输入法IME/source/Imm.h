@@ -8,7 +8,8 @@
 #define _IMM_        // defined if IMM.H has been included
 
 #ifdef __cplusplus
-extern "C" {
+extern "C" 
+{
 #endif
 
 #ifndef _WINUSER_
