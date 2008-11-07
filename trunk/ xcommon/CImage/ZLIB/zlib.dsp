@@ -35,15 +35,15 @@ RSC=rc.exe
 # PROP BASE Output_Dir ".\Release"
 # PROP BASE Intermediate_Dir ".\Release"
 # PROP BASE Target_Dir ""
-# PROP Use_MFC 2
+# PROP Use_MFC 1
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "..\Release\ZLIB"
 # PROP Intermediate_Dir "..\Release\ZLIB"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /MD /W4 /GX /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /FD /GF /c
+# ADD CPP /nologo /MT /W4 /GX /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /FD /GF /c
 # ADD BASE RSC /l 0x809
-# ADD RSC /l 0x809 /d "_AFXDLL"
+# ADD RSC /l 0x809
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo

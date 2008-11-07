@@ -20,8 +20,7 @@
  */
 #include "stdafx.h"
 #include "freepy.h"
-#include <cstdlib>
-#include <memory>
+
 #include <errno.h>
 
 

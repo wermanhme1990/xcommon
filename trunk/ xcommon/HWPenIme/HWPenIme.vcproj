@@ -2,9 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="freepy"
-	ProjectGUID="{90843A74-BB97-4980-83C6-D8166F4D98F4}"
-	RootNamespace="freepy"
+	Name="hwpenime"
+	ProjectGUID="{227D183F-227D-4053-A42E-2A04826351CC}"
 	>
 	<Platforms>
 		<Platform
@@ -14,6 +13,107 @@
 	<ToolFiles>
 	</ToolFiles>
 	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory=".\Debug"
+			IntermediateDirectory=".\Debug"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Debug/hwpenime.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="$(ProjectDir)\.\"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;hwpenime_EXPORTS"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderFile=".\Debug/hwpenime.pch"
+				AssemblerListingLocation=".\Debug/"
+				ObjectFile=".\Debug/"
+				ProgramDataBaseFileName=".\Debug/"
+				BrowseInformation="1"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="4"
+				CompileAs="2"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="2052"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="odbc32.lib odbccp32.lib imm32.lib"
+				OutputFile="c:\windows\system32\HWPenIME.ime"
+				LinkIncremental="2"
+				SuppressStartupBanner="true"
+				ModuleDefinitionFile=".\hwpenime.def"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile=".\Debug/hwpenime.pdb"
+				ImportLibrary=".\Debug/hwpenime.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\Debug/hwpenime.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine=""
+			/>
+		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
@@ -42,20 +142,20 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/freepy.tlb"
+				TypeLibraryName=".\Release/hwpenime.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="./;&quot;$(ProjectDir)\..\..\Public\&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;FREEPY_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;hwpenime_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Release/freepy.pch"
+				PrecompiledHeaderThrough="stdafx.h"
+				PrecompiledHeaderFile=".\Release/hwpenime.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -75,14 +175,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="imm32.lib odbc32.lib odbccp32.lib JTX.lib"
-				OutputFile=".\Release/freepy.dll"
+				OutputFile=".\Release/hwpenime.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SolutionDir)\..\..\Lib\"
-				ModuleDefinitionFile=".\freepy.def"
-				ProgramDatabaseFile=".\Release/freepy.pdb"
-				ImportLibrary=".\Release/freepy.lib"
+				ModuleDefinitionFile=".\hwpenime.def"
+				ProgramDatabaseFile=".\Release/hwpenime.pdb"
+				ImportLibrary=".\Release/hwpenime.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -97,108 +195,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/freepy.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/freepy.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="./;&quot;$(ProjectDir)\..\..\Public\&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;FREEPY_EXPORTS"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="0"
-				RuntimeLibrary="1"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Debug/freepy.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
-				WarningLevel="0"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
-				CompileAs="2"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="2052"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="imm32.lib odbc32.lib odbccp32.lib JTX.lib"
-				OutputFile="c:\windows\system32\freepy.ime"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SolutionDir)\..\..\Lib\"
-				ModuleDefinitionFile=".\freepy.def"
-				GenerateDebugInformation="true"
-				AssemblyDebug="1"
-				ProgramDatabaseFile=".\Debug/freepy.pdb"
-				ImportLibrary=".\Debug/freepy.lib"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\Debug/freepy.bsc"
+				OutputFile=".\Release/hwpenime.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -222,24 +219,16 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\freepy.cpp"
+				RelativePath=".\helper.cpp"
 				>
 			</File>
 			<File
-				RelativePath="freepy.def"
+				RelativePath=".\hwpenime.cpp"
 				>
 			</File>
 			<File
-				RelativePath="freepy.rc"
+				RelativePath="hwpenime.rc"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
@@ -248,57 +237,17 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\gb2big.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\global.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\handle.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\HZlib.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\HZmodei.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\HZmodenormal.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\HZmodephtoch.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\HZmodeu.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\HZmodev.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\HZspecial.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\HZutil.cpp"
-				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\imm.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Process.cpp"
 				>
 			</File>
 			<File
@@ -314,19 +263,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\subs.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\uicand.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\uicomp.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\uistatus.cpp"
+				RelativePath=".\ui.cpp"
 				>
 			</File>
 		</Filter>
@@ -335,23 +272,19 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="freepy.h"
+				RelativePath="helper.h"
 				>
 			</File>
 			<File
-				RelativePath="HZfreepy.h"
+				RelativePath="hwpenime.h"
 				>
 			</File>
 			<File
-				RelativePath="Imm.h"
+				RelativePath=".\Imm.h"
 				>
 			</File>
 			<File
-				RelativePath="INDICML.H"
-				>
-			</File>
-			<File
-				RelativePath="resource.h"
+				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
@@ -359,7 +292,7 @@
 				>
 			</File>
 			<File
-				RelativePath="Vksub.h"
+				RelativePath="ui.h"
 				>
 			</File>
 		</Filter>
@@ -368,38 +301,18 @@
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
 			<File
-				RelativePath="bitmap1.bmp"
-				>
-			</File>
-			<File
-				RelativePath="freepy.ico"
-				>
-			</File>
-			<File
-				RelativePath="Penindic.ico"
-				>
-			</File>
-			<File
-				RelativePath="status.bmp"
+				RelativePath="res\hwpenime.ICO"
 				>
 			</File>
 		</Filter>
-		<Filter
-			Name="Public"
+		<File
+			RelativePath="hwpenime.def"
 			>
-			<File
-				RelativePath="..\..\Public\Ext_Type.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Public\XDebug.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Public\XDebug.h"
-				>
-			</File>
-		</Filter>
+		</File>
+		<File
+			RelativePath="ReadMe.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

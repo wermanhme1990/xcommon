@@ -1,9 +1,5 @@
-LIBRARY			FREEPY
-
-DESCRIPTION		'FreePY input method for Chinese Windows'
-
-SECTIONS
-				.freepydic READ WRITE SHARED
+LIBRARY         imesample
+DESCRIPTION     'Setoutsoft inputstar 2.0 for Chinese Windows'
 
 EXPORTS
                 ImeConversionList
@@ -14,16 +10,17 @@ EXPORTS
                 ImeProcessKey
                 ImeSelect
                 ImeSetActiveContext
+                ImeSetCompositionString
                 ImeToAsciiEx
                 NotifyIME
+
                 ImeRegisterWord
                 ImeUnregisterWord
                 ImeGetRegisterWordStyle
                 ImeEnumRegisterWord
-                ImeSetCompositionString
-                ImeGetImeMenuItems
 
-				;UIWndProc
-				;CompWndProc
-				;CandWndProc
-				;StatusWndProc
+                UIWndProc
+				StatusWndProc
+                CompWndProc
+                CandWndProc
+
