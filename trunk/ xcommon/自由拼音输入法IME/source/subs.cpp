@@ -475,12 +475,12 @@ void DragUI( HWND hWnd, HWND hWnd1,UINT message, WPARAM wParam, LPARAM lParam,BO
 				sz1.cy = drc1.bottom - drc1.top;
 			}
 
-			SetWindowLong(hWnd,FIGWL_MOUSE,FIM_CAPUTURED);
+			SetWindowLong(hWnd, FIGWL_MOUSE, FIM_CAPUTURED);
 		}
 		break;
 
 	case WM_MOUSEMOVE:
-		dwT = GetWindowLong(hWnd,FIGWL_MOUSE);
+		dwT = GetWindowLong(hWnd, FIGWL_MOUSE);
 		if (dwT & FIM_MOVED)
 		{
 			DrawUIBorder(&drc);
@@ -513,13 +513,13 @@ void DragUI( HWND hWnd, HWND hWnd1,UINT message, WPARAM wParam, LPARAM lParam,BO
 			{
 				DrawUIBorder(&drc1);
 			}
-			SetWindowLong(hWnd,FIGWL_MOUSE,dwT | FIM_MOVED);
+			SetWindowLong(hWnd, FIGWL_MOUSE, dwT | FIM_MOVED);
 		}
 		break;
 
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
-		dwT = GetWindowLong(hWnd,FIGWL_MOUSE);
+		dwT = GetWindowLong(hWnd, FIGWL_MOUSE);
 
 		if (dwT & FIM_CAPUTURED)
 		{
