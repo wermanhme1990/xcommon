@@ -125,6 +125,7 @@ extern BYTE bNoComp[];
 /*      Structures                                                    */
 /*                                                                    */
 /**********************************************************************/
+
 typedef struct _tagMYCOMPSTR
 {
 	COMPOSITIONSTRING cs;

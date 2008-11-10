@@ -40,7 +40,7 @@ LRESULT WINAPI CandWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		}
 		if ((message == WM_LBUTTONUP) || (message == WM_RBUTTONUP))
 		{
-			SetWindowLong(hWnd,FIGWL_MOUSE,0L);
+			SetWindowLong(hWnd, FIGWL_MOUSE, 0L);
 		}
 		break;
 

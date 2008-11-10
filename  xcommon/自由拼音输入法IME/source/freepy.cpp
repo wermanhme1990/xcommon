@@ -341,7 +341,7 @@ LONG NotifyHandle(HIMC hUICurIMC, HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		return 0L;
 	}
 
-	hUIExtra = (HGLOBAL)GetWindowLong(hWnd,IMMGWL_PRIVATE);
+	hUIExtra = (HGLOBAL)GetWindowLong(hWnd, IMMGWL_PRIVATE);
 	lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
 
 	switch (wParam)
