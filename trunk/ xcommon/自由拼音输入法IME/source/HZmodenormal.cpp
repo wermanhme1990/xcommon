@@ -328,7 +328,8 @@ BOOL SelectCand(HIMC hIMC,WORD wParam)
 	int i;
 	DWORD dwAttrib;
 
-	if( !IsCompStr(hIMC) ) return FALSE;
+	if( !IsCompStr(hIMC) ) 
+		return FALSE;
 
 	lpIMC = ImmLockIMC(hIMC);
 
@@ -345,12 +346,18 @@ BOOL SelectCand(HIMC hIMC,WORD wParam)
 	lpwPYArrayCurPos = &(((LPMYCOMPSTR)lpCompStr)->FreePYComp.wPYArrayCurPos);
 	lpwUnConvPos = &(((LPMYCOMPSTR)lpCompStr)->FreePYComp.wUnConvPos);
 	lpwEditCaret = &(((LPMYCOMPSTR)lpCompStr)->FreePYComp.wEditCaret);
+	
+	TRACE(TEXT("lpStr : %s"), lpStr);
+	TRACE(TEXT("lpConvStr : %s"), lpConvStr);
+	TRACE(TEXT("lpPaintStr : %s"), lpPaintStr);		
 
+	if( wParam == (WORD)_T('0') ) 
+		wIdx = 9;
+	else 
+		wIdx = wParam - (WORD)_T('1');
 
-	if( wParam == (WORD)_T('0') ) wIdx=9;
-	else wIdx = wParam - (WORD)_T('1');
-
-	if(wIdx >= lpCandList->dwCount) return FALSE;
+	if(wIdx >= lpCandList->dwCount) 
+		return FALSE;
 
 	wTotal = wIdx + 1;
 	switch(lpPYCand->wSelectDirect)
@@ -372,8 +379,10 @@ BOOL SelectCand(HIMC hIMC,WORD wParam)
 				wCount = 0;
 				while( wCount != wTotal) 
 				{
-					for(i=0;i < lpPYCand->wHZNum;i++){
-						if((lpPYCand->aHanZi+i)->wLen > wIdx) break;
+					for(i=0;i < lpPYCand->wHZNum;i++)
+					{
+						if((lpPYCand->aHanZi + i)->wLen > wIdx) 
+							break;
 					}
 #ifdef _UNICODE
 					if(i)
@@ -389,7 +398,8 @@ BOOL SelectCand(HIMC hIMC,WORD wParam)
 					szTempStr[2] = _T('\0');
 #endif
 					if( (*((LPBYTE)szTempStr) >= GB_QUFIRST && *((LPBYTE)szTempStr) <= GB_QULAST) && 
-						(*((LPBYTE)szTempStr+1) >= GB_WEIFIRST && *((LPBYTE)szTempStr+1) <= GB_WEILAST) ) {
+						(*((LPBYTE)szTempStr+1) >= GB_WEIFIRST && *((LPBYTE)szTempStr+1) <= GB_WEILAST) ) 
+					{
 							wCount++;
 					}
 					wIdx++;

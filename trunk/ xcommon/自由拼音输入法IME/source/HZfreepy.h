@@ -53,7 +53,8 @@
 #define MAX_PHRASE_ATTRIB       40000
 #define MAX_SAVE_PHRASE_ATTRIB  30000
 
-typedef struct {
+typedef struct 
+{
 	WORD wKey;
 	TCHAR szPY[MAX_PY_LEN];
 } PINYIN,FAR *LPPINYIN;

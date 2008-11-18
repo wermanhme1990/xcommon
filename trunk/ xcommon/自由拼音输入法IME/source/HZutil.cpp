@@ -33,14 +33,22 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 	LPTSTR pDest;
 
 	wPYLen = _tcslen(lpPY);
-	if( wPYLen < 1 || wPYLen > MAX_PHRASE_LEN*wMaxPYLen ) return 0;
+	if( wPYLen < 1 || wPYLen > MAX_PHRASE_LEN*wMaxPYLen ) 
+	{
+		return 0;
+	}
 
-	if(wPYLen == 1){
-		if(*lpPY >= _T('a') && *lpPY <= _T('z')){
+	if(wPYLen == 1)
+	{
+		if(*lpPY >= _T('a') && *lpPY <= _T('z'))
+		{
 			_tcscpy(lpTranBuf,lpPY);
 			return 1;
 		}
-		else return 0;
+		else 
+		{
+			return 0;
+		}
 	}  
 	szYun[0] = _T('a');
 	szYun[1] = _T('o');
@@ -53,24 +61,29 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 	szSlStr[0][0] = _T('c');
 	szSlStr[1][0] = _T('s');
 	szSlStr[2][0] = _T('z');
-	for(i=0;i<3;i++){
+	for(i = 0; i < 3; i ++)
+	{
 		szSlStr[i][1] = _T('h');
 		szSlStr[i][2] = _T('\0');
 	}
 
 	while(1)
 	{
-		wHead = *(lpPY+wOffset) - _T('a');
-		if((wHead < 0 || wHead > 25) && *(lpPY+wOffset) != _T('\'')){
+		wHead = *(lpPY + wOffset) - _T('a');
+		if((wHead < 0 || wHead > 25) && *(lpPY + wOffset) != _T('\''))
+		{
 			return 0;
 		}
-		if(*(lpPY+wOffset) == _T('\'')){
+		if(*(lpPY+wOffset) == _T('\''))
+		{
 			if(wTotal > 0 && *(lpTranBuf + (wTotal-1)*wMaxPYLen) >= _T('a')
-				&& *(lpTranBuf + (wTotal-1)*wMaxPYLen) <= _T('z') ){
+				&& *(lpTranBuf + (wTotal-1)*wMaxPYLen) <= _T('z') )
+			{
 					_tcscpy(lpTranBuf+((wTotal)++)*wMaxPYLen,_T("\'"));
 			}
-			wOffset++;
-			if(wOffset == wPYLen){
+			wOffset ++;
+			if(wOffset == wPYLen)
+			{
 				return wTotal;
 			}
 			continue;
@@ -80,41 +93,49 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 		{
 			_tcsncpy(szStr,lpPY+wOffset,wCount);
 			szStr[wCount] = _T('\0');
-			if(wCount == 1) flag=1;
-			else{
+			if(wCount == 1) 
+			{
+				flag = 1;
+			}
+			else
+			{
 				flag=0;
-				for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++){
-					if(_tcsstr( (lpPYTab+wHead*MAX_EACH_PY_NUM+i)->szPY,szStr)!=NULL){
-						flag=1;
+				for(i = 0; (lpPYTab + wHead * MAX_EACH_PY_NUM + i)->wKey; i ++)
+				{
+					if(_tcsstr( (lpPYTab + wHead * MAX_EACH_PY_NUM + i)->szPY, szStr) != NULL)
+					{
+						flag = 1;
 						break;
 					}
 				}
 			}
 
-			if( (wOffset+wCount) == wPYLen )
+			if( (wOffset + wCount) == wPYLen )
 			{
 				if(flag) 
 				{
-					_tcscpy(lpTranBuf+((wTotal)++)*wMaxPYLen,szStr);
+					_tcscpy(lpTranBuf +((wTotal) ++)*wMaxPYLen,szStr);
 					return wTotal;
 				}
 				else 
 				{
-					if(wCount==2){
-						_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,wCount-1);
-						*(lpTranBuf+((wTotal)++)*wMaxPYLen+wCount-1)=_T('\0');
-						_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr+wCount-1,1);
-						*(lpTranBuf+((wTotal)++)*wMaxPYLen+1)=_T('\0');
+					if( wCount == 2)
+					{
+						_tcsncpy(lpTranBuf + wTotal * wMaxPYLen, szStr, wCount - 1);
+						*(lpTranBuf + ((wTotal) ++) * wMaxPYLen + wCount - 1) = _T('\0');
+						_tcsncpy(lpTranBuf + wTotal * wMaxPYLen, szStr + wCount - 1, 1);
+						*(lpTranBuf + ((wTotal) ++) * wMaxPYLen + 1) = _T('\0');
 						return wTotal;
 					}
-					nTemp = szStr[wCount-1];
-					_tcsncpy(szTmpStr,szStr,wCount-1);
-					szTmpStr[wCount-1]='\0';
-					eqflag=0;
-					for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++)
+					nTemp = szStr[wCount - 1];
+					_tcsncpy(szTmpStr, szStr, wCount-1);
+					szTmpStr[wCount-1] = '\0';
+					eqflag = 0;
+					for(i = 0; (lpPYTab + wHead * MAX_EACH_PY_NUM + i)->wKey; i ++)
 					{
-						if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) ){
-							eqflag=1;
+						if( !_tcscmp((lpPYTab + wHead * MAX_EACH_PY_NUM + i)->szPY, szTmpStr) )
+						{
+							eqflag = 1;
 							break;
 						}
 					}
@@ -124,9 +145,9 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 						if( _tcsrchr(szYun,szStr[wCount-2]) == NULL && _tcsrchr(szYun,nTemp) != NULL) 
 						{
 							szTmpStr[_tcslen(szTmpStr)-1] = _T('\0');
-							for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++)
+							for(i = 0; (lpPYTab + wHead * MAX_EACH_PY_NUM + i)->wKey; i ++)
 							{
-								if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) )
+								if( !_tcscmp((lpPYTab + wHead * MAX_EACH_PY_NUM + i)->szPY,szTmpStr) )
 								{
 									goto my_next1;
 								}
@@ -134,8 +155,8 @@ WORD ParsePY(LPTSTR lpPY, LPTSTR lpTranBuf, WORD wMaxPYLen)
 						}
 						goto my_next2;
 my_next1:
-						_tcscpy(szTmpStr,szStr + _tcslen(szStr) -2);
-						for(i=0;(lpPYTab+(szTmpStr[0] - _T('a'))*MAX_EACH_PY_NUM+i)->wKey;i++)
+						_tcscpy(szTmpStr, szStr + _tcslen(szStr) -2);
+						for(i = 0; (lpPYTab + (szTmpStr[0] - _T('a')) * MAX_EACH_PY_NUM+i)->wKey; i ++)
 						{
 							if( !_tcscmp((lpPYTab+(szTmpStr[0] - _T('a'))*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) )
 							{
@@ -215,23 +236,26 @@ my_next2:
 				}
 			}
 
-			if(flag) wCount++;
+			if(flag) 
+			{
+				wCount ++;
+			}
 			else 
 			{
 				if(wCount==2)
 				{
-					wOffset++;
-					_tcsncpy(lpTranBuf+wTotal*wMaxPYLen,szStr,wCount-1);
-					*(lpTranBuf+((wTotal)++)*wMaxPYLen+wCount-1)=_T('\0');
+					wOffset ++;
+					_tcsncpy(lpTranBuf + wTotal * wMaxPYLen, szStr, wCount - 1);
+					*(lpTranBuf + ((wTotal) ++) * wMaxPYLen + wCount - 1) = _T('\0');
 					break;
 				}
 				nTemp = szStr[wCount-1];
 				_tcsncpy(szTmpStr,szStr,wCount-1);
 				szTmpStr[wCount-1]='\0';
 				eqflag=0;
-				for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++)
+				for(i = 0; (lpPYTab + wHead * MAX_EACH_PY_NUM + i)->wKey; i ++)
 				{
-					if( !_tcscmp((lpPYTab+wHead*MAX_EACH_PY_NUM+i)->szPY,szTmpStr) )
+					if( !_tcscmp((lpPYTab + wHead * MAX_EACH_PY_NUM + i)->szPY,szTmpStr) )
 					{
 						eqflag=1;
 						break;
@@ -240,7 +264,7 @@ my_next2:
 				if(eqflag)
 				{
 					yunflag = 0;
-					if( _tcsrchr(szYun,szStr[wCount-2]) == NULL && _tcsrchr(szYun,nTemp) != NULL)
+					if( _tcsrchr(szYun, szStr[wCount-2]) == NULL && _tcsrchr(szYun,nTemp) != NULL)
 					{
 						szTmpStr[_tcslen(szTmpStr)-1] = _T('\0');
 						for(i=0;(lpPYTab+wHead*MAX_EACH_PY_NUM+i)->wKey;i++)
