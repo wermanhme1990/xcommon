@@ -251,8 +251,10 @@ void PaintCompWindow( HWND hCompWnd)
 				wCount = 0;
 				for(i = _tcslen(lpPaintStr);i;i--)
 				{
-					if(wCount == wCharNum) break;
-					if( *(lpPaintStr + i -1 ) != _T(' ')) wCount++;
+					if(wCount == wCharNum)
+						break;
+					if( *(lpPaintStr + i -1 ) != _T(' ')) 
+						wCount++;
 				}
 
 				GetTextExtentPoint(hDC, lpPaintStr, i, &sz);

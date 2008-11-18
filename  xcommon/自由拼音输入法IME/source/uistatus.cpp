@@ -342,6 +342,7 @@ void CreateStatusWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra)
 	}
 
 	ShowWindow(lpUIExtra->uiStatus.hWnd, SW_SHOWNOACTIVATE);
+	EnableWindow(lpUIExtra->uiStatus.hWnd, TRUE);
 	return;
 }
 
