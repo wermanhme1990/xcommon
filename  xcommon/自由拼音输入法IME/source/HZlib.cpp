@@ -39,7 +39,7 @@ void LoadHZDictionary( LPTSTR lpStr)
 	static int i=0,j=0,nPre=0;
 	WORD wPYHead=1;
 	LPPINYIN lpPYTab = (LPPINYIN)aPYTab;
-	TRACE(TEXT("%s\n"), lpStr);
+	//TRACE(TEXT("%s\n"), lpStr);
 	_stscanf(lpStr, TEXT("%s %s"), szPY, szHZ);
 
 	alpHZTab[i] = _tcsdup(szHZ);
@@ -480,7 +480,7 @@ void InitDictionary()
 
 	LoadTable();
 	wMapCount++;
-	TRACE(TEXT("Out InitDictionary\n"));	
+	//TRACE(TEXT("Out InitDictionary\n"));	
 }
 
 void DestroyDictionary()

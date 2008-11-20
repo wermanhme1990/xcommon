@@ -42,7 +42,7 @@ BOOL WINAPI DllMain (
 			FALSE, FALSE, FALSE, ANSI_CHARSET,
 			OUT_TT_PRECIS, CLIP_TT_ALWAYS, ANTIALIASED_QUALITY,
 			DEFAULT_PITCH, _T("ËÎÌו"));
-
+		TRACE(TEXT("Instance %d\n"), hInst);
 		IMERegisterClass( hInst );
 		break;
 
@@ -166,9 +166,9 @@ LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	HGLOBAL        hUIExtra;
 	LONG           lRet = 0L;
 
-	TRACE(TEXT("UIWnd\n"));
+	
 	hUICurIMC = (HIMC)GetWindowLong(hWnd, IMMGWL_IMC);
-
+	TRACE(TEXT("UIWnd : %04x %d\n"), message, LONG(hUICurIMC));
 	//
 	// Even if there is no current UI. these messages should not be pass to 
 	// DefWindowProc().
@@ -204,7 +204,7 @@ LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		CreateCandWindow(hWnd, lpUIExtra);
 
 		GlobalUnlock(hUIExtra);
-		SetWindowLong(hWnd,IMMGWL_PRIVATE, (DWORD)hUIExtra);
+		SetWindowLong(hWnd, IMMGWL_PRIVATE, (DWORD)hUIExtra);
 		break;
 
 	case WM_IME_SETCONTEXT:
@@ -407,6 +407,7 @@ LONG NotifyHandle(HIMC hUICurIMC, HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			HFONT oldFont;
 
 			ptSrc = lpIMC->cfCompForm.ptCurrentPos;
+			TRACE(TEXT("%d %d\n"), ptSrc.x, ptSrc.y);
 			ClientToScreen(lpIMC->hWnd, &ptSrc);
 			hDC = GetDC(lpIMC->hWnd);
 			oldFont = (HFONT)SelectObject(hDC, hUIFont);

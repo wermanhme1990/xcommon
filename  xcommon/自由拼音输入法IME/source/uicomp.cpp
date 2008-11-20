@@ -26,7 +26,8 @@ LRESULT WINAPI CompWndProc(HWND   hWnd, UINT   message, WPARAM wParam, LPARAM lP
 	HWND  hUIWnd;
 	HGLOBAL hUIExtra;
 	LPUIEXTRA lpUIExtra;
-
+	
+	TRACE(TEXT("CompWndProc : %04x\n"), message);
 	hUIWnd = (HWND)GetWindowLong(hWnd,FIGWL_SVRWND);
 	hUIExtra = (HGLOBAL)GetWindowLong(hUIWnd,IMMGWL_PRIVATE);
 	lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
@@ -36,11 +37,13 @@ LRESULT WINAPI CompWndProc(HWND   hWnd, UINT   message, WPARAM wParam, LPARAM lP
 	case WM_PAINT:
 		PaintCompWindow( hWnd);
 		break;
-
+/*
 	case WM_SETCURSOR:
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
+		return DefWindowProc(hWnd,message,wParam,lParam);
+		
 		DragUI(hWnd,lpUIExtra->uiCand.hWnd,message,wParam,lParam,TRUE);
 		if ((message == WM_SETCURSOR) && (HIWORD(lParam) != WM_LBUTTONDOWN) && (HIWORD(lParam) != WM_RBUTTONDOWN)) 
 		{
@@ -50,6 +53,7 @@ LRESULT WINAPI CompWndProc(HWND   hWnd, UINT   message, WPARAM wParam, LPARAM lP
 		{
 			SetWindowLong(hWnd,FIGWL_MOUSE,0L);
 		}
+		*/
 		break;
 
 	default:
@@ -78,9 +82,10 @@ void CreateCompWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra)
 			COMPCLASSNAME, NULL,	WS_DISABLED | WS_POPUP | WS_DLGFRAME,
 			0, 0,	1, 1,	hUIWnd, NULL, hInst, NULL);
 		SetWindowLong(lpUIExtra->uiComp.hWnd, FIGWL_SVRWND, (DWORD)hUIWnd);
-
+		TRACE(TEXT("UIKBInputCreateWindow : %d\n"), LONG(lpUIExtra->uiComp.hWnd));
 		_stprintf_s(szStr, nLen, _T("AAAAAAAAAAAAA"));
 		hDC = GetDC(lpUIExtra->uiComp.hWnd);
+		TRACE(TEXT("UIKBInputCreateWindow : %d\n"), LONG(hDC));
 		oldFont = (HFONT)SelectObject(hDC, hUIFont);
 		GetTextExtentPoint(hDC,szStr,_tcslen(szStr),&sz);
 		SelectObject(hDC, oldFont);
