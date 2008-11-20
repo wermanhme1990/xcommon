@@ -305,6 +305,7 @@ LRESULT WINAPI StatusWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 void CreateStatusWindow( HWND hUIWnd, LPUIEXTRA lpUIExtra)
 {
+	TRACE(TEXT("CreateStatusWindow\n"));
 	if (!IsWindow(lpUIExtra->uiStatus.hWnd))
 	{
 		RECT screenrc;

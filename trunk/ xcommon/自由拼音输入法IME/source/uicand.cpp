@@ -269,7 +269,7 @@ void PaintCandWindow( HWND hCandWnd)
 
 			height = 3;
 			width = 1;
-			lpCandList = (LPCANDIDATELIST)((LPSTR)lpCandInfo  + lpCandInfo->dwOffset[0]);
+			lpCandList = (LPCANDIDATELIST)((LPTSTR)lpCandInfo  + lpCandInfo->dwOffset[0]);
 			SetBkMode(hDC, TRANSPARENT);
 			SetPaintColor(hDC, wConversionMode);
 

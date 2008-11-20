@@ -571,7 +571,7 @@ BOOL SelectCand(HIMC hIMC,WORD wParam)
 			*lpwEditCaret = (SHORT)_tcslen(lpStr);
 
 			ConvertPY( lpPYArray + (*lpwPYArrayCurPos)*MAX_PY_LEN,
-				MAX_PY_LEN,(WORD)((*lpwPYArrayLen)-(*lpwPYArrayCurPos)),lpPYCand);
+ 				MAX_PY_LEN,(WORD)((*lpwPYArrayLen)-(*lpwPYArrayCurPos)),lpPYCand);
 
 			lpPYCand->awBeforePos[1] = 0;
 			lpPYCand->awBeforePos[0] = 0;
