@@ -105,8 +105,6 @@
 extern HFONT      hUIFont;
 extern HINSTANCE  hInst;
 extern HKL        hFreePYKL;
-extern LPDWORD    lpdwCurTransKey;
-extern UINT       uNumTransKey;
 extern BOOL       fOverTransKey;
 extern WORD       wConversionMode;
 extern WORD       wConversionSet;
@@ -200,6 +198,7 @@ void UpdateIndicIcon(HIMC);
 BOOL MyIsIMEMessage(UINT);
 BOOL MakeResultString( HIMC,BOOL);
 BOOL GenerateMessage(HIMC, LPDWORD,LPGENEMSG);
+BOOL GenerateMessage(HIMC hIMC, LPGENEMSG lpGeneMsg);
 BOOL GenerateMessageToTransKey(LPDWORD,LPGENEMSG);
 void DrawUIBorder( LPRECT );
 void DragUI( HWND ,HWND, UINT , WPARAM , LPARAM,BOOL);

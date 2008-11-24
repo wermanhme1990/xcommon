@@ -343,12 +343,12 @@ BOOL MakeResultString( HIMC hIMC,BOOL fFlag)
 	GnMsg.msg = WM_IME_COMPOSITION;
 	GnMsg.wParam = 0;
 	GnMsg.lParam = GCS_RESULTSTR;
-	GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+	GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 
 	GnMsg.msg = WM_IME_ENDCOMPOSITION;
 	GnMsg.wParam = 0;
 	GnMsg.lParam = 0;
-	GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+	GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 
 	ImmUnlockIMC(hIMC);
 	return TRUE;
@@ -367,24 +367,36 @@ BOOL GenerateMessage(HIMC hIMC, LPDWORD lpdwTransKey,LPGENEMSG lpGeneMsg)
 	if( (lpIMC = ImmLockIMC(hIMC)) == NULL ) 
 	{
 		return FALSE;
-	}
-
+	}	
+	/*
 	if (lpdwTransKey)
+		{
+			ImmUnlockIMC(hIMC);
+			return GenerateMessageToTransKey(lpdwTransKey,lpGeneMsg);
+		}	*/
+	ImmUnlockIMC(hIMC);
+	GenerateMessage(hIMC, lpGeneMsg);	
+	return TRUE;
+}
+BOOL GenerateMessage(HIMC hIMC, LPGENEMSG lpGeneMsg)
+{
+	LPINPUTCONTEXT lpIMC;
+	if( (lpIMC = ImmLockIMC(hIMC)) == NULL ) 
 	{
-		ImmUnlockIMC(hIMC);
-		return GenerateMessageToTransKey(lpdwTransKey,lpGeneMsg);
-	}
-
+		return FALSE;
+	}	
 	if (IsWindow(lpIMC->hWnd))
 	{
 		LPDWORD lpdw;
 		if (!(lpIMC->hMsgBuf = ImmReSizeIMCC(lpIMC->hMsgBuf, sizeof(DWORD) * (lpIMC->dwNumMsgBuf +1) * 3)))
 		{
+			ImmUnlockIMC(hIMC);
 			return FALSE;
 		}
 
 		if (!(lpdw = (LPDWORD)ImmLockIMCC(lpIMC->hMsgBuf)))
 		{
+			ImmUnlockIMC(hIMC);
 			return FALSE;
 		}
 
@@ -392,13 +404,17 @@ BOOL GenerateMessage(HIMC hIMC, LPDWORD lpdwTransKey,LPGENEMSG lpGeneMsg)
 		*((LPGENEMSG)lpdw) = *lpGeneMsg;
 		ImmUnlockIMCC(lpIMC->hMsgBuf);
 		lpIMC->dwNumMsgBuf ++;
-
+		ImmUnlockIMC(hIMC);
+		lpIMC = NULL;
 		ImmGenerateMessage(hIMC);
+		lpIMC = ImmLockIMC(hIMC);
+		LONG n = lpIMC->dwNumMsgBuf;
+		ImmUnlockIMC(hIMC);
+
 	}
-	ImmUnlockIMC(hIMC);
+	
 	return TRUE;
 }
-
 /**********************************************************************/
 /*      GenerateMessageToTransKey()                                   */
 /*                                                                    */
@@ -406,6 +422,8 @@ BOOL GenerateMessage(HIMC hIMC, LPDWORD lpdwTransKey,LPGENEMSG lpGeneMsg)
 /**********************************************************************/
 BOOL GenerateMessageToTransKey(LPDWORD lpdwTransKey,LPGENEMSG lpGeneMsg)
 {
+	TRACE(TEXT("GenerateMessageToTransKey\n"));
+	/*
 	LPDWORD lpdwTemp;
 	uNumTransKey++;
 	if (uNumTransKey >= (UINT)*lpdwTransKey)
@@ -418,6 +436,7 @@ BOOL GenerateMessageToTransKey(LPDWORD lpdwTransKey,LPGENEMSG lpGeneMsg)
 	*(lpdwTemp++) = lpGeneMsg->msg;
 	*(lpdwTemp++) = lpGeneMsg->wParam;
 	*(lpdwTemp++) = lpGeneMsg->lParam;
+	*/
 	return TRUE;
 }
 
@@ -643,7 +662,7 @@ void DeleteCharBackward(HIMC hIMC,WORD wParam)
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 		}
 		ImmUnlockIMCC(lpIMC->hCompStr);
 		ImmUnlockIMCC(lpIMC->hCandInfo);
@@ -736,7 +755,7 @@ void SelectForwardFromCand(HIMC hIMC,LPCANDIDATELIST lpCandList)
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 		}
 		else 
 		{
@@ -752,7 +771,7 @@ void SelectForwardFromCand(HIMC hIMC,LPCANDIDATELIST lpCandList)
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 		}
 		else 
 		{
@@ -826,7 +845,7 @@ void SelectBackwardFromCand(HIMC hIMC,LPCANDIDATELIST lpCandList)
 		GnMsg.msg = WM_IME_COMPOSITION;
 		GnMsg.wParam = 0;
 		GnMsg.lParam = GCS_COMPSTR;
-		GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+		GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 	}
 	else 
 	{

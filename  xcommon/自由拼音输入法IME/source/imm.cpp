@@ -116,7 +116,7 @@ BOOL WINAPI ImeProcessKey(HIMC hIMC,UINT vKey,LPARAM lKeyData,CONST LPBYTE lpbKe
 		GnMsg.msg = WM_IME_NOTIFY;
 		GnMsg.wParam = IMN_SETOPENSTATUS;
 		GnMsg.lParam = 0;
-		GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+		GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 		return FALSE;
 	}
 	fPressOther = FALSE;
@@ -270,10 +270,8 @@ UINT WINAPI ImeToAsciiEx (UINT uVKey,UINT uScanCode,CONST LPBYTE lpbKeyState, LP
 	LPARAM lParam;
 	LPINPUTCONTEXT lpIMC;
 	BOOL fOpen = FALSE;
-	TRACE(TEXT("ImeToAsciiEx\n"));
-	lpdwCurTransKey = lpdwTransKey;
-	lParam = ((DWORD)uScanCode << 16) + 1L;
-	uNumTransKey = 0;	
+	TRACE(TEXT("ImeToAsciiEx\n"));	
+	lParam = ((DWORD)uScanCode << 16) + 1L;	
 	if (!hIMC)
 	{
 		return 0;
@@ -284,6 +282,7 @@ UINT WINAPI ImeToAsciiEx (UINT uVKey,UINT uScanCode,CONST LPBYTE lpbKeyState, LP
 	}
 	fOpen = lpIMC->fOpen;
 	ImmUnlockIMC(hIMC);	
+	lpIMC = NULL;
 	if (!fOpen)
 	{
 		goto my_exit;
@@ -297,22 +296,23 @@ UINT WINAPI ImeToAsciiEx (UINT uVKey,UINT uScanCode,CONST LPBYTE lpbKeyState, LP
 	{
 		IMEKeydownHandler( hIMC, uVKey, lParam, lpbKeyState);
 	}
-	
-	lpdwCurTransKey = NULL;
+		
 my_exit:
+	lpIMC = ImmLockIMC(hIMC);
+	TRACE(TEXT("ImeToAsciiEx MessageCount : %d\n"), lpIMC->dwNumMsgBuf);
+	return lpIMC->dwNumMsgBuf;
 	if (fOverTransKey)
 	{
-		return (int)uNumTransKey;
+		return 0;
 	}
-	return (int)uNumTransKey;
+	TRACE(TEXT("MessageCount : %d\n"), 0);
+	return 0;
 }
 
 BOOL WINAPI NotifyIME(HIMC hIMC, DWORD dwAction,DWORD dwIndex,DWORD dwValue)
 {
 	BOOL bRet = FALSE;
 	LPINPUTCONTEXT lpIMC;
-
-	TRACE(TEXT("NotifyIME\n"));
 
 	switch(dwAction)
 	{
@@ -334,8 +334,7 @@ BOOL WINAPI NotifyIME(HIMC hIMC, DWORD dwAction,DWORD dwIndex,DWORD dwValue)
 	case NI_SETCANDIDATE_PAGESIZE:
 		TRACE(TEXT("NotifyIME:NI_SETCANDIDATE_PAGESIZE %d\n"),dwIndex);
 		break;
-	case NI_CONTEXTUPDATED:
-		TRACE(TEXT("NotifyIME:NI_CONTEXTUPDATED\n"));
+	case NI_CONTEXTUPDATED:		
 		switch (dwValue)
 		{
 		case IMC_SETCONVERSIONMODE:
@@ -371,8 +370,7 @@ BOOL WINAPI NotifyIME(HIMC hIMC, DWORD dwAction,DWORD dwIndex,DWORD dwValue)
 		}
 		break;
 
-	case NI_COMPOSITIONSTR:
-		TRACE(TEXT("NotifyIME:NI_COMPOSITIONSTR\n"));
+	case NI_COMPOSITIONSTR:		
 		switch (dwIndex)
 		{
 		case CPS_COMPLETE:

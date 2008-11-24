@@ -116,7 +116,7 @@ BOOL KeydownHandler(HIMC hIMC, WORD wParam,	LONG lParam, LPBYTE lpbKeyState)
 				GnMsg.msg = WM_IME_COMPOSITION;
 				GnMsg.wParam = 0;
 				GnMsg.lParam = GCS_COMPSTR;
-				GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+				GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 			}
 			ImmUnlockIMCC(lpIMC->hCandInfo);
 			break;
@@ -144,7 +144,7 @@ BOOL KeydownHandler(HIMC hIMC, WORD wParam,	LONG lParam, LPBYTE lpbKeyState)
 			GnMsg.msg = WM_IME_NOTIFY;
 			GnMsg.wParam = IMN_SETCOMPOSITIONWINDOW;
 			GnMsg.lParam = 0;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 		}
 		else MessageBeep(0xFFFFFFFF );
 
@@ -157,7 +157,7 @@ BOOL KeydownHandler(HIMC hIMC, WORD wParam,	LONG lParam, LPBYTE lpbKeyState)
 			GnMsg.msg = WM_IME_NOTIFY;
 			GnMsg.wParam = IMN_SETCOMPOSITIONWINDOW;
 			GnMsg.lParam = 0;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 		}
 		else MessageBeep(0xFFFFFFFF );
 
@@ -175,7 +175,7 @@ BOOL KeydownHandler(HIMC hIMC, WORD wParam,	LONG lParam, LPBYTE lpbKeyState)
 				GnMsg.msg = WM_IME_NOTIFY;
 				GnMsg.wParam = IMN_SETCOMPOSITIONWINDOW;
 				GnMsg.lParam = 0;
-				GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+				GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 			}
 		}
 		else MessageBeep(0xFFFFFFFF );
@@ -189,7 +189,7 @@ BOOL KeydownHandler(HIMC hIMC, WORD wParam,	LONG lParam, LPBYTE lpbKeyState)
 			GnMsg.msg = WM_IME_NOTIFY;
 			GnMsg.wParam = IMN_SETCOMPOSITIONWINDOW;
 			GnMsg.lParam = 0;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 		}
 		else MessageBeep(0xFFFFFFFF );
 		break;
@@ -240,7 +240,8 @@ BOOL CharHandler( HIMC hIMC, WORD wParam, LONG lParam)
 		GnMsg.msg = WM_IME_STARTCOMPOSITION;
 		GnMsg.wParam = 0;
 		GnMsg.lParam = 0;
-		GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+		TRACE(TEXT("CharHandler dwStrLen == 0 WM_IME_STARTCOMPOSITION\n"));
+		GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 
 		if(wParam == _T('#') ) 
 		{
@@ -269,7 +270,7 @@ BOOL CharHandler( HIMC hIMC, WORD wParam, LONG lParam)
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 			goto my_exit;
 		}
 		if( wParam == _T('u') ) 
@@ -285,7 +286,7 @@ BOOL CharHandler( HIMC hIMC, WORD wParam, LONG lParam)
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 			goto my_exit;
 		}
 		if( wParam == _T('v') ) 
@@ -301,7 +302,7 @@ BOOL CharHandler( HIMC hIMC, WORD wParam, LONG lParam)
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 			goto my_exit;
 		}
 	}

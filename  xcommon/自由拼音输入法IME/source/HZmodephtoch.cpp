@@ -76,7 +76,7 @@ BOOL CharHandlePhToCh( HIMC hIMC,WORD wParam,LONG lParam)
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 		}
 my_exit:
 		ImmUnlockIMCC(lpIMC->hCandInfo);
