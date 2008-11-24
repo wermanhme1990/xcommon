@@ -25,9 +25,8 @@ LRESULT WINAPI CompWndProc(HWND   hWnd, UINT   message, WPARAM wParam, LPARAM lP
 {
 	HWND  hUIWnd;
 	HGLOBAL hUIExtra;
-	LPUIEXTRA lpUIExtra;
+	LPUIEXTRA lpUIExtra;	
 	
-	TRACE(TEXT("CompWndProc : %04x\n"), message);
 	hUIWnd = (HWND)GetWindowLong(hWnd,FIGWL_SVRWND);
 	hUIExtra = (HGLOBAL)GetWindowLong(hUIWnd,IMMGWL_PRIVATE);
 	lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);

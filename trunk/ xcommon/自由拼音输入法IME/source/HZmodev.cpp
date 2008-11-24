@@ -216,7 +216,7 @@ BOOL CharHandleV( HIMC hIMC,WORD wParam,LONG lParam)
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 		}
 		else 
 		{
@@ -259,7 +259,7 @@ BOOL CharHandleV( HIMC hIMC,WORD wParam,LONG lParam)
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
-			GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 		}
 		else if( wParam == _T('-') || wParam == _T(',') || wParam == _T('<'))
 		{
@@ -312,7 +312,7 @@ BOOL CharHandleV( HIMC hIMC,WORD wParam,LONG lParam)
 			GnMsg.msg = WM_IME_COMPOSITION;
 			GnMsg.wParam = 0;
 			GnMsg.lParam = GCS_COMPSTR;
-			GenerateMessage(hIMC, lpdwCurTransKey, (LPGENEMSG)&GnMsg);
+			GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 		}
 		else if( wParam >= _T('0') && wParam <= _T('9') )
 		{

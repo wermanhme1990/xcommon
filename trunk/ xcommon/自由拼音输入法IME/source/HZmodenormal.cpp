@@ -219,7 +219,8 @@ BOOL AddChar( HIMC hIMC, WORD wCode, WORD wEditMode)
 	GnMsg.msg = WM_IME_COMPOSITION;
 	GnMsg.wParam = 0;
 	GnMsg.lParam = GCS_COMPSTR;
-	GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+	TRACE(TEXT("AddChar GenerateMessage"));
+	GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 
 	ImmUnlockIMCC(lpIMC->hCandInfo);
 	fRet = TRUE;
@@ -258,7 +259,7 @@ BOOL ForwardPage(HIMC hIMC)
 		GnMsg.msg = WM_IME_COMPOSITION;
 		GnMsg.wParam = 0;
 		GnMsg.lParam = GCS_COMPSTR;
-		GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+		GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 	}
 	ImmUnlockIMCC(lpIMC->hCandInfo);
 	ImmUnlockIMC(hIMC);
@@ -297,7 +298,7 @@ BOOL BackwardPage(HIMC hIMC)
 		GnMsg.msg = WM_IME_COMPOSITION;
 		GnMsg.wParam = 0;
 		GnMsg.lParam = GCS_COMPSTR;
-		GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+		GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 	}
 
 	ImmUnlockIMCC(lpIMC->hCandInfo);
@@ -591,7 +592,7 @@ BOOL SelectCand(HIMC hIMC,WORD wParam)
 	GnMsg.msg = WM_IME_COMPOSITION;
 	GnMsg.wParam = 0;
 	GnMsg.lParam = GCS_COMPSTR;
-	GenerateMessage(hIMC, lpdwCurTransKey,(LPGENEMSG)&GnMsg);
+	GenerateMessage(hIMC, (LPGENEMSG)&GnMsg);
 my_exit:
 	ImmUnlockIMCC(lpIMC->hCandInfo);
 	ImmUnlockIMCC(lpIMC->hCompStr);

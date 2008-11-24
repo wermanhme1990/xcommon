@@ -167,8 +167,7 @@ LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	LONG           lRet = 0L;
 
 	
-	hUICurIMC = (HIMC)GetWindowLong(hWnd, IMMGWL_IMC);
-	TRACE(TEXT("UIWnd : %04x %d\n"), message, LONG(hUICurIMC));
+	hUICurIMC = (HIMC)GetWindowLong(hWnd, IMMGWL_IMC);	
 	//
 	// Even if there is no current UI. these messages should not be pass to 
 	// DefWindowProc().
@@ -194,8 +193,7 @@ LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_CREATE:
-		TRACE(TEXT("UIWnd:WM_CREATE\n"));
-				
+		TRACE(TEXT("UIWnd:WM_CREATE\n"));				
 		hUIExtra = GlobalAlloc(GHND, sizeof(UIEXTRA));
 		lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
 		lpUIExtra->uiComp.pt.x = -1;
@@ -243,14 +241,14 @@ LRESULT WINAPI UIWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_IME_COMPOSITION:
-		TRACE(TEXT("UIWnd:WM_IME_COMPOSITION\n"));
-
+		TRACE(TEXT("...UIWnd:WM_IME_COMPOSITION\n"));
 		lpIMC = ImmLockIMC(hUICurIMC);
 		hUIExtra = (HGLOBAL)GetWindowLong(hWnd, IMMGWL_PRIVATE);
 		lpUIExtra = (LPUIEXTRA)GlobalLock(hUIExtra);
 		MoveCompWindow(hWnd, lpUIExtra, lpIMC);
 		MoveCandWindow(hWnd, lpUIExtra, lpIMC);
 		GlobalUnlock(hUIExtra);
+		lpUIExtra = NULL;
 		ImmUnlockIMC(hUICurIMC);
 		break;
 
