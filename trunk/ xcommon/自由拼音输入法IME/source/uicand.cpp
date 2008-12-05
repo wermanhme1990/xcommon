@@ -212,23 +212,21 @@ void MoveCandWindow(HWND hUIWnd,LPUIEXTRA lpUIExtra, LPINPUTCONTEXT lpIMC)
 void PaintCandWindow( HWND hCandWnd)
 {
 	PAINTSTRUCT ps;
-	HIMC hIMC;
-	LPINPUTCONTEXT lpIMC;
-	LPCANDIDATEINFO lpCandInfo;
-	LPCANDIDATELIST lpCandList;
-	HDC hDC;
-	HFONT oldFont;
+	HIMC hIMC = NULL;
+	LPINPUTCONTEXT lpIMC = NULL;
+	LPCANDIDATEINFO lpCandInfo = NULL;
+	LPCANDIDATELIST lpCandList = NULL;
+	HDC hDC = NULL;
+	HFONT oldFont = NULL;
 	RECT rc;
-	LPTSTR lpstr;
+	LPTSTR lpstr = NULL;
 	TCHAR szStr[100];
 	int height,width;
 	DWORD i;
 	SIZE sz;
-	HWND hSvrWnd;
-	HBRUSH hBrush = (HBRUSH)NULL;
-	HBRUSH hOldBrush = (HBRUSH)NULL;
-	HPEN hPen = (HPEN)NULL;
-	HPEN hOldPen = (HPEN)NULL;
+	HWND hSvrWnd = NULL;
+	HBRUSH hBrush = NULL, hOldBrush = NULL;	
+	HPEN hPen = NULL, hOldPen = NULL;	 
 
 	hDC = BeginPaint(hCandWnd,&ps);
 	oldFont = (HFONT)SelectObject(hDC, hUIFont);
